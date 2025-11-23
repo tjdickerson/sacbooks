@@ -1,97 +1,121 @@
-/* Modern transaction list styles: cards, subtle dividers, responsive grid */
+/* Compact, centered transaction cards (updated) */
 .transaction-container {
   display: flex;
   flex-direction: column;
-  gap: 12px;
   max-width: var(--max-width);
   margin: 0 auto;
 }
 
-/* Single transaction card */
+/* Single transaction card now uses flex for easy alignment */
 .transaction-card {
-  display: grid;
-  grid-template-columns: 1fr auto;
+  display: flex;
+  align-items: center;            /* vertical centering for name & amount */
   gap: 12px;
-  align-items: center;
   background: var(--card);
-  padding: 14px 16px;
+  padding: 10px 12px;             /* reduced padding for shorter cards */
   border-radius: var(--radius);
-  box-shadow: var(--shadow-1);
+  box-shadow: var(--shadow-2);
   transition: transform 150ms ease, box-shadow 150ms ease;
   border: 1px solid rgba(15,20,18,0.03);
+  min-height: 48px;               /* keep rows compact */
 }
 
+/* Hover lift is subtle */
 .transaction-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 30px rgba(31,45,48,0.08);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 22px rgba(31,45,48,0.06);
 }
 
-/* left side info stack */
+/* Left: info stack (take remaining space so right-side stays put) */
 .transaction-info {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  justify-content: center;   /* vertically center name relative to amount */
+  gap: 4px;
   min-width: 0;
+  flex: 1;                   /* consume available width so amount + actions sit right */
 }
 
-/* top row: date + name */
+/* Date: less prominent */
 .transaction-date {
-  font-size: 0.85rem;
+  font-size: 12px;
   color: var(--muted);
   font-weight: 600;
+  opacity: 0.8;
+  line-height: 1;
 }
 
+/* Name: primary label, allow truncation */
 .transaction-name {
   font-weight: 700;
   color: var(--text);
-  font-size: 1rem;
+  font-size: 14px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* right side: amount and actions */
+/* Right area: amount + actions */
 .transaction-details {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 6px;
-  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-left: 12px;
+  white-space: nowrap;
 }
 
-/* amount styling */
+/* Amount: visually stronger, vertically centered with name */
 .transaction-amount {
   font-weight: 800;
-  font-size: 1.05rem;
+  font-size: 15px;
   color: var(--text);
 }
 
-/* colorize by class or data attribute (positive/negative) */
+/* Colorize via data/class from JS if needed */
 .transaction-amount.positive { color: var(--accent); }
 .transaction-amount.negative { color: var(--danger); }
 
-/* small metadata / actions row */
+/* Actions pinned to the far right */
 .action-buttons {
   display: flex;
   gap: 8px;
-  margin-top: 4px;
+  align-items: center;
+  margin-left: 8px;
 }
 
-/* subtle divider option (if you prefer list density) */
-.transaction-card + .transaction-card {
-  border-top: 1px solid rgba(15,20,18,0.03);
+/* Small, compact action buttons */
+.action-buttons .btn,
+.action-buttons button {
+  background: transparent;
+  border: 1px solid rgba(0,0,0,0.06);
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
 }
 
-/* Responsive: compact rows on small screens */
-@media (max-width: 640px) {
+.action-buttons button:hover { background: rgba(0,0,0,0.03); }
+
+.action-buttons .danger,
+.action-buttons button.danger {
+  color: var(--danger);
+  border-color: rgba(217,83,79,0.12);
+}
+
+/* Responsive: stack details under on very small screens */
+@media (max-width: 520px) {
   .transaction-card {
-    grid-template-columns: 1fr;
-    padding: 12px;
+    padding: 8px 10px;
+    flex-direction: column;
+    align-items: stretch;
+    min-height: auto;
   }
+  .transaction-info { justify-content: flex-start; }
   .transaction-details {
-    flex-direction: row;
     justify-content: space-between;
+    margin-left: 0;
     width: 100%;
+    margin-top: 6px;
   }
-  .transaction-amount { font-size: 1rem; }
+  .action-buttons { margin-left: 0; justify-content: flex-end; width: auto; }
 }
