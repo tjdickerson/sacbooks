@@ -1,0 +1,97 @@
+/* Modern transaction list styles: cards, subtle dividers, responsive grid */
+.transaction-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+
+/* Single transaction card */
+.transaction-card {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: center;
+  background: var(--card);
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-1);
+  transition: transform 150ms ease, box-shadow 150ms ease;
+  border: 1px solid rgba(15,20,18,0.03);
+}
+
+.transaction-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(31,45,48,0.08);
+}
+
+/* left side info stack */
+.transaction-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+/* top row: date + name */
+.transaction-date {
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.transaction-name {
+  font-weight: 700;
+  color: var(--text);
+  font-size: 1rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* right side: amount and actions */
+.transaction-details {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  justify-content: center;
+}
+
+/* amount styling */
+.transaction-amount {
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: var(--text);
+}
+
+/* colorize by class or data attribute (positive/negative) */
+.transaction-amount.positive { color: var(--accent); }
+.transaction-amount.negative { color: var(--danger); }
+
+/* small metadata / actions row */
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+/* subtle divider option (if you prefer list density) */
+.transaction-card + .transaction-card {
+  border-top: 1px solid rgba(15,20,18,0.03);
+}
+
+/* Responsive: compact rows on small screens */
+@media (max-width: 640px) {
+  .transaction-card {
+    grid-template-columns: 1fr;
+    padding: 12px;
+  }
+  .transaction-details {
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+  }
+  .transaction-amount { font-size: 1rem; }
+}
