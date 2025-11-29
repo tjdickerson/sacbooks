@@ -4,7 +4,19 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"time"
+	db "tjdickerson/sacbooks/pkg/database"
+)
+
+type serverContext struct {
+	currentAccount *db.Account
+	currentMonth   string
+	currentYear    string
+}
+
+var (
+	servctx *serverContext
 )
 
 // App struct
@@ -21,9 +33,20 @@ func NewApp() *App {
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
+
+	servctx = &serverContext{}
+
+	dbPath := "C:\\data\\active.db"
+	db.InitDatabase(dbPath, false)
+
+	account, err := db.GetDefaultAccount()
+	if err != nil {
+		log.Fatalf("error getting default account: %s", err)
+	}
+	servctx.currentAccount = &account
 }
 
-type Transaction struct {
+type TransactionDisplay struct {
 	Id          int
 	Date        time.Time
 	DisplayDate string
@@ -33,13 +56,24 @@ type Transaction struct {
 
 // Greet returns a greeting for the given name
 func (a *App) TestData(name string) string {
-	test := []Transaction{
-		{Id: 1, Date: time.Now(), DisplayDate: time.Now().Format("02 Jan"), Amount: 100.50, Name: "Alice"},
-		{Id: 2, Date: time.Now(), DisplayDate: time.Now().Format("02 Jan"), Amount: 200.75, Name: "Bob"},
-		{Id: 3, Date: time.Now(), DisplayDate: time.Now().Format("02 Jan"), Amount: 300.00, Name: "Charlie"},
+	testData, err := db.FetchAllTransactions()
+	log.Printf("Fetched test data: %d\n", len(testData))
+	if err != nil {
+		return fmt.Sprintf("Error: %s", err.Error())
+	}
+	var testDisplay []TransactionDisplay
+	testDisplay = make([]TransactionDisplay, 0, 20)
+	for _, t := range testData {
+		testDisplay = append(testDisplay, TransactionDisplay{
+			Id:          t.Id,
+			Date:        t.Date,
+			DisplayDate: t.Date.Format("02 Jan"),
+			Amount:      float64(t.Amount) / 100.0,
+			Name:        t.Name,
+		})
 	}
 
-	jsonData, err := json.Marshal(test)
+	jsonData, err := json.Marshal(testDisplay)
 	if err != nil {
 		return fmt.Sprintf("Error: %s", err.Error())
 	}
