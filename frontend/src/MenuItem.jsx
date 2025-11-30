@@ -3,7 +3,7 @@ import './App.css';
 function MenuItem({displayText}) {
 
     return (
-        <div class="menu-item">
+        <div className="menu-item">
             {displayText} 
         </div>
     )

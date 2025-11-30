@@ -9,8 +9,8 @@
 /* Single transaction card now uses flex for easy alignment */
 .transaction-card {
   display: flex;
-  align-items: center;            /* vertical centering for name & amount */
-  gap: 12px;
+  flex-direction: column;
+  align-items: left;
   background: var(--card);
   padding: 10px 12px;             /* reduced padding for shorter cards */
   border-radius: var(--radius);
@@ -26,14 +26,13 @@
   box-shadow: 0 10px 22px rgba(31,45,48,0.06);
 }
 
-/* Left: info stack (take remaining space so right-side stays put) */
 .transaction-info {
   display: flex;
-  flex-direction: column;
-  justify-content: center;   /* vertically center name relative to amount */
+  flex-direction: row;
+  justify-content: space-between;
   gap: 4px;
   min-width: 0;
-  flex: 1;                   /* consume available width so amount + actions sit right */
+  flex: 1;                  
 }
 
 /* Date: less prominent */
@@ -45,9 +44,8 @@
   line-height: 1;
 }
 
-/* Name: primary label, allow truncation */
 .transaction-name {
-  font-weight: 700;
+  font-weight: 600;
   color: var(--text);
   font-size: 14px;
   white-space: nowrap;
@@ -55,7 +53,6 @@
   text-overflow: ellipsis;
 }
 
-/* Right area: amount + actions */
 .transaction-details {
   display: flex;
   align-items: center;
@@ -64,16 +61,30 @@
   white-space: nowrap;
 }
 
-/* Amount: visually stronger, vertically centered with name */
-.transaction-amount {
-  font-weight: 800;
-  font-size: 15px;
-  color: var(--text);
+.transaction-amount-holder {
+  display: flex;
+  gap: 4px; 
+  justify-content: space-between;
+  min-width: 6em;
 }
 
-/* Colorize via data/class from JS if needed */
-.transaction-amount.positive { color: var(--accent); }
-.transaction-amount.negative { color: var(--danger); }
+.transaction-amount {
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--text);
+  align-items: right;
+}
+
+.transaction-amount.positive { color: var(--positive); }
+.transaction-amount.negative { color: var(--negative); }
+
+.currency-symbol {
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 600;
+  align-items: right;
+  margin-top: 2px;
+}
 
 /* Actions pinned to the far right */
 .action-buttons {

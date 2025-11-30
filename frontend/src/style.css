@@ -4,8 +4,8 @@
   --card: #ffffff;
   --muted: #7b8a8f;
   --text: #1f2d30;
-  --accent: #2f9d7a; /* primary accent for positive amounts */
-  --danger: #d9534f; /* negative amounts */
+  --positive: #018359; /* primary accent for positive amounts */
+  --negative: #b0100b; /* negative amounts */
   --shadow-1: 0 6px 18px rgba(31,45,48,0.06);
   --shadow-2: 0 2px 6px rgba(31,45,48,0.06);
   --radius: 8;
