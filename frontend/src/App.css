@@ -6,9 +6,9 @@
 #App {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
   background: var(--bg);
   color: var(--text);
+  height: 100vh;
 }
 
 .app-header {
@@ -21,6 +21,7 @@
   flex: 1;
   overflow: hidden;
   padding: 0;
+  height: 100%;
 }
 
 /* ============================================================================
@@ -119,8 +120,9 @@
 .container {
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 8px;
+  padding: 0;
   background: transparent;
+  height: 100%;
 }
 
 /* ============================================================================

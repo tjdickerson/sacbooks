@@ -30,9 +30,24 @@ func (a *App) shutdown(ctx context.Context) {
 	s.Shutdown()
 }
 
-// Greet returns a greeting for the given name
-func (a *App) TestData(name string) string {
+func (a *App) GetTransactions() string {
 	jsonData, err := s.GetTransactionInfo()
+	if err != nil {
+		return fmt.Sprintf("Error: %s", err.Error())
+	}
+	return string(jsonData)
+}
+
+func (a *App) GetAccount() string {
+	jsonData, err := s.GetAccountInfo()
+	if err != nil {
+		return fmt.Sprintf("Error: %s", err.Error())
+	}
+	return string(jsonData)
+}
+
+func (a *App) GetRecurringList() string {
+	jsonData, err := s.GetRecurringList()
 	if err != nil {
 		return fmt.Sprintf("Error: %s", err.Error())
 	}

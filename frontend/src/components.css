@@ -148,6 +148,12 @@ select:disabled {
   box-shadow: var(--shadow-2);
   border: 1px solid rgba(31,45,48,0.04);
   padding: var(--gap);
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(31, 45, 48, 0.08);
 }
 
 .card-header, .panel-header {
