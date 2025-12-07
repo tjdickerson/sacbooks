@@ -2,7 +2,13 @@ import './App.css';
 import logo from './assets/images/SacHead.svg'
 import MenuItem from './MenuItem';
 
-function Menu() {
+function Menu({currentView, onNavigate}) {
+    const items = [
+        { id: 'transactions', displayText: 'Transactions' },
+        { id: 'recurring', displayText: 'Recurring' },
+        { id: 'categories', displayText: 'Categories' },
+    ];
+    
     return (
         <div id="Menu" className="menu-bar">
             <div className="menu-layout">
@@ -17,9 +23,15 @@ function Menu() {
 
 
                 <div className="menu-items">
-                    <MenuItem displayText="Transactions" />
-                    <MenuItem displayText="Recurring" />
-                    <MenuItem displayText="Categories" />
+                    {items.map(it => (
+                        <MenuItem 
+                            key={it.id} 
+                            id={it.id}
+                            displayText={it.displayText}
+                            active={it.id === currentView}
+                            onClick={onNavigate}
+                        />
+                    ))}
                 </div>
                 
                 <div className="menu-user">

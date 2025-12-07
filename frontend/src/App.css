@@ -1,6 +1,34 @@
-/* Top app/menu styles refreshed for a minimal header */
+/* ============================================================================
+   APP.CSS - App Layout, Header, and Menu
+   ============================================================================ */
+
+/* App Root Layout */
+#App {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.app-main {
+  flex: 1;
+  overflow: hidden;
+  padding: 0;
+}
+
+/* ============================================================================
+   Menu Bar
+   ============================================================================ */
+
 .menu-bar {
-  background: linear-gradient(180deg, rgba(32,56,32,0.95), rgba(32,56,32,0.92));
+  background: linear-gradient(180deg, var(--menu-bg), rgba(32,56,32,0.92));
   height: 68px;
   width: 100%;
   position: sticky;
@@ -26,6 +54,11 @@
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+.menu-logo {
+  display: flex;
+  align-items: center;
 }
 
 .menu-logo-image {
@@ -60,42 +93,49 @@
   transition: background 180ms ease, transform 120ms ease, color 180ms ease;
   font-weight: 600;
   font-size: 0.95rem;
+  cursor: pointer;
 }
 
 .menu-item:hover {
   background: rgba(255,255,255,0.04);
   color: #fff;
-  cursor: pointer;
   transform: translateY(-2px);
 }
 
-/* App layout */
-#App {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  background: var(--bg);
-  color: var(--text);
+.menu-item-active {
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+  transform: translateY(-2px);
 }
 
-.app-header { position: sticky; top: 0; z-index: 40; }
-
-.app-main {
-  flex: 1;
-  overflow: auto;
-  padding: 28px 18px;
+.menu-user {
+  margin-left: auto;
 }
 
-/* Card wrapper for content */
+/* ============================================================================
+   Container / Content Wrapper
+   ============================================================================ */
+
 .container {
-  background: transparent;
+  max-width: var(--max-width);
+  margin: 0 auto;
   padding: 8px;
+  background: transparent;
 }
 
-/* Responsive tweaks */
+/* ============================================================================
+   Responsive Design
+   ============================================================================ */
+
+@media (max-width: 768px) {
+  .menu-items { gap: 12px; }
+  .menu-layout { padding: 0 12px; }
+}
+
 @media (max-width: 640px) {
-  .menu-items { display: none; } /* hide extra menu items on small screens */
+  .menu-items { display: none; }
   .menu-title-text { font-size: 1rem; }
   .menu-logo-image { height: 36px; }
   .app-main { padding: 16px 12px; }
+  .menu-layout { padding: 0 12px; }
 }

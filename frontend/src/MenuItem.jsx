@@ -1,10 +1,15 @@
 import './App.css';
 
-function MenuItem({displayText}) {
+function MenuItem({ id, displayText, active, onClick }) {
 
     return (
-        <div className="menu-item">
-            {displayText} 
+        <div 
+            className={`menu-item ${active ? 'menu-item-active' : ''}`}
+            onClick={() => onClick(id)}
+            role="button"
+            tabIndex={0}
+        >
+            {displayText}
         </div>
     )
 }

@@ -1,64 +1,30 @@
 import './App.css';
-import { useState, useEffect } from 'react';
-import { TestData } from "../wailsjs/go/main/App";
+import { useState } from 'react';
 import Menu from "./Menu";
-import Transaction from './Transaction';
-import { use } from 'react';
+import Transactions from './Transactions';
+import Recurrings from './Recurrings';
+import Categories from './Categories';
 
 
 function App() {
 
-    const [data, setData] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [currentView, setCurrentView] = useState('transactions');
 
-    useEffect(() => {
-        let mounted = true;
-
-        TestData()
-            .then((result) => {
-                if (!mounted) return;
-                let parsed = result;
-
-                if (typeof result === 'string') {
-                    try { parsed = JSON.parse(result); }
-                    catch (e) { }
-                }
-
-                setData(Array.isArray(parsed) ? parsed : []);
-            })
-            .catch((err) => {
-                if (!mounted) return;
-                setError(err?.message || 'Error fetching data');
-            })
-            .finally(() => {
-                if (!mounted) return;
-                setLoading(false);
-            });
-        return () => { mounted = false; }
-    }, []);
+    
+    function handleNavigate(viewId) {
+        setCurrentView(viewId);
+    }
 
     return (
         <div id="App">
             <header className="app-header">
-                <Menu />
+                <Menu currentView={currentView} onNavigate={handleNavigate} />
             </header>
             <main id="app-content" className="app-main">
                 <div className="container">
-                    {loading && <p>Loading..</p>}
-                    {error && <p style={{ color: 'red' }}>Error: {error}</p>}
-
-                    {!loading && !error && (
-                        data.length === 0
-                            ? <p>No Data</p>
-                            : (
-                            <div className='transaction-container'>
-                                    {data.map((transaction) => (
-                                        <Transaction key={transaction.Id} transaction={transaction} />
-                                    ))} 
-                            </div>
-                            )
-                    )}
+                    {currentView === 'transactions' && <Transactions />}
+                    {currentView === 'recurrings' && <Recurrings />}
+                    {currentView === 'categories' && <Categories />}
                 </div>
             </main>
         </div>
