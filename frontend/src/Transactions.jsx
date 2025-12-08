@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { GetTransactions, GetAccount, GetRecurringList } from "../wailsjs/go/main/App";
 import Transaction from './Transaction';
+import TransactionInputForm from './TransactionInputForm';
 import './App.css';
 import { formatAmount, getCurrencySymbol, getLocale } from './lib/format';
 
@@ -50,16 +51,35 @@ function Transactions() {
             });
         return () => { mounted = false; }
     }, []);
+    
+    async function handleAddTransaction(data) {
+        setLoading(true);
+        setError(null);
+        
+        const result = await AddTransaction(data.Name, data.Amount);
+        
+        // @todo, return object and check for id and prepend to existing list
+        if (result.startsWith('Error:')) {
+            setError(result);
+        } else {
+            if (result?.Id) {
+                // prepend....
+            }
+            
+            else {
+                const raw = await GetTransactions();
+                const parsed = parseMaybe(raw);
+                setTransactions(Array.isArray(parsed) ? parsed : []);
+            }
+        }
+    }
 
     return (
         <div className='transaction-view'>
+            
             <div className='transaction-new'>
-                <div className='transaction-new-label'>New Transaction</div>
-                <input type="text" className='transaction-new-input' placeholder='Transaction Name' />
-                <input type="number" className='transaction-new-input' placeholder='Amount' />
-                <button className='transaction-new-button'>Add</button>
+                <TransactionInputForm onSubmit={handleAddTransaction} />
             </div>
-
 
             <div className='current-balance'>
                 <div className='current-account-name'>

@@ -141,3 +141,17 @@
   .app-main { padding: 16px 12px; }
   .menu-layout { padding: 0 12px; }
 }
+
+.form-error {
+  position: absolute;
+  
+  top: 100%;
+  left: auto;
+  color: var(--negative);
+  font-size: 13px;
+  margin-top: 4px;
+  
+  background-color: #e6f0ea;
+  box-shadow: inset 0 0 5px rgba(0,0,0,0.1) ;
+  font-size: large;
+}

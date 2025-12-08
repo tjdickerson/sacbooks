@@ -123,3 +123,20 @@ func (s *Server) GetRecurringList() (string, error) {
 
 	return string(jsonData), nil
 }
+
+func (s *Server) AddTransaction(name string, amount float64, date time.Time) error {
+	newTransaction := &db.Transaction{
+		Name:   name,
+		Amount: int64(amount),
+		Date:   date,
+	}
+
+	log.Printf("got test data: %s   %f\n", name, amount)
+
+	err := db.Insert(newTransaction)
+	if err != nil {
+		return fmt.Errorf("failed to add transaction: %s", err.Error())
+	}
+
+	return nil
+}
