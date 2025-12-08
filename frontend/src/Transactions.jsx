@@ -58,9 +58,11 @@ function Transactions() {
 
             // if server returned the created transaction object, prepend it
             if (parsed && typeof parsed === 'object' && (parsed.Id ?? parsed.id)) {
+                console.log("Prepending new transaction", parsed);
                 setTransactions(prev => [parsed, ...prev]);
             } else {
                 // otherwise refetch full list to stay in sync
+                console.log("Refetching transactions after add");
                 const raw = await GetTransactions();
                 const list = parseMaybe(raw);
                 setTransactions(Array.isArray(list) ? list : []);

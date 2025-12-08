@@ -34,7 +34,7 @@ func (s *Server) Shutdown() {
 }
 
 type TransactionDisplay struct {
-	Id          int
+	Id          int64
 	Date        time.Time
 	DisplayDate string
 	Amount      float64
@@ -123,17 +123,36 @@ func (s *Server) GetRecurringList() (string, error) {
 	return string(jsonData), nil
 }
 
-func (s *Server) AddTransaction(name string, amount float64, date time.Time) error {
-	newTransaction := &db.Transaction{
+func (s *Server) AddTransaction(name string, amount float64, date time.Time) (string, error) {
+	t := &db.Transaction{
 		Name:   name,
 		Amount: int64(amount),
 		Date:   date,
 	}
 
-	err := db.Insert(newTransaction)
+	err := db.Insert(t)
 	if err != nil {
-		return fmt.Errorf("failed to add transaction: %s", err.Error())
+		return "{}", fmt.Errorf("failed to add transaction: %s", err.Error())
 	}
 
-	return nil
+	result := TransactionDisplay{
+		Id:          t.Id,
+		Date:        t.Date,
+		DisplayDate: t.Date.Format("02 Jan 2006"),
+		Amount:      float64(t.Amount),
+		Name:        t.Name,
+	}
+
+	return safeJsonMarshal(result), nil
+}
+
+func safeJsonMarshal(v any) string {
+	jsonData, err := json.Marshal(v)
+
+	if err != nil {
+		log.Printf("Error marshalling to json: %s", err)
+		return "{}"
+	}
+
+	return string(jsonData)
 }

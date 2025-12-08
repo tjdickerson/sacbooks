@@ -9,7 +9,7 @@ import (
 )
 
 type Transaction struct {
-	Id     int
+	Id     int64
 	Name   string
 	Amount int64
 	Date   time.Time
@@ -22,7 +22,7 @@ func (t *Transaction) insert() error {
 	}
 
 	// values (@account_id, @name, @amount, @transaction_date, @timestamp_added)
-	_, err = stmt.Exec(
+	result, err := stmt.Exec(
 		sql.Named("account_id", dbc.currentAccountId),
 		sql.Named("name", t.Name),
 		sql.Named("amount", t.Amount),
@@ -32,6 +32,11 @@ func (t *Transaction) insert() error {
 
 	if err != nil {
 		return fmt.Errorf("Error inserting transaction: %s", err)
+	}
+
+	t.Id, err = result.LastInsertId()
+	if err != nil {
+		return fmt.Errorf("Error getting last insert id for transaction: %s", err)
 	}
 
 	return nil
@@ -70,7 +75,7 @@ func fetchAllTransactions() ([]Transaction, error) {
 	defer rows.Close()
 
 	var results []Transaction
-	var id int
+	var id int64
 	var name string
 	var amount int64
 	var date int64

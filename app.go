@@ -56,9 +56,10 @@ func (a *App) GetRecurringList() string {
 }
 
 func (a *App) AddTransaction(name string, amount float64) string {
-	err := s.AddTransaction(name, amount, time.Now())
+	json, err := s.AddTransaction(name, amount, time.Now())
+
 	if err != nil {
 		return fmt.Sprintf("Error: %s", err.Error())
 	}
-	return "Success"
+	return string(json)
 }
