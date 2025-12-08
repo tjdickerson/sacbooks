@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { GetTransactions, GetAccount, GetRecurringList } from "../wailsjs/go/main/App";
+import { GetTransactions, GetAccount, GetRecurringList, AddTransaction } from "../wailsjs/go/main/App";
 import Transaction from './Transaction';
 import TransactionInputForm from './TransactionInputForm';
 import './App.css';
@@ -12,30 +12,26 @@ function Transactions() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    // move parser out so both effect and handlers can use it
+    const parseMaybe = (v) => {
+        if (typeof v === 'string') {
+            try { return JSON.parse(v); } catch { return v; }
+        }
+        return v;
+    };
+
     useEffect(() => {
         let mounted = true;
-
-        const parseMaybe = (v) => {
-            if (typeof v === 'string') {
-                try {
-                    return JSON.parse(v);
-                } catch {
-                    return v;
-                }
-            }
-            return v;
-        };
-
         Promise.all([
             GetTransactions(),
             GetAccount(),
             GetRecurringList(),
         ])
-            .then(([transactions, account, recurrings]) => {
+            .then(([transactionsRaw, accountRaw, recurringsRaw]) => {
                 if (!mounted) return;
-                const pt = parseMaybe(transactions);
-                const pa = parseMaybe(account);
-                const pr = parseMaybe(recurrings);
+                const pt = parseMaybe(transactionsRaw);
+                const pa = parseMaybe(accountRaw);
+                const pr = parseMaybe(recurringsRaw);
 
                 setTransactions(Array.isArray(pt) ? pt : []);
                 setAccount(pa && typeof pa === 'object' ? pa : null);
@@ -51,26 +47,29 @@ function Transactions() {
             });
         return () => { mounted = false; }
     }, []);
-    
+
     async function handleAddTransaction(data) {
         setLoading(true);
         setError(null);
-        
-        const result = await AddTransaction(data.Name, data.Amount);
-        
-        // @todo, return object and check for id and prepend to existing list
-        if (result.startsWith('Error:')) {
-            setError(result);
-        } else {
-            if (result?.Id) {
-                // prepend....
-            }
-            
-            else {
+
+        try {
+            const result = await AddTransaction(data.Name, data.Amount);
+            const parsed = parseMaybe(result);
+
+            // if server returned the created transaction object, prepend it
+            if (parsed && typeof parsed === 'object' && (parsed.Id ?? parsed.id)) {
+                setTransactions(prev => [parsed, ...prev]);
+            } else {
+                // otherwise refetch full list to stay in sync
                 const raw = await GetTransactions();
-                const parsed = parseMaybe(raw);
-                setTransactions(Array.isArray(parsed) ? parsed : []);
+                const list = parseMaybe(raw);
+                setTransactions(Array.isArray(list) ? list : []);
             }
+        } catch (err) {
+            console.error('AddTransaction failed', err);
+            setError(err?.message || String(err));
+        } finally {
+            setLoading(false);
         }
     }
 

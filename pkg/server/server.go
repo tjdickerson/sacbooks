@@ -56,7 +56,6 @@ type RecurringDisplay struct {
 
 func (s *Server) GetTransactionInfo() (string, error) {
 	testData, err := db.FetchAllTransactions()
-	log.Printf("Fetched test data: %d\n", len(testData))
 	if err != nil {
 		return "", fmt.Errorf("failed to get transaction data: %s", err.Error())
 	}
@@ -130,8 +129,6 @@ func (s *Server) AddTransaction(name string, amount float64, date time.Time) err
 		Amount: int64(amount),
 		Date:   date,
 	}
-
-	log.Printf("got test data: %s   %f\n", name, amount)
 
 	err := db.Insert(newTransaction)
 	if err != nil {

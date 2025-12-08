@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"time"
 	"tjdickerson/sacbooks/pkg/server"
 )
@@ -57,7 +56,6 @@ func (a *App) GetRecurringList() string {
 }
 
 func (a *App) AddTransaction(name string, amount float64) string {
-	log.Printf("Adding transaction: %s, %f\n", name, amount)
 	err := s.AddTransaction(name, amount, time.Now())
 	if err != nil {
 		return fmt.Sprintf("Error: %s", err.Error())
