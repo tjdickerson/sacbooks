@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { GetTransactions, GetAccount, GetRecurringList, AddTransaction } from "../wailsjs/go/main/App";
 import Transaction from './Transaction';
 import TransactionInputForm from './TransactionInputForm';
@@ -12,7 +12,11 @@ function Transactions() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // move parser out so both effect and handlers can use it
+    const transactionNameMap = useMemo(() => {
+        return new Set(transactions.map(t => t.Name));
+    }, [transactions]); 
+
+
     const parseMaybe = (v) => {
         if (typeof v === 'string') {
             try { return JSON.parse(v); } catch { return v; }
@@ -116,22 +120,27 @@ function Transactions() {
                 <div className='recurring-transaction-list-label'>Recurring Transactions</div>
                 <div className='recurring-transaction-items'>
                     {recurrings.length === 0 && <p>No Recurring Transactions</p>}
-                    {recurrings.map((recurring) => (
-                        <div key={recurring.Id} className='card recurring-transaction-item'>
-                            <div className='transaction-date'>{recurring.Day}</div>
-                            <div className='transaction-info'>
-                                <div className='transaction-name'>{recurring.Name}</div>
-                                <div className='transaction-details'>
-                                    <div className='transaction-amount-holder'>
-                                        <div className='currency-symbol'>{getCurrencySymbol(getLocale())}</div>
-                                        <div className='recurring-transaction-amount'>
-                                            {formatAmount(recurring.Amount)}
+                    {recurrings.map((recurring) => {
+                        
+                        const isAccountedFor = transactionNameMap.has(recurring.Name);
+
+                        return (
+                            <div key={recurring.Id} className='card recurring-transaction-item'>
+                                <div className='transaction-date'>{recurring.Day}</div>
+                                <div className='transaction-info'>
+                                    <div className={`transaction-name ${isAccountedFor ? 'accounted-for' : ''}`}>{recurring.Name}</div>
+                                    <div className='transaction-details'>
+                                        <div className='transaction-amount-holder'>
+                                            <div className='currency-symbol'>{getCurrencySymbol(getLocale())}</div>
+                                            <div className={`recurring-transaction-amount ${isAccountedFor ? 'accounted-for' : recurring.Amount > 0 ? 'text-positive' : 'text-negative'}`}>
+                                                {formatAmount(recurring.Amount)}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    ))}
+                        )}
+                    )}
                 </div>
             </div>
         </div>

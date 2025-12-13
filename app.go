@@ -55,7 +55,7 @@ func (a *App) GetRecurringList() string {
 	return string(jsonData)
 }
 
-func (a *App) AddTransaction(name string, amount float64) string {
+func (a *App) AddTransaction(name string, amount int64) string {
 	json, err := s.AddTransaction(name, amount, time.Now())
 
 	if err != nil {

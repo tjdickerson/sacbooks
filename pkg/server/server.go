@@ -37,7 +37,7 @@ type TransactionDisplay struct {
 	Id          int64
 	Date        time.Time
 	DisplayDate string
-	Amount      float64
+	Amount      int64
 	Name        string
 }
 
@@ -59,24 +59,19 @@ func (s *Server) GetTransactionInfo() (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to get transaction data: %s", err.Error())
 	}
-	var testDisplay []TransactionDisplay
-	testDisplay = make([]TransactionDisplay, 0, 20)
+	var transactions []TransactionDisplay
+	transactions = make([]TransactionDisplay, 0, 20)
 	for _, t := range testData {
-		testDisplay = append(testDisplay, TransactionDisplay{
+		transactions = append(transactions, TransactionDisplay{
 			Id:          t.Id,
 			Date:        t.Date,
 			DisplayDate: t.Date.Format("02 Jan 2006"),
-			Amount:      float64(t.Amount),
+			Amount:      t.Amount,
 			Name:        t.Name,
 		})
 	}
 
-	jsonData, err := json.Marshal(testDisplay)
-	if err != nil {
-		return "", fmt.Errorf("failed to convert to json: %s", err.Error())
-	}
-
-	return string(jsonData), nil
+	return safeJsonMarshal(transactions), nil
 }
 
 func (s *Server) GetAccountInfo() (string, error) {
@@ -123,10 +118,10 @@ func (s *Server) GetRecurringList() (string, error) {
 	return string(jsonData), nil
 }
 
-func (s *Server) AddTransaction(name string, amount float64, date time.Time) (string, error) {
+func (s *Server) AddTransaction(name string, amount int64, date time.Time) (string, error) {
 	t := &db.Transaction{
 		Name:   name,
-		Amount: int64(amount),
+		Amount: amount,
 		Date:   date,
 	}
 
@@ -139,7 +134,7 @@ func (s *Server) AddTransaction(name string, amount float64, date time.Time) (st
 		Id:          t.Id,
 		Date:        t.Date,
 		DisplayDate: t.Date.Format("02 Jan 2006"),
-		Amount:      float64(t.Amount),
+		Amount:      t.Amount,
 		Name:        t.Name,
 	}
 

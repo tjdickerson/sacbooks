@@ -29,9 +29,11 @@ function TransactionInputForm({ onSubmit, submitting: parentSubmitting, initialV
             return;
         }
 
+        const amountInCents = Math.round(amount * 100);
+
         const payload = {
             Name: name.trim(),
-            Amount: Number(amount),
+            Amount: amountInCents,
         }
 
         try {
