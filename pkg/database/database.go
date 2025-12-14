@@ -96,6 +96,10 @@ func Update(c Crudder) error {
 	return c.update()
 }
 
+func FetchTransactions(limit int, offset int) ([]Transaction, error) {
+	return fetchPagedTransactions(limit, offset)	
+}
+
 func FetchAllTransactions() ([]Transaction, error) {
 	return fetchAllTransactions()
 }
@@ -117,10 +121,10 @@ func GetDefaultAccount() (Account, error) {
 	return account, err
 }
 
-func CreateTransactionFromRecurring(id int) error {
+func CreateTransactionFromRecurring(id int64) (Transaction, error) {
 	recurring, err := getRecurringById(id)
 	if err != nil {
-		return err
+		return Transaction{}, err
 	}
 
 	newTrans := &Transaction{
@@ -129,7 +133,7 @@ func CreateTransactionFromRecurring(id int) error {
 		Date:   time.Now(),
 	}
 
-	return newTrans.insert()
+	return *newTrans, newTrans.insert()
 }
 
 func GetRecurringNetBalance() (int64, error) {

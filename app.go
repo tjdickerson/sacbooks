@@ -32,8 +32,8 @@ func (a *App) shutdown(ctx context.Context) {
 	s.Shutdown()
 }
 
-func (a *App) GetTransactions() string {
-	jsonData, err := s.GetTransactionInfo()
+func (a *App) GetTransactions(limit int, offset int) string {
+	jsonData, err := s.GetTransactionInfo(limit, offset)
 	if err != nil {
 		return fmt.Sprintf("Error: %s", err.Error())
 	}
@@ -72,5 +72,10 @@ func (a *App) DeleteTransaction(id int64) string {
 
 func (a *App) UpdateTransaction(id int64, newName string, newAmount int64) string {
 	result := s.UpdateTransaction(id, newName, newAmount)
+	return result
+}
+
+func (a *App) ApplyRecurring(id int64) string {
+	result := s.ApplyRecurring(id)
 	return result
 }

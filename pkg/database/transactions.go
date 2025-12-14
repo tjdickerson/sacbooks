@@ -69,12 +69,12 @@ func fetchTransactionById(id int64) (Transaction, error) {
 	}
 
 	utc, _ := time.LoadLocation("UTC")
-	
+
 	var dateMilis int64
 	err = stmt.QueryRow(
-		sql.Named("account_id", dbc.currentAccountId), 
+		sql.Named("account_id", dbc.currentAccountId),
 		sql.Named("transaction_id", id),
-		).Scan(&transaction.Id, &transaction.Name, &transaction.Amount, &dateMilis)
+	).Scan(&transaction.Id, &transaction.Name, &transaction.Amount, &dateMilis)
 
 	transaction.Date = time.UnixMilli(dateMilis).In(utc)
 
@@ -83,6 +83,49 @@ func fetchTransactionById(id int64) (Transaction, error) {
 	}
 
 	return transaction, nil
+}
+
+func fetchPagedTransactions(limit int, offset int) ([]Transaction, error) {
+	stmt, err := dbc.db.Prepare(QPagedTransactions)
+	if err != nil {
+		return nil, fmt.Errorf("failed to prepare statement: %s", err)
+	}
+
+	rows, err := stmt.Query(
+		sql.Named("account_id", dbc.currentAccountId),
+		sql.Named("limit", limit),
+		sql.Named("offset", offset),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed querying transactions: %s", err)
+	}
+
+	defer rows.Close()
+
+	transaction := Transaction{}
+	results := make([]Transaction, 0, limit)
+	var date int64
+	var utcDate time.Time
+	utc, _ := time.LoadLocation("UTC")
+
+	for rows.Next() {
+		err := rows.Scan(
+			&transaction.Id,
+			&transaction.Name,
+			&transaction.Amount,
+			&date,
+		)
+		if err != nil {
+			return results, fmt.Errorf("bad data: %s", err)
+		}
+
+		utcDate = time.UnixMilli(date).In(utc)
+		transaction.Date = utcDate
+
+		results = append(results, transaction)
+	}
+
+	return results, nil
 }
 
 func fetchAllTransactions() ([]Transaction, error) {
@@ -177,7 +220,18 @@ const UPD_TRANSACTION = `
 	    amount = @amount
 	where id = @id;
 `
-
+const QPagedTransactions = `
+	select t.id
+	     , t.name
+		 , t.amount
+	     , t.transaction_date
+	from transactions t
+	where account_id = @account_id
+	order by t.transaction_date desc
+			,t.timestamp_added desc
+		    ,t.id desc
+	limit @limit offset @offset
+`
 const Q_TRANSACTIONS = `
 	select t.id
 	     , t.name

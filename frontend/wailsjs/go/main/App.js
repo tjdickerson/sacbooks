@@ -6,6 +6,10 @@ export function AddTransaction(arg1, arg2) {
   return window['go']['main']['App']['AddTransaction'](arg1, arg2);
 }
 
+export function ApplyRecurring(arg1) {
+  return window['go']['main']['App']['ApplyRecurring'](arg1);
+}
+
 export function DeleteTransaction(arg1) {
   return window['go']['main']['App']['DeleteTransaction'](arg1);
 }
@@ -18,8 +22,8 @@ export function GetRecurringList() {
   return window['go']['main']['App']['GetRecurringList']();
 }
 
-export function GetTransactions() {
-  return window['go']['main']['App']['GetTransactions']();
+export function GetTransactions(arg1, arg2) {
+  return window['go']['main']['App']['GetTransactions'](arg1, arg2);
 }
 
 export function UpdateTransaction(arg1, arg2, arg3) {

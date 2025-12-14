@@ -54,20 +54,20 @@ type AccountInfo struct {
 }
 
 type RecurringDisplay struct {
-	Id     int
+	Id     int64
 	Name   string
 	Amount float64
 	Day    uint8
 }
 
-func (s *Server) GetTransactionInfo() (string, error) {
-	testData, err := db.FetchAllTransactions()
+func (s *Server) GetTransactionInfo(limit int, offset int) (string, error) {
+	tData, err := db.FetchTransactions(limit, offset)
 	if err != nil {
 		return "", fmt.Errorf("failed to get transaction data: %s", err.Error())
 	}
 	var transactions []TransactionDisplay
 	transactions = make([]TransactionDisplay, 0, 20)
-	for _, t := range testData {
+	for _, t := range tData {
 		transactions = append(transactions, TransactionDisplay{
 			Id:          t.Id,
 			Date:        t.Date,
@@ -163,7 +163,7 @@ func (s *Server) DeleteTransaction(id int64) string {
 }
 
 func (s *Server) UpdateTransaction(id int64, newName string, newAmount int64) string {
-	result := ServerResult {
+	result := ServerResult{
 		Success: true,
 		Message: "",
 	}
@@ -172,7 +172,7 @@ func (s *Server) UpdateTransaction(id int64, newName string, newAmount int64) st
 	if err != nil {
 		result.Success = false
 		result.Message = fmt.Sprintf("error during update: %s", err)
-		return safeJsonMarshal(result);
+		return safeJsonMarshal(result)
 	}
 
 	temp.Name = newName
@@ -182,12 +182,30 @@ func (s *Server) UpdateTransaction(id int64, newName string, newAmount int64) st
 	if err != nil {
 		result.Success = false
 		result.Message = fmt.Sprintf("error during update: %s", err)
-		return safeJsonMarshal(result);
+		return safeJsonMarshal(result)
 	}
 
 	result.Object = temp
 
-	return safeJsonMarshal(result);
+	return safeJsonMarshal(result)
+}
+
+func (s *Server) ApplyRecurring(recurringId int64) string {
+	result := ServerResult{
+		Success: true,
+		Message: "",
+	}
+
+	transaction, err := db.CreateTransactionFromRecurring(recurringId)
+	if err != nil {
+		result.Success = false
+		result.Message = fmt.Sprintf("error creating transaction: %s", err)
+		return safeJsonMarshal(result)
+	}
+
+	result.Object = transaction
+
+	return safeJsonMarshal(result)
 }
 
 func safeJsonMarshal(v any) string {

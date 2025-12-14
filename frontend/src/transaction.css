@@ -40,6 +40,17 @@
     box-sizing: border-box;
 }
 
+.recurring-transaction-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--gap);
+}
+
+.recurring-transaction-data {
+    width: 100%;
+}
+
 .transaction-container,
 .recurring-transaction-list {
     overflow-y: auto;

@@ -7,13 +7,13 @@ import (
 )
 
 type Recurring struct {
-	Id     int
+	Id     int64
 	Name   string
 	Amount int64
 	Day    uint8
 }
 
-func getRecurringById(id int) (Recurring, error) {
+func getRecurringById(id int64) (Recurring, error) {
 	stmt, err := dbc.db.Prepare("select id, name, amount from recurrings where id = @id")
 	if err != nil {
 		return Recurring{}, fmt.Errorf("Error preparing recurring by id: %s", err)
@@ -59,7 +59,7 @@ func fetchAllRecurrings() ([]Recurring, error) {
 	defer rows.Close()
 
 	var results []Recurring
-	var id int
+	var id int64
 	var name string
 	var amount int64
 	var day uint8

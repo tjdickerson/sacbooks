@@ -1,16 +1,23 @@
-import { useState, useEffect, useMemo } from 'react';
-import { GetTransactions, GetAccount, GetRecurringList, AddTransaction, DeleteTransaction, UpdateTransaction } from "../wailsjs/go/main/App";
+import { useState, useEffect, useMemo, useRef } from 'react';
+import { GetTransactions, GetAccount, GetRecurringList, AddTransaction, DeleteTransaction, UpdateTransaction, ApplyRecurring } from "../wailsjs/go/main/App";
 import Transaction from './Transaction';
 import TransactionInputForm from './TransactionInputForm';
 import './App.css';
 import { formatAmount, getCurrencySymbol, getLocale } from './lib/format';
+import { FaArrowLeft } from 'react-icons/fa'
 
 function Transactions() {
     const [transactions, setTransactions] = useState([]);
     const [account, setAccount] = useState(null);
     const [recurrings, setRecurrings] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [loadingTransactions, setLoadingTransactions] = useState(false);
+    const [loadingRecurring, setLoadingRecurring] = useState(false);
     const [error, setError] = useState(null);
+    const [page, setPage] = useState(0);
+    const [hasMore, setHasMore] = useState(true);
+
+    const transactionContainerRef = useRef(null);
+    const PAGE_SIZE = 20;
 
     const transactionNameMap = useMemo(() => {
         return new Set(transactions.map(t => t.Name));
@@ -35,33 +42,72 @@ function Transactions() {
         }
     }
 
-    useEffect(() => {
-        let mounted = true;
-        Promise.all([
-            GetTransactions(),
-            GetRecurringList(),
-        ])
-            .then(([transactionsRaw, recurringsRaw]) => {
-                if (!mounted) return;
-                const pt = parseMaybe(transactionsRaw);
-                const pr = parseMaybe(recurringsRaw);
+    async function loadTransactions() {
+        if (loadingTransactions || !hasMore) return;
+        setLoadingTransactions(true);
 
-                setTransactions(Array.isArray(pt) ? pt : []);
-                setRecurrings(Array.isArray(pr) ? pr : []);
-            })
-            .catch((err) => {
-                if (!mounted) return;
-                setError(err?.message || 'Error fetching data');
-            })
-            .finally(() => {
-                if (!mounted) return;
-                setLoading(false);
+        console.log("loading transactions");
+        try {
+            const raw = await GetTransactions(PAGE_SIZE, page * PAGE_SIZE);
+            const parsed = parseMaybe(raw);
+            const list = Array.isArray(parsed) ? parsed : [];
+
+            console.log(list);
+
+            setTransactions(prev => {
+                const map = new Map(prev.map(t => [t.Id, t]));
+                for (const t of list) {
+                    map.set(t.Id, t);
+                }
+                return [...map.values()];
             });
 
+            setHasMore(list.length === PAGE_SIZE);
+            setPage(prev => prev + 1);
+        } finally {
+            setLoadingTransactions(false);
+        }
+    }
+
+    async function loadRecurrings() {
+        if (loadingRecurring) return;
+        setLoadingRecurring(true);
+
+        try {
+            const raw = await GetRecurringList();
+            const parsed = parseMaybe(raw);
+            const list = Array.isArray(parsed) ? parsed : [];
+
+            setRecurrings(list)
+        } finally {
+            setLoadingRecurring(false);
+        }
+    }
+
+    useEffect(() => {
+        let mounted = true;
+        loadTransactions();
+        loadRecurrings();
         refreshAccount();
 
         return () => { mounted = false; }
     }, []);
+
+    useEffect(() => {
+        const container = transactionContainerRef.current;
+        if (!container) return;
+
+        function handleScroll() {
+            const { scrollTop, scrollHeight, clientHeight } = container;
+            if (scrollTop + clientHeight >= scrollHeight - 50) {
+                // near bottom -> load more
+                loadTransactions();
+            }
+        }
+
+        container.addEventListener("scroll", handleScroll);
+        return () => container.removeEventListener("scroll", handleScroll);
+    }, [transactions, hasMore, loadingTransactions]);
 
     /**
      * Deletes a transaction by ID.
@@ -69,7 +115,7 @@ function Transactions() {
      * @returns {Promise<void>} Resolves when deletion is complete
      */
     async function handleDeleteTransaction(id) {
-        setLoading(true);
+        setLoadingTransactions(true);
         setError(null)
 
         try {
@@ -88,7 +134,7 @@ function Transactions() {
         } catch (e) {
             setError(e?.message || string(e));
         } finally {
-            setLoading(false)
+            setLoadingTransactions(false)
         }
     }
 
@@ -100,7 +146,7 @@ function Transactions() {
      * @returns {Promise<void>} Resolves when deletion is complete
      */
     async function handleUpdateTransaction(id, name, amount) {
-        setLoading(true);
+        setLoadingTransactions(true);
         setError(null);
 
         try {
@@ -122,12 +168,12 @@ function Transactions() {
         } catch (err) {
             setError(err?.Message || err);
         } finally {
-            setLoading(false);
+            setLoadingTransactions(false);
         }
     }
 
     async function handleAddTransaction(data) {
-        setLoading(true);
+        setLoadingTransactions(true);
         setError(null);
 
         try {
@@ -146,7 +192,30 @@ function Transactions() {
         } catch (err) {
             setError(err?.message || String(err));
         } finally {
-            setLoading(false);
+            setLoadingTransactions(false);
+        }
+    }
+
+    async function handleApplyRecurring(recurringId) {
+        console.log("what");
+        setLoadingTransactions(true)
+        setError(null)
+
+        try {
+            const rawResult = await ApplyRecurring(recurringId)
+            const result = parseMaybe(rawResult);
+            if (result && typeof result === 'object' && result.Success) {
+                setTransactions(prev => [result.Object, ...prev]);
+            } else {
+                // otherwise refetch full list to stay in sync
+                const raw = await GetTransactions();
+                const list = parseMaybe(raw);
+                setTransactions(Array.isArray(list) ? list : []);
+            }
+        } catch (err) {
+            setError(err?.Message || err)
+        } finally {
+            setLoadingTransactions(false)
         }
     }
 
@@ -170,31 +239,25 @@ function Transactions() {
                 </div>
             </div>
 
-            <div className='transaction-container'>
-                {loading && <p>Loading..</p>}
+            <div className='transaction-container' ref={transactionContainerRef}>
                 {error && <p style={{ color: 'red' }}>Error: {error}</p>}
 
-                {!loading && !error && (
-                    transactions.length === 0
-                        ? <p>No Data</p>
-                        : (
-                            <div>
-                                {transactions.map((transaction) => (
-                                    <Transaction 
-                                        key={transaction.Id} 
-                                        transaction={transaction} 
-                                        onDelete={handleDeleteTransaction} 
-                                        onSave={handleUpdateTransaction}
-                                    />
-                                ))}
-                            </div>
-                        )
-                )}
+                <div>
+                    {transactions.map((transaction) => (
+                        <Transaction
+                            key={transaction.Id}
+                            transaction={transaction}
+                            onDelete={handleDeleteTransaction}
+                            onSave={handleUpdateTransaction}
+                        />
+                    ))}
+                </div>
             </div>
 
             <div className='recurring-transaction-list'>
                 <div className='recurring-transaction-list-label'>Recurring Transactions</div>
                 <div className='recurring-transaction-items'>
+                    {loadingRecurring && <p>Loading..</p>}
                     {recurrings.length === 0 && <p>No Recurring Transactions</p>}
                     {recurrings.map((recurring) => {
 
@@ -202,14 +265,21 @@ function Transactions() {
 
                         return (
                             <div key={recurring.Id} className='card recurring-transaction-item'>
-                                <div className='transaction-date'>{recurring.Day}</div>
-                                <div className='transaction-info'>
-                                    <div className={`transaction-name ${isAccountedFor ? 'accounted-for' : ''}`}>{recurring.Name}</div>
-                                    <div className='transaction-details'>
-                                        <div className='transaction-amount-holder'>
-                                            <div className='currency-symbol'>{getCurrencySymbol(getLocale())}</div>
-                                            <div className={`recurring-transaction-amount ${isAccountedFor ? 'accounted-for' : recurring.Amount > 0 ? 'text-positive' : 'text-negative'}`}>
-                                                {formatAmount(recurring.Amount)}
+                                <div className='action-buttons transaction-action'>
+                                    <button onClick={() => handleApplyRecurring(recurring.Id)}>
+                                        <FaArrowLeft />
+                                    </button>
+                                </div>
+                                <div className='recurring-transaction-data'>
+                                    <div className='transaction-date'>{recurring.Day}</div>
+                                    <div className='transaction-info'>
+                                        <div className={`transaction-name ${isAccountedFor ? 'accounted-for' : ''}`}>{recurring.Name}</div>
+                                        <div className='transaction-details'>
+                                            <div className='transaction-amount-holder'>
+                                                <div className='currency-symbol'>{getCurrencySymbol(getLocale())}</div>
+                                                <div className={`recurring-transaction-amount ${isAccountedFor ? 'accounted-for' : recurring.Amount > 0 ? 'text-positive' : 'text-negative'}`}>
+                                                    {formatAmount(recurring.Amount)}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
