@@ -2,9 +2,9 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"time"
 	"tjdickerson/sacbooks/pkg/server"
+	"tjdickerson/sacbooks/pkg/types"
 )
 
 // App struct
@@ -13,7 +13,6 @@ type App struct {
 }
 
 var s *server.Server
-
 
 // NewApp creates a new App application struct
 func NewApp() *App {
@@ -32,50 +31,65 @@ func (a *App) shutdown(ctx context.Context) {
 	s.Shutdown()
 }
 
-func (a *App) GetTransactions(limit int, offset int) string {
-	jsonData, err := s.GetTransactionInfo(limit, offset)
-	if err != nil {
-		return fmt.Sprintf("Error: %s", err.Error())
+func (a *App) GetTransactions(limit int, offset int) types.TransactionListResult {
+	result := s.GetTransactionList(limit, offset)
+	return types.TransactionListResult{
+		Success: result.Success,
+		Message: result.Message,
+		Data:    result.Object,
 	}
-	return string(jsonData)
 }
 
-func (a *App) GetAccount() string {
-	jsonData, err := s.GetAccountInfo()
-	if err != nil {
-		return fmt.Sprintf("Error: %s", err.Error())
+func (a *App) GetAccount() types.AccountResult {
+	result := s.GetAccountInfo()
+	return types.AccountResult{
+		Success: result.Success,
+		Message: result.Message,
+		Data:    result.Object,
 	}
-	return string(jsonData)
 }
 
-func (a *App) GetRecurringList() string {
-	jsonData, err := s.GetRecurringList()
-	if err != nil {
-		return fmt.Sprintf("Error: %s", err.Error())
+func (a *App) GetRecurringList() types.RecurringListResult {
+	result := s.GetRecurringList()
+	return types.RecurringListResult {
+		Success: result.Success,
+		Message: result.Message,
+		Data:    result.Object,
 	}
-	return string(jsonData)
 }
 
-func (a *App) AddTransaction(name string, amount int64) string {
-	json, err := s.AddTransaction(name, amount, time.Now())
-
-	if err != nil {
-		return fmt.Sprintf("Error: %s", err.Error())
+func (a *App) AddTransaction(name string, amount int64) types.TransactionResult {
+	result := s.AddTransaction(name, amount, time.Now())
+	resultOut := types.TransactionResult {
+		Success: result.Success,
+		Message: result.Message,
+		Data:    result.Object,
 	}
-	return string(json)
+	return resultOut
 }
 
-func (a *App) DeleteTransaction(id int64) string {
+func (a *App) DeleteTransaction(id int64) types.TransactionResult {
 	result := s.DeleteTransaction(id)
-	return result
+	return types.TransactionResult{
+		Success: result.Success,
+		Message: result.Message,
+	}
 }
 
-func (a *App) UpdateTransaction(id int64, newName string, newAmount int64) string {
+func (a *App) UpdateTransaction(id int64, newName string, newAmount int64) types.TransactionResult {
 	result := s.UpdateTransaction(id, newName, newAmount)
-	return result
+	return types.TransactionResult {
+		Success: result.Success,
+		Message: result.Message,
+		Data: result.Object,
+	}
 }
 
-func (a *App) ApplyRecurring(id int64) string {
+func (a *App) ApplyRecurring(id int64) types.TransactionResult {
 	result := s.ApplyRecurring(id)
-	return result
+	return types.TransactionResult {
+		Success: result.Success,
+		Message: result.Message,
+		Data: result.Object,
+	}
 }

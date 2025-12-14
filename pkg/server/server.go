@@ -1,11 +1,11 @@
 package server
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"time"
 	db "tjdickerson/sacbooks/pkg/database"
+	"tjdickerson/sacbooks/pkg/types"
 )
 
 type serverContext struct {
@@ -14,12 +14,6 @@ type serverContext struct {
 
 type Server struct {
 	context *serverContext
-}
-
-type ServerResult struct {
-	Success bool
-	Message string
-	Object  any
 }
 
 func (s *Server) Startup() {
@@ -39,36 +33,22 @@ func (s *Server) Shutdown() {
 	db.CloseDatabase()
 }
 
-type TransactionDisplay struct {
-	Id          int64
-	Date        time.Time
-	DisplayDate string
-	Amount      int64
-	Name        string
-}
+func (s *Server) GetTransactionList(limit int, offset int) types.Result[[]types.Transaction] {
+	result := types.Result[[]types.Transaction]{
+		Success: true,
+	}
 
-type AccountInfo struct {
-	Id             int
-	Name           string
-	CurrentBalance float64
-}
-
-type RecurringDisplay struct {
-	Id     int64
-	Name   string
-	Amount float64
-	Day    uint8
-}
-
-func (s *Server) GetTransactionInfo(limit int, offset int) (string, error) {
 	tData, err := db.FetchTransactions(limit, offset)
 	if err != nil {
-		return "", fmt.Errorf("failed to get transaction data: %s", err.Error())
+		result.Success = false
+		result.Message = fmt.Sprintf("failed to get transaction data: %s", err)
+		return result
 	}
-	var transactions []TransactionDisplay
-	transactions = make([]TransactionDisplay, 0, 20)
+
+	var transactions []types.Transaction
+	transactions = make([]types.Transaction, 0, 20)
 	for _, t := range tData {
-		transactions = append(transactions, TransactionDisplay{
+		transactions = append(transactions, types.Transaction{
 			Id:          t.Id,
 			Date:        t.Date,
 			DisplayDate: t.Date.Format("02 Jan 2006"),
@@ -77,54 +57,61 @@ func (s *Server) GetTransactionInfo(limit int, offset int) (string, error) {
 		})
 	}
 
-	return safeJsonMarshal(transactions), nil
+	result.Object = transactions
+	return result
 }
 
-func (s *Server) GetAccountInfo() (string, error) {
+func (s *Server) GetAccountInfo() types.Result[types.Account] {
+	result := types.Result[types.Account] {
+		Success: true,
+	}
 	account, err := db.GetDefaultAccount()
 	if err != nil {
-		return "", fmt.Errorf("failed to get current balance: %s", err.Error())
+		result.Success = false
+		result.Message = fmt.Sprintf("failed to get current balance: %s", err)
+		return result
 	}
 
-	displayInfo := AccountInfo{
-		Id:             account.Id,
-		Name:           account.Name,
-		CurrentBalance: float64(account.TotalAvailable),
+	data := types.Account{
+		Id:      account.Id,
+		Name:    account.Name,
+		Balance: account.TotalAvailable,
 	}
 
-	jsonData, err := json.Marshal(displayInfo)
-	if err != nil {
-		return "", fmt.Errorf("failed to convert to json: %s", err.Error())
-	}
-
-	return string(jsonData), nil
+	result.Object = data
+	return result
 }
 
-func (s *Server) GetRecurringList() (string, error) {
-	recurrings, err := db.FetchAllRecurrings()
+func (s *Server) GetRecurringList() types.Result[[]types.Recurring] {
+	result := types.Result[[]types.Recurring]{}
+	recurringData, err := db.FetchAllRecurrings()
 	if err != nil {
-		return "", fmt.Errorf("failed to get recurring list: %s", err.Error())
+		result.Success = false
+		result.Message = fmt.Sprintf("failed to get recurring list: %s", err)
+		return result
 	}
-	var recurringDisplay []RecurringDisplay
-	recurringDisplay = make([]RecurringDisplay, 0, len(recurrings))
-	for _, r := range recurrings {
-		recurringDisplay = append(recurringDisplay, RecurringDisplay{
+
+	var recurringList []types.Recurring
+	recurringList = make([]types.Recurring, 0, len(recurringData))
+	for _, r := range recurringData {
+		recurringList = append(recurringList, types.Recurring{
 			Id:     r.Id,
 			Name:   r.Name,
-			Amount: float64(r.Amount),
+			Amount: r.Amount,
 			Day:    r.Day,
 		})
 	}
 
-	jsonData, err := json.Marshal(recurringDisplay)
-	if err != nil {
-		return "", fmt.Errorf("failed to convert to json: %s", err.Error())
-	}
-
-	return string(jsonData), nil
+	result.Object = recurringList
+	return result
 }
 
-func (s *Server) AddTransaction(name string, amount int64, date time.Time) (string, error) {
+func (s *Server) AddTransaction(name string, amount int64, date time.Time) types.Result[types.Transaction] {
+	result := types.Result[types.Transaction]{
+		Success: true,
+		Message: "",
+	}
+
 	t := &db.Transaction{
 		Name:   name,
 		Amount: amount,
@@ -133,10 +120,12 @@ func (s *Server) AddTransaction(name string, amount int64, date time.Time) (stri
 
 	err := db.Insert(t)
 	if err != nil {
-		return "{}", fmt.Errorf("failed to add transaction: %s", err.Error())
+		result.Success = false
+		result.Message = fmt.Sprintf("failed to add transaction: %s", err)
+		return result
 	}
 
-	result := TransactionDisplay{
+	transaction := types.Transaction{
 		Id:          t.Id,
 		Date:        t.Date,
 		DisplayDate: t.Date.Format("02 Jan 2006"),
@@ -144,11 +133,12 @@ func (s *Server) AddTransaction(name string, amount int64, date time.Time) (stri
 		Name:        t.Name,
 	}
 
-	return safeJsonMarshal(result), nil
+	result.Object = transaction
+	return result
 }
 
-func (s *Server) DeleteTransaction(id int64) string {
-	result := ServerResult{
+func (s *Server) DeleteTransaction(id int64) types.Result[types.Transaction] {
+	result := types.Result[types.Transaction]{
 		Success: true,
 		Message: "",
 	}
@@ -159,11 +149,11 @@ func (s *Server) DeleteTransaction(id int64) string {
 		result.Message = fmt.Sprintf("failed to delete transaction: %s", err)
 	}
 
-	return safeJsonMarshal(result)
+	return result
 }
 
-func (s *Server) UpdateTransaction(id int64, newName string, newAmount int64) string {
-	result := ServerResult{
+func (s *Server) UpdateTransaction(id int64, newName string, newAmount int64) types.Result[types.Transaction] {
+	result := types.Result[types.Transaction]{
 		Success: true,
 		Message: "",
 	}
@@ -172,7 +162,7 @@ func (s *Server) UpdateTransaction(id int64, newName string, newAmount int64) st
 	if err != nil {
 		result.Success = false
 		result.Message = fmt.Sprintf("error during update: %s", err)
-		return safeJsonMarshal(result)
+		return result
 	}
 
 	temp.Name = newName
@@ -182,16 +172,21 @@ func (s *Server) UpdateTransaction(id int64, newName string, newAmount int64) st
 	if err != nil {
 		result.Success = false
 		result.Message = fmt.Sprintf("error during update: %s", err)
-		return safeJsonMarshal(result)
+		return result
 	}
 
-	result.Object = temp
+	feo := types.Transaction{
+		Id:     temp.Id,
+		Name:   temp.Name,
+		Amount: temp.Amount,
+	}
+	result.Object = feo
 
-	return safeJsonMarshal(result)
+	return result
 }
 
-func (s *Server) ApplyRecurring(recurringId int64) string {
-	result := ServerResult{
+func (s *Server) ApplyRecurring(recurringId int64) types.Result[types.Transaction] {
+	result := types.Result[types.Transaction]{
 		Success: true,
 		Message: "",
 	}
@@ -200,21 +195,16 @@ func (s *Server) ApplyRecurring(recurringId int64) string {
 	if err != nil {
 		result.Success = false
 		result.Message = fmt.Sprintf("error creating transaction: %s", err)
-		return safeJsonMarshal(result)
+		return result
 	}
 
-	result.Object = transaction
-
-	return safeJsonMarshal(result)
-}
-
-func safeJsonMarshal(v any) string {
-	jsonData, err := json.Marshal(v)
-
-	if err != nil {
-		log.Printf("Error marshalling to json: %s", err)
-		return "{}"
+	feo := types.Transaction{
+		Id:     transaction.Id,
+		Name:   transaction.Name,
+		Date:   transaction.Date,
+		Amount: transaction.Amount,
 	}
+	result.Object = feo
 
-	return string(jsonData)
+	return result
 }

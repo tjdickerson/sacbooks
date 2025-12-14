@@ -1,28 +1,37 @@
 import { useState, useEffect } from 'react';
+import { types as t } from "../wailsjs/go/models";
 
-function TransactionInputForm({ onSubmit, submitting: parentSubmitting, initialValues }) {
+interface TransactionFormProps {
+    onSubmit: (name: string, amount: number) => void;
+    submitting: boolean;
+    initialValues: t.Transaction;
+}
+
+const TransactionInputForm: React.FC<TransactionFormProps> = ({
+    onSubmit,
+    submitting:
+    parentSubmitting, initialValues }) => {
+
     // ensure controlled values (strings) and keep in sync if initialValues changes
-    const [name, setName] = useState(initialValues?.name ?? '');
-    const [amount, setAmount] = useState(
-        initialValues?.amount != null ? String(initialValues.amount) : ''
-    );
-    const [submitting, setSubmitting] = useState(false);
-    const [error, setError] = useState(null);
+    const [name, setName] = useState<string>(initialValues?.name ?? '');
+    const [amount, setAmount] = useState<number>(initialValues?.amount != null ? initialValues.amount : 0);
+    const [submitting, setSubmitting] = useState<boolean>(false);
+    const [error, setError] = useState<string>('');
 
     useEffect(() => {
         setName(initialValues?.name ?? '');
-        setAmount(initialValues?.amount != null ? String(initialValues.amount) : '');
+        setAmount(initialValues?.amount != null ? initialValues.amount : 0);
     }, [initialValues]);
 
-    const isSubmitting = parentSubmitting || submitting;
+    const isSubmitting: boolean = parentSubmitting || submitting;
 
     async function handleSubmit(e) {
         e.preventDefault();
-        setError(null);
+        setError("");
 
         // simple validation (returns error message or null)
-        const nameError = !name.trim() ? 'Transaction name is required.' : null;
-        const amountError = isNaN(Number(amount)) ? 'Amount must be a valid number.' : null;
+        const nameError: string = !name.trim() ? 'Transaction name is required.' : '';
+        const amountError : string = isNaN(Number(amount)) ? 'Amount must be a valid number.' : '';
         const validationError = nameError || amountError;
         if (validationError) {
             setError(validationError);
@@ -31,16 +40,13 @@ function TransactionInputForm({ onSubmit, submitting: parentSubmitting, initialV
 
         const amountInCents = Math.round(amount * 100);
 
-        const payload = {
-            Name: name.trim(),
-            Amount: amountInCents,
-        }
-
         try {
             if (!parentSubmitting) setSubmitting(true);
-            await onSubmit(payload);
+            const clean_name: string = name.trim();
+            const amount: number = amountInCents;
+            onSubmit(clean_name, amount);
             setName('');
-            setAmount('');
+            setAmount(0);
         } catch (err) {
             setError(err?.message || 'Error submitting transaction');
         } finally {
@@ -68,7 +74,7 @@ function TransactionInputForm({ onSubmit, submitting: parentSubmitting, initialV
                 className='transaction-new-input'
                 placeholder='Amount'
                 value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                onChange={(e) => setAmount(Number(e.target.value))}
                 aria-label="Transaction Amount"
                 step="0.01"
             />

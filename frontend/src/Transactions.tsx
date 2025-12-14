@@ -1,5 +1,6 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
-import { GetTransactions, GetAccount, GetRecurringList, AddTransaction, DeleteTransaction, UpdateTransaction, ApplyRecurring } from "../wailsjs/go/main/App";
+import react from 'react';
+import { GetAccount, GetTransactions, GetRecurringList, DeleteTransaction, UpdateTransaction, AddTransaction, ApplyRecurring } from "../wailsjs/go/main/App";
+import { types as t } from "../wailsjs/go/models";
 import Transaction from './Transaction';
 import TransactionInputForm from './TransactionInputForm';
 import './App.css';
@@ -7,35 +8,31 @@ import { formatAmount, getCurrencySymbol, getLocale } from './lib/format';
 import { FaArrowLeft } from 'react-icons/fa'
 
 function Transactions() {
-    const [transactions, setTransactions] = useState([]);
-    const [account, setAccount] = useState(null);
-    const [recurrings, setRecurrings] = useState([]);
-    const [loadingTransactions, setLoadingTransactions] = useState(false);
-    const [loadingRecurring, setLoadingRecurring] = useState(false);
-    const [error, setError] = useState(null);
-    const [page, setPage] = useState(0);
-    const [hasMore, setHasMore] = useState(true);
+    const [transactions, setTransactions] = react.useState<t.Transaction[]>([]);
+    const [account, setAccount] = react.useState<t.Account | null>(null);
+    const [recurrings, setRecurrings] = react.useState<t.Recurring[]>([]);
+    const [loadingTransactions, setLoadingTransactions] = react.useState<boolean>(false);
+    const [loadingRecurring, setLoadingRecurring] = react.useState<boolean>(false);
+    const [error, setError] = react.useState<string>("");
+    const [page, setPage] = react.useState<number>(0);
+    const [hasMore, setHasMore] = react.useState<boolean>(true);
 
-    const transactionContainerRef = useRef(null);
-    const PAGE_SIZE = 20;
+    const transactionContainerRef = react.useRef<HTMLDivElement | null>(null);
+    const PAGE_SIZE: number = 20;
 
-    const transactionNameMap = useMemo(() => {
-        return new Set(transactions.map(t => t.Name));
+    const transactionNameMap = react.useMemo(() => {
+        return new Set(transactions.map(t => t.name));
     }, [transactions]);
 
 
-    const parseMaybe = (v) => {
-        if (typeof v === 'string') {
-            try { return JSON.parse(v); } catch { return v; }
-        }
-        return v;
-    };
-
     async function refreshAccount() {
         try {
-            const raw = await GetAccount();
-            const parsed = parseMaybe(raw);
-            setAccount(parsed && typeof parsed === "object" ? parsed : null);
+            const result: t.AccountResult = await GetAccount();
+            if (result.success) {
+                setAccount(result.data);
+            } else {
+                setError(result.message);
+            }
         }
         catch (err) {
             setError(err?.Message || "Error getting account information");
@@ -46,24 +43,25 @@ function Transactions() {
         if (loadingTransactions || !hasMore) return;
         setLoadingTransactions(true);
 
-        console.log("loading transactions");
         try {
-            const raw = await GetTransactions(PAGE_SIZE, page * PAGE_SIZE);
-            const parsed = parseMaybe(raw);
-            const list = Array.isArray(parsed) ? parsed : [];
+            const result: t.TransactionListResult = await GetTransactions(PAGE_SIZE, page * PAGE_SIZE);
 
-            console.log(list);
+            if (result.success) {
+                const data: t.Transaction[] = result.data;
+                setTransactions(prev => {
+                    const map = new Map<number, t.Transaction>(prev.map(t => [t.id, t]));
+                    for (const t of data) {
+                        map.set(t.id, t);
+                    }
+                    return [...map.values()];
+                });
 
-            setTransactions(prev => {
-                const map = new Map(prev.map(t => [t.Id, t]));
-                for (const t of list) {
-                    map.set(t.Id, t);
-                }
-                return [...map.values()];
-            });
+                setHasMore(data.length === PAGE_SIZE);
+                setPage(prev => prev + 1);
+            } else {
+                setError(result.message);
+            }
 
-            setHasMore(list.length === PAGE_SIZE);
-            setPage(prev => prev + 1);
         } finally {
             setLoadingTransactions(false);
         }
@@ -74,17 +72,20 @@ function Transactions() {
         setLoadingRecurring(true);
 
         try {
-            const raw = await GetRecurringList();
-            const parsed = parseMaybe(raw);
-            const list = Array.isArray(parsed) ? parsed : [];
+            const result: t.RecurringListResult = await GetRecurringList();
+            if (result.success) {
+                const data: t.Recurring[] = result.data;
+                setRecurrings(data);
+            } else {
+                setError(result.message);
+            }
 
-            setRecurrings(list)
         } finally {
             setLoadingRecurring(false);
         }
     }
 
-    useEffect(() => {
+    react.useEffect(() => {
         let mounted = true;
         loadTransactions();
         loadRecurrings();
@@ -93,15 +94,19 @@ function Transactions() {
         return () => { mounted = false; }
     }, []);
 
-    useEffect(() => {
-        const container = transactionContainerRef.current;
+    react.useEffect(() => {
+        const container: HTMLDivElement | null = transactionContainerRef.current;
         if (!container) return;
 
         function handleScroll() {
-            const { scrollTop, scrollHeight, clientHeight } = container;
-            if (scrollTop + clientHeight >= scrollHeight - 50) {
-                // near bottom -> load more
-                loadTransactions();
+            const scrollTop: number | undefined = container?.scrollTop;
+            const scrollHeight: number | undefined = container?.scrollHeight;
+            const clientHeight: number | undefined = container?.clientHeight;
+            if (scrollTop && scrollHeight && clientHeight) {
+                if (scrollTop + clientHeight >= scrollHeight - 50) {
+                    // near bottom -> load more
+                    loadTransactions();
+                }
             }
         }
 
@@ -109,59 +114,42 @@ function Transactions() {
         return () => container.removeEventListener("scroll", handleScroll);
     }, [transactions, hasMore, loadingTransactions]);
 
-    /**
-     * Deletes a transaction by ID.
-     * @param {number} id - Transaction identifier
-     * @returns {Promise<void>} Resolves when deletion is complete
-     */
-    async function handleDeleteTransaction(id) {
+
+    async function handleDeleteTransaction(id: number) {
         setLoadingTransactions(true);
-        setError(null)
+        setError("")
 
         try {
-            const rawResult = await DeleteTransaction(id);
-            const result = parseMaybe(rawResult);
-            if (result && result.Success) {
-                setTransactions(prev => prev.filter(t => t.Id !== id))
+            const result: t.TransactionResult = await DeleteTransaction(id);
+
+            if (result.success) {
+                setTransactions(prev => prev.filter(t => t.id !== id))
             }
             else {
-                setError(result?.Message)
-                const raw = await GetTransactions();
-                const list = parseMaybe(raw);
-                setTransactions(Array.isArray(list) ? list : []);
+                setError(result?.message)
             }
+
             await refreshAccount();
         } catch (e) {
-            setError(e?.message || string(e));
+            setError(e?.message || e);
         } finally {
             setLoadingTransactions(false)
         }
     }
 
-    /**
-     * Updates transaction with new info.
-     * @param {number} id - Transaction identifier
-     * @param {string} name - Transaction name
-     * @param {number} amount - Transaction amount in cents
-     * @returns {Promise<void>} Resolves when deletion is complete
-     */
-    async function handleUpdateTransaction(id, name, amount) {
+    async function handleUpdateTransaction(id: number, name: string, amount: number) {
         setLoadingTransactions(true);
-        setError(null);
+        setError("");
 
         try {
-            const rawResult = await UpdateTransaction(id, name, amount);
-            const result = parseMaybe(rawResult);
+            const result: t.TransactionResult = await UpdateTransaction(id, name, amount);
 
-            if (result && result.Success) {
-                const updated = result.Object;
-                setTransactions(prev => prev.map(t => t.Id === updated.Id ? updated : t))
+            if (result.success) {
+                const updated: t.Transaction = result.data;
+                setTransactions(prev => prev.map(t => t.id === updated.id ? updated : t))
             }
             else {
-                setError(result?.Message)
-                const raw = await GetTransactions();
-                const list = parseMaybe(raw);
-                setTransactions(Array.isArray(list) ? list : []);
+                setError(result?.message)
             }
 
             await refreshAccount();
@@ -172,23 +160,22 @@ function Transactions() {
         }
     }
 
-    async function handleAddTransaction(data) {
+    async function handleAddTransaction(data: t.Transaction) {
         setLoadingTransactions(true);
-        setError(null);
+        setError("");
 
         try {
-            const result = await AddTransaction(data.Name, data.Amount);
-            const parsed = parseMaybe(result);
+            const result: t.TransactionResult = await AddTransaction(data.name, data.amount);
 
-            // if server returned the created transaction object, prepend it
-            if (parsed && typeof parsed === 'object' && (parsed.Id ?? parsed.id)) {
-                setTransactions(prev => [parsed, ...prev]);
-            } else {
-                // otherwise refetch full list to stay in sync
-                const raw = await GetTransactions();
-                const list = parseMaybe(raw);
-                setTransactions(Array.isArray(list) ? list : []);
+            if (result.success) {
+                const newTransaction: t.Transaction = result.data;
+                setTransactions(prev => [newTransaction, ...prev]);
             }
+            else {
+                setError(result.message);
+            }
+
+            await refreshAccount()
         } catch (err) {
             setError(err?.message || String(err));
         } finally {
@@ -196,21 +183,17 @@ function Transactions() {
         }
     }
 
-    async function handleApplyRecurring(recurringId) {
-        console.log("what");
-        setLoadingTransactions(true)
-        setError(null)
+    async function handleApplyRecurring(recurringId: number) {
+        setLoadingTransactions(true);
+        setError("");
 
         try {
-            const rawResult = await ApplyRecurring(recurringId)
-            const result = parseMaybe(rawResult);
-            if (result && typeof result === 'object' && result.Success) {
-                setTransactions(prev => [result.Object, ...prev]);
+            const result: t.TransactionResult = await ApplyRecurring(recurringId)
+            if (result.success) {
+                const newTransaction: t.Transaction = result.data;
+                setTransactions(prev => [newTransaction, ...prev]);
             } else {
-                // otherwise refetch full list to stay in sync
-                const raw = await GetTransactions();
-                const list = parseMaybe(raw);
-                setTransactions(Array.isArray(list) ? list : []);
+                setError(result.message);
             }
         } catch (err) {
             setError(err?.Message || err)
@@ -228,13 +211,13 @@ function Transactions() {
 
             <div className='current-balance'>
                 <div className='current-account-name'>
-                    {account ? account.Name : 'No Account'}
+                    {account ? account.name : 'No Account'}
                 </div>
                 <div className='current-balance-label'>Current Balance</div>
                 <div className='current-balance-amount'>
                     <div className='currency-symbol'>{getCurrencySymbol(getLocale())}</div>
                     <div className='balance-amount-value'>
-                        {account ? formatAmount(account.CurrentBalance) : 'N/A'}
+                        {account ? formatAmount(account.balance) : 'N/A'}
                     </div>
                 </div>
             </div>
@@ -245,7 +228,7 @@ function Transactions() {
                 <div>
                     {transactions.map((transaction) => (
                         <Transaction
-                            key={transaction.Id}
+                            key={transaction.id}
                             transaction={transaction}
                             onDelete={handleDeleteTransaction}
                             onSave={handleUpdateTransaction}

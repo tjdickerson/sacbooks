@@ -15,7 +15,7 @@ export function getLocale() {
         : navigator.language;
 }
 
-export function formatAmount(baseAmount) {
+export function formatAmount(baseAmount: number) {
     let amount = (baseAmount / 100);
     let locale = getLocale();
     return amount.toLocaleString(locale, {
