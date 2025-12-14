@@ -6,6 +6,10 @@ export function AddTransaction(arg1, arg2) {
   return window['go']['main']['App']['AddTransaction'](arg1, arg2);
 }
 
+export function DeleteTransaction(arg1) {
+  return window['go']['main']['App']['DeleteTransaction'](arg1);
+}
+
 export function GetAccount() {
   return window['go']['main']['App']['GetAccount']();
 }
@@ -16,4 +20,8 @@ export function GetRecurringList() {
 
 export function GetTransactions() {
   return window['go']['main']['App']['GetTransactions']();
+}
+
+export function UpdateTransaction(arg1, arg2, arg3) {
+  return window['go']['main']['App']['UpdateTransaction'](arg1, arg2, arg3);
 }

@@ -136,6 +136,10 @@ func GetRecurringNetBalance() (int64, error) {
 	return getNetRecurringBalance()
 }
 
+func GetTransactionById(id int64) (Transaction, error) {
+	return fetchTransactionById(id)
+}
+
 func HasAccount() bool {
 	result, err := dbc.db.Query("select count(1) from accounts;")
 	if err != nil {

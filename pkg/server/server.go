@@ -16,6 +16,12 @@ type Server struct {
 	context *serverContext
 }
 
+type ServerResult struct {
+	Success bool
+	Message string
+	Object  any
+}
+
 func (s *Server) Startup() {
 	s.context = &serverContext{}
 
@@ -139,6 +145,49 @@ func (s *Server) AddTransaction(name string, amount int64, date time.Time) (stri
 	}
 
 	return safeJsonMarshal(result), nil
+}
+
+func (s *Server) DeleteTransaction(id int64) string {
+	result := ServerResult{
+		Success: true,
+		Message: "",
+	}
+
+	temp := db.Transaction{Id: id}
+	if err := db.Delete(&temp); err != nil {
+		result.Success = false
+		result.Message = fmt.Sprintf("failed to delete transaction: %s", err)
+	}
+
+	return safeJsonMarshal(result)
+}
+
+func (s *Server) UpdateTransaction(id int64, newName string, newAmount int64) string {
+	result := ServerResult {
+		Success: true,
+		Message: "",
+	}
+
+	temp, err := db.GetTransactionById(id)
+	if err != nil {
+		result.Success = false
+		result.Message = fmt.Sprintf("error during update: %s", err)
+		return safeJsonMarshal(result);
+	}
+
+	temp.Name = newName
+	temp.Amount = newAmount
+
+	err = db.Update(&temp)
+	if err != nil {
+		result.Success = false
+		result.Message = fmt.Sprintf("error during update: %s", err)
+		return safeJsonMarshal(result);
+	}
+
+	result.Object = temp
+
+	return safeJsonMarshal(result);
 }
 
 func safeJsonMarshal(v any) string {

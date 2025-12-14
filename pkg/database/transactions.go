@@ -61,6 +61,30 @@ func (t *Transaction) update() error {
 	return nil
 }
 
+func fetchTransactionById(id int64) (Transaction, error) {
+	transaction := Transaction{}
+	stmt, err := dbc.db.Prepare(QSingleTransaction)
+	if err != nil {
+		return transaction, fmt.Errorf("error finding transaction for id %d: %s", id, err)
+	}
+
+	utc, _ := time.LoadLocation("UTC")
+	
+	var dateMilis int64
+	err = stmt.QueryRow(
+		sql.Named("account_id", dbc.currentAccountId), 
+		sql.Named("transaction_id", id),
+		).Scan(&transaction.Id, &transaction.Name, &transaction.Amount, &dateMilis)
+
+	transaction.Date = time.UnixMilli(dateMilis).In(utc)
+
+	if err != nil {
+		return transaction, fmt.Errorf("error creating transaction data for id %d: %s", id, err)
+	}
+
+	return transaction, nil
+}
+
 func fetchAllTransactions() ([]Transaction, error) {
 	stmt, err := dbc.db.Prepare(Q_TRANSACTIONS)
 	if err != nil {
@@ -163,6 +187,16 @@ const Q_TRANSACTIONS = `
 	where account_id = @account_id
 	order by t.transaction_date desc
 			,t.timestamp_added desc
+`
+
+const QSingleTransaction = `
+	select t.id
+		, t.name
+		, t.amount
+		, t.transaction_date
+	 from transactions t
+	where account_id = @account_id
+	  and t.id = @transaction_id
 `
 
 const DEL_TRANSACTION = `

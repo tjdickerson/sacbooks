@@ -3,8 +3,12 @@
 
 export function AddTransaction(arg1:string,arg2:number):Promise<string>;
 
+export function DeleteTransaction(arg1:number):Promise<string>;
+
 export function GetAccount():Promise<string>;
 
 export function GetRecurringList():Promise<string>;
 
 export function GetTransactions():Promise<string>;
+
+export function UpdateTransaction(arg1:number,arg2:string,arg3:number):Promise<string>;

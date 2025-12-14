@@ -14,6 +14,7 @@ type App struct {
 
 var s *server.Server
 
+
 // NewApp creates a new App application struct
 func NewApp() *App {
 	return &App{}
@@ -62,4 +63,14 @@ func (a *App) AddTransaction(name string, amount int64) string {
 		return fmt.Sprintf("Error: %s", err.Error())
 	}
 	return string(json)
+}
+
+func (a *App) DeleteTransaction(id int64) string {
+	result := s.DeleteTransaction(id)
+	return result
+}
+
+func (a *App) UpdateTransaction(id int64, newName string, newAmount int64) string {
+	result := s.UpdateTransaction(id, newName, newAmount)
+	return result
 }
