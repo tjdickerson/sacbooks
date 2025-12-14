@@ -62,7 +62,7 @@ func (s *Server) GetTransactionList(limit int, offset int) types.Result[[]types.
 }
 
 func (s *Server) GetAccountInfo() types.Result[types.Account] {
-	result := types.Result[types.Account] {
+	result := types.Result[types.Account]{
 		Success: true,
 	}
 	account, err := db.GetDefaultAccount()
@@ -83,7 +83,7 @@ func (s *Server) GetAccountInfo() types.Result[types.Account] {
 }
 
 func (s *Server) GetRecurringList() types.Result[[]types.Recurring] {
-	result := types.Result[[]types.Recurring]{}
+	result := types.Result[[]types.Recurring]{Success: true}
 	recurringData, err := db.FetchAllRecurrings()
 	if err != nil {
 		result.Success = false

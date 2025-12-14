@@ -2,15 +2,15 @@ import { useState, useEffect } from 'react';
 import { types as t } from "../wailsjs/go/models";
 
 interface TransactionFormProps {
-    onSubmit: (name: string, amount: number) => void;
+    onSubmit: (name: string, amount: number) => Promise<void>;
     submitting: boolean;
-    initialValues: t.Transaction;
+    initialValues: {name: string, amount: number};
 }
 
 const TransactionInputForm: React.FC<TransactionFormProps> = ({
     onSubmit,
-    submitting:
-    parentSubmitting, initialValues }) => {
+    submitting: parentSubmitting, 
+    initialValues }) => {
 
     // ensure controlled values (strings) and keep in sync if initialValues changes
     const [name, setName] = useState<string>(initialValues?.name ?? '');

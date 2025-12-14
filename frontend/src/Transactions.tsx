@@ -73,6 +73,7 @@ function Transactions() {
 
         try {
             const result: t.RecurringListResult = await GetRecurringList();
+            console.log(result);
             if (result.success) {
                 const data: t.Recurring[] = result.data;
                 setRecurrings(data);
@@ -160,12 +161,12 @@ function Transactions() {
         }
     }
 
-    async function handleAddTransaction(data: t.Transaction) {
+    async function handleAddTransaction(name: string, amount: number) {
         setLoadingTransactions(true);
         setError("");
 
         try {
-            const result: t.TransactionResult = await AddTransaction(data.name, data.amount);
+            const result: t.TransactionResult = await AddTransaction(name, amount);
 
             if (result.success) {
                 const newTransaction: t.Transaction = result.data;
@@ -206,7 +207,10 @@ function Transactions() {
         <div className='transaction-view'>
 
             <div className='transaction-new'>
-                <TransactionInputForm onSubmit={handleAddTransaction} />
+                <TransactionInputForm 
+                    onSubmit={handleAddTransaction} 
+                    submitting={loadingTransactions} 
+                    initialValues={{name: "", amount: 0}}/>
             </div>
 
             <div className='current-balance'>
@@ -244,24 +248,24 @@ function Transactions() {
                     {recurrings.length === 0 && <p>No Recurring Transactions</p>}
                     {recurrings.map((recurring) => {
 
-                        const isAccountedFor = transactionNameMap.has(recurring.Name);
+                        const isAccountedFor = transactionNameMap.has(recurring.name);
 
                         return (
-                            <div key={recurring.Id} className='card recurring-transaction-item'>
+                            <div key={recurring.id} className='card recurring-transaction-item'>
                                 <div className='action-buttons transaction-action'>
-                                    <button onClick={() => handleApplyRecurring(recurring.Id)}>
+                                    <button onClick={() => handleApplyRecurring(recurring.id)}>
                                         <FaArrowLeft />
                                     </button>
                                 </div>
                                 <div className='recurring-transaction-data'>
-                                    <div className='transaction-date'>{recurring.Day}</div>
+                                    <div className='transaction-date'>{recurring.day}</div>
                                     <div className='transaction-info'>
-                                        <div className={`transaction-name ${isAccountedFor ? 'accounted-for' : ''}`}>{recurring.Name}</div>
+                                        <div className={`transaction-name ${isAccountedFor ? 'accounted-for' : ''}`}>{recurring.name}</div>
                                         <div className='transaction-details'>
                                             <div className='transaction-amount-holder'>
                                                 <div className='currency-symbol'>{getCurrencySymbol(getLocale())}</div>
-                                                <div className={`recurring-transaction-amount ${isAccountedFor ? 'accounted-for' : recurring.Amount > 0 ? 'text-positive' : 'text-negative'}`}>
-                                                    {formatAmount(recurring.Amount)}
+                                                <div className={`recurring-transaction-amount ${isAccountedFor ? 'accounted-for' : recurring.amount > 0 ? 'text-positive' : 'text-negative'}`}>
+                                                    {formatAmount(recurring.amount)}
                                                 </div>
                                             </div>
                                         </div>

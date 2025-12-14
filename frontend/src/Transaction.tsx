@@ -5,7 +5,7 @@ import { types as t } from "../wailsjs/go/models";
 
 import { useState } from 'react'
 import { FaTrash, FaEdit, FaSave, FaTimes } from 'react-icons/fa'
-import { formatAmount, getCurrencySymbol, getLocale } from './lib/format';
+import { formatAmount, getCurrencySymbol, getLocale, amountToCents } from './lib/format';
 
 interface TransactionProps {
     transaction: t.Transaction;
@@ -20,20 +20,20 @@ const Transaction: React.FC<TransactionProps> = ({
 
     const [isEditing, setIsEditing] = useState(false);
     const [editName, setEditName] = useState<string>(transaction.name);
-    const [editAmount, setEditAmount] = useState<number>(transaction.amount * 100);
+    const [editAmount, setEditAmount] = useState<string>(formatAmount(transaction.amount));
 
     const isPositive: boolean = Number(transaction.amount) >= 0;
     const amountClass: string = `transaction-amount ${isPositive ? 'positive' : 'negative'}`;
 
     const handleSave = () => {
-        const amountInCents: number = Math.round(editAmount * 100);
+        const amountInCents: number = amountToCents(editAmount);
         onSave(transaction.id, editName, amountInCents);
         setIsEditing(false);
     }
 
     const handleCancel = () => {
         setEditName(transaction.name);
-        setEditAmount(transaction.amount);
+        setEditAmount(formatAmount(transaction.amount));
         setIsEditing(false);
     }
 
@@ -68,7 +68,7 @@ const Transaction: React.FC<TransactionProps> = ({
                                     className='transaction-edit-input'
                                     placeholder='Amount'
                                     value={editAmount}
-                                    onChange={(e) => setEditAmount(Number(e.target.value))}
+                                    onChange={(e) => setEditAmount(e.target.value)}
                                     aria-label="Transaction Amount"
                                     step="0.01" />
                             </>
