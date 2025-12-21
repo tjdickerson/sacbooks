@@ -32,7 +32,7 @@ func (s *Server) Startup() {
 	accountRepo := repo.NewAccountRepo(db)
 
 	s.db = db
-	s.transactionService = service.NewTransactionService(transactionRepo, accountRepo)
+	s.transactionService = service.NewTransactionService(transactionRepo, recurringRepo, accountRepo)
 	s.accountService = service.NewAccountService(accountRepo)
 	s.recurringService = service.NewRecurringService(recurringRepo)
 }
@@ -135,27 +135,14 @@ func (s *Server) UpdateTransaction(id int64, newName string, newAmount int64) ty
 }
 
 func (s *Server) ApplyRecurring(recurringId int64) types.Result[types.Transaction] {
-	result := types.Result[types.Transaction]{
-		Success: true,
-		Message: "",
+	ctx := context.Background()
+
+	t, err := s.transactionService.ApplyRecurring(ctx, recurringId)
+	if err != nil {
+		return types.Fail[types.Transaction](fmt.Sprintf("applying recurring transaction: %s", err))
 	}
 
-	// transaction, err := db.CreateTransactionFromRecurring(recurringId)
-	// if err != nil {
-	// 	result.Success = false
-	// 	result.Message = fmt.Sprintf("error creating transaction: %s", err)
-	// 	return result
-	// }
-	//
-	// feo := types.Transaction{
-	// 	Id:     transaction.Id,
-	// 	Name:   transaction.Name,
-	// 	Date:   transaction.Date,
-	// 	Amount: transaction.Amount,
-	// }
-	// result.Object = feo
-
-	return result
+	return types.Ok(mapTransaction(t))
 }
 
 func mapAccount(account domain.Account) types.Account {

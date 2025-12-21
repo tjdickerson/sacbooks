@@ -98,7 +98,7 @@ const QInsertTransaction = `
 	    , transaction_date
 	    , timestamp_added)
 	values (@account_id, @name, @amount, @transaction_date, @timestamp_added)
-	returning ` + transactionColumns
+	returning ` + transactionColumnsNoAlias
 
 func (r *TransactionRepo) Add(ctx context.Context, t domain.Transaction) (domain.Transaction, error) {
 	row := r.db.QueryRowContext(ctx, QInsertTransaction,
@@ -130,6 +130,14 @@ const transactionColumns = `
 , t.name
 , t.amount
 , t.transaction_date
+`
+
+const transactionColumnsNoAlias = `
+  id
+, account_id
+, name
+, amount
+, transaction_date
 `
 
 func scanTransaction(row interface{ Scan(dest ...any) error }) (domain.Transaction, error) {
