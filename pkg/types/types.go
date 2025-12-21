@@ -8,6 +8,14 @@ type Result[T any] struct {
 	Object  T      `json:"data"`
 }
 
+func Ok[T any](v T) Result[T] {
+	return Result[T]{Success: true, Object: v}
+}
+
+func Fail[T any](msg string) Result[T] {
+	return Result[T]{Success: false, Message: msg}
+}
+
 type TransactionResult struct {
 	Success bool        `json:"success"`
 	Message string      `json:"message"`
@@ -41,7 +49,7 @@ type AccountListResult struct {
 }
 
 type Account struct {
-	Id      int    `json:"id"`
+	Id      int64  `json:"id"`
 	Name    string `json:"name"`
 	Balance int64  `json:"balance"`
 }
@@ -66,7 +74,7 @@ type Recurring struct {
 }
 
 type TransactionInput struct {
-	Id          int64     `json:"id"`
-	Amount      int64     `json:"amount"`
-	Name        string    `json:"name"`
+	Id     int64  `json:"id"`
+	Amount int64  `json:"amount"`
+	Name   string `json:"name"`
 }

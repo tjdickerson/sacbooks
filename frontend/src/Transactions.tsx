@@ -242,7 +242,6 @@ function Transactions() {
             </div>
 
             <div className='recurring-transaction-list'>
-                <div className='recurring-transaction-list-label'>Recurring Transactions</div>
                 <div className='recurring-transaction-items'>
                     {loadingRecurring && <p>Loading..</p>}
                     {recurrings.length === 0 && <p>No Recurring Transactions</p>}
