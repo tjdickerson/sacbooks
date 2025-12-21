@@ -88,37 +88,6 @@
     text-align: right;
 }
 
-.transaction-new-input {
-    flex: 1;
-    padding: 8px 12px;
-    border: 1px solid rgba(31, 45, 48, 0.12);
-    border-radius: 6px;
-    font-size: 14px;
-    font-family: var(--font-sans);
-    background: var(--card);
-}
-
-.transaction-new-input:focus {
-    outline: none;
-    border-color: var(--positive);
-    box-shadow: 0 0 0 3px rgba(1, 131, 89, 0.08);
-}
-
-.transaction-new-button {
-    padding: 8px 16px;
-    background: var(--positive);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 150ms ease;
-}
-
-.transaction-new-button:hover {
-    background: #01704d;
-}
-
 /* ============================================================================
    Transaction Card
    ============================================================================ */

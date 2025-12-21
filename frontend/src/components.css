@@ -79,7 +79,7 @@ select {
   font-family: var(--font-sans);
   padding: 10px 12px;
   border: 1px solid rgba(31,45,48,0.12);
-  border-radius: 6px;
+  border-radius: var(--radius);
   font-size: 14px;
   background: var(--card);
   color: var(--text);

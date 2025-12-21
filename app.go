@@ -61,7 +61,8 @@ func (a *App) GetRecurringList() types.RecurringListResult {
 }
 
 func (a *App) AddTransaction(name string, amount int64) types.TransactionResult {
-	result := a.s.AddTransaction(name, amount, time.Now())
+	accountId := int64(1)
+	result := a.s.AddTransaction(accountId, name, amount, time.Now())
 	resultOut := types.TransactionResult {
 		Success: result.Success,
 		Message: result.Message,

@@ -50,7 +50,7 @@ func (s *Server) GetTransactionList(accountId int64, limit int, offset int) type
 		return types.Fail[[]types.Transaction](fmt.Sprintf("failed to get transactions: %s", err))
 	}
 
-	return types.Ok[[]types.Transaction](mapTransactions(transactions))
+	return types.Ok(mapTransactions(transactions))
 }
 
 func (s *Server) GetAccountInfo(accountId int64) types.Result[types.Account] {
@@ -60,7 +60,7 @@ func (s *Server) GetAccountInfo(accountId int64) types.Result[types.Account] {
 	if err != nil {
 		return types.Fail[types.Account](fmt.Sprintf("failed to get account: %s", err))
 	}
-	return types.Ok[types.Account](mapAccount(account))
+	return types.Ok(mapAccount(account))
 }
 
 func (s *Server) GetRecurringList(accountId int64) types.Result[[]types.Recurring] {
@@ -71,38 +71,19 @@ func (s *Server) GetRecurringList(accountId int64) types.Result[[]types.Recurrin
 		return types.Fail[[]types.Recurring](fmt.Sprintf("failed to get recurring transactions: %s", err))
 	}
 
-	return types.Ok[[]types.Recurring](mapRecurrings(recurrings))
+	return types.Ok(mapRecurrings(recurrings))
 }
 
-func (s *Server) AddTransaction(name string, amount int64, date time.Time) types.Result[types.Transaction] {
-	result := types.Result[types.Transaction]{
-		Success: true,
-		Message: "",
+func (s *Server) AddTransaction(accountId int64, name string, amount int64, date time.Time) types.Result[types.Transaction] {
+	ctx := context.Background()
+
+	transaction, err := s.transactionService.Add(ctx, accountId, name, amount, date)
+
+	if err != nil {
+		return types.Fail[types.Transaction](fmt.Sprintf("error adding transaction: %s", err))
 	}
 
-	// t := &db.Transaction{
-	// 	Name:   name,
-	// 	Amount: amount,
-	// 	Date:   date,
-	// }
-	//
-	// err := db.Insert(t)
-	// if err != nil {
-	// 	result.Success = false
-	// 	result.Message = fmt.Sprintf("failed to add transaction: %s", err)
-	// 	return result
-	// }
-	//
-	// transaction := types.Transaction{
-	// 	Id:          t.Id,
-	// 	Date:        t.Date,
-	// 	DisplayDate: t.Date.Format("02 Jan 2006"),
-	// 	Amount:      t.Amount,
-	// 	Name:        t.Name,
-	// }
-	//
-	// result.Object = transaction
-	return result
+	return types.Ok(mapTransaction(transaction))
 }
 
 func (s *Server) DeleteTransaction(id int64) types.Result[types.Transaction] {
@@ -179,6 +160,9 @@ func (s *Server) ApplyRecurring(recurringId int64) types.Result[types.Transactio
 
 func mapAccount(account domain.Account) types.Account {
 	return types.Account {
+		Id: account.Id,
+		Name: account.Name,
+		Balance: account.Balance,
 	}
 }
 

@@ -226,7 +226,7 @@ function Transactions() {
                 </div>
             </div>
 
-            <div className='transaction-container' ref={transactionContainerRef}>
+            <div className='scrollbox transaction-container' ref={transactionContainerRef}>
                 {error && <p style={{ color: 'red' }}>Error: {error}</p>}
 
                 <div>
@@ -241,7 +241,7 @@ function Transactions() {
                 </div>
             </div>
 
-            <div className='recurring-transaction-list'>
+            <div className='scrollbox recurring-transaction-list'>
                 <div className='recurring-transaction-items'>
                     {loadingRecurring && <p>Loading..</p>}
                     {recurrings.length === 0 && <p>No Recurring Transactions</p>}

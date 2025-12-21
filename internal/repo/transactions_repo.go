@@ -17,11 +17,7 @@ func NewTransactionRepo(db *sql.DB) *TransactionRepo {
 }
 
 const QPagedTransactions = `
-	select t.id
-	     , t.name
-		 , t.amount
-	     , t.transaction_date
-	from transactions t
+	select ` + transactionColumns + ` from transactions t
 	where account_id = @account_id
 	order by t.transaction_date desc
 			,t.timestamp_added desc
@@ -30,74 +26,41 @@ const QPagedTransactions = `
 `
 
 func (r *TransactionRepo) List(ctx context.Context, accountId int64, limit int, offset int) ([]domain.Transaction, error) {
-	stmt, err := r.db.Prepare(QPagedTransactions)
-	if err != nil {
-		return nil, fmt.Errorf("prepare list transactions: %w", err)
-	}
-
-	rows, err := stmt.QueryContext(ctx,
+	rows, err := r.db.QueryContext(ctx, QPagedTransactions,
 		sql.Named("account_id", accountId),
 		sql.Named("limit", limit),
 		sql.Named("offset", offset),
 	)
+
 	if err != nil {
 		return nil, fmt.Errorf("query list transactions: %w", err)
 	}
 
 	defer rows.Close()
 
-	transaction := domain.Transaction{}
 	results := make([]domain.Transaction, 0, limit)
-	var date int64
-	var utcDate time.Time
-	utc, _ := time.LoadLocation("UTC")
 
 	for rows.Next() {
-		err := rows.Scan(
-			&transaction.Id,
-			&transaction.Name,
-			&transaction.Amount,
-			&date,
-		)
+		t, err := scanTransaction(rows)
 		if err != nil {
 			return results, fmt.Errorf("scan list transactions: %w", err)
 		}
 
-		utcDate = time.UnixMilli(date).In(utc)
-		transaction.Date = utcDate
-
-		results = append(results, transaction)
+		results = append(results, t)
 	}
 
 	return results, nil
 }
 
 const QSingleTransaction = `
-	select t.id
-		, t.name
-		, t.amount
-		, t.transaction_date
-	 from transactions t
+	select ` + transactionColumns + ` from transactions t
 	where account_id = @account_id
 	  and t.id = @transaction_id
 `
 
 func (r *TransactionRepo) Single(ctx context.Context, accountId int64, id int64) (domain.Transaction, error) {
-	transaction := domain.Transaction{}
-	stmt, err := r.db.PrepareContext(ctx, QSingleTransaction)
-	if err != nil {
-		return transaction, fmt.Errorf("prepare single transaction %d: %w", id, err)
-	}
-
-	utc, _ := time.LoadLocation("UTC")
-
-	var dateMilis int64
-	err = stmt.QueryRow(
-		sql.Named("account_id", accountId),
-		sql.Named("transaction_id", id),
-	).Scan(&transaction.Id, &transaction.Name, &transaction.Amount, &dateMilis)
-
-	transaction.Date = time.UnixMilli(dateMilis).In(utc)
+	row := r.db.QueryRowContext(ctx, QSingleTransaction, sql.Named("account_id", accountId), sql.Named("transaction_id", id))
+	transaction, err := scanTransaction(row)
 
 	if err != nil {
 		return transaction, fmt.Errorf("query single transaction %d: %w", id, err)
@@ -113,13 +76,8 @@ const QUpdateTransaction = `
 	where id = @id;
 `
 
-func (r *TransactionRepo) Update(ctx context.Context, t *domain.Transaction) error {
-	stmt, err := r.db.PrepareContext(ctx, QUpdateTransaction)
-	if err != nil {
-		return fmt.Errorf("prepare update transaction %d: %w", t.Id, err)
-	}
-
-	_, err = stmt.ExecContext(ctx,
+func (r *TransactionRepo) Update(ctx context.Context, t domain.Transaction) error {
+	_, err := r.db.ExecContext(ctx, QUpdateTransaction,
 		sql.Named("id", t.Id),
 		sql.Named("name", t.Name),
 		sql.Named("amount", t.Amount),
@@ -140,15 +98,10 @@ const QInsertTransaction = `
 	    , transaction_date
 	    , timestamp_added)
 	values (@account_id, @name, @amount, @transaction_date, @timestamp_added)
-`
+	returning ` + transactionColumns
 
-func (r *TransactionRepo) Insert(ctx context.Context, t *domain.Transaction) error {
-	stmt, err := r.db.PrepareContext(ctx, QInsertTransaction)
-	if err != nil {
-		return fmt.Errorf("prepare insert transaction: %w", err)
-	}
-
-	result, err := stmt.ExecContext(ctx,
+func (r *TransactionRepo) Add(ctx context.Context, t domain.Transaction) (domain.Transaction, error) {
+	row := r.db.QueryRowContext(ctx, QInsertTransaction,
 		sql.Named("account_id", t.AccountId),
 		sql.Named("name", t.Name),
 		sql.Named("amount", t.Amount),
@@ -156,36 +109,45 @@ func (r *TransactionRepo) Insert(ctx context.Context, t *domain.Transaction) err
 		sql.Named("timestamp_added", time.Now().UnixMilli()),
 	)
 
-	if err != nil {
-		return fmt.Errorf("exec insert transaction: %w", err)
-	}
-
-	t.Id, err = result.LastInsertId()
-	if err != nil {
-		return fmt.Errorf("last insert transaction: %w", err)
-	}
-
-	return nil;
+	return scanTransaction(row)
 }
-
 
 const QDeleteTransaction = `
 	delete from transactions where id = @id
 `
 
-func (r *TransactionRepo) Delete(ctx context.Context, t *domain.Transaction) error {
-	stmt, err := r.db.PrepareContext(ctx, QDeleteTransaction)
-	if err != nil {
-		return fmt.Errorf("prepare delete transaction %d: %w", t.Id, err)
-	}
-
-	_, err = stmt.ExecContext(ctx, sql.Named("id", t.Id))
+func (r *TransactionRepo) Delete(ctx context.Context, t domain.Transaction) error {
+	_, err := r.db.ExecContext(ctx, QDeleteTransaction, sql.Named("id", t.Id))
 	if err != nil {
 		return fmt.Errorf("exec delete transaction %d: %w", t.Id, err)
 	}
 	return nil
 }
 
+const transactionColumns = `
+  t.id
+, t.account_id
+, t.name
+, t.amount
+, t.transaction_date
+`
 
+func scanTransaction(row interface{ Scan(dest ...any) error }) (domain.Transaction, error) {
+	var t domain.Transaction
+	var dateMillis int64
 
+	err := row.Scan(
+		&t.Id,
+		&t.AccountId,
+		&t.Name,
+		&t.Amount,
+		&dateMillis,
+	)
 
+	if err != nil {
+		return t, fmt.Errorf("scan transaction: %w", err)
+	}
+
+	t.Date = time.UnixMilli(dateMillis).UTC()
+	return t, nil
+}

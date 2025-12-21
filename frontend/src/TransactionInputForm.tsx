@@ -61,7 +61,7 @@ const TransactionInputForm: React.FC<TransactionFormProps> = ({
 
             <input
                 type="text"
-                className='transaction-new-input'
+                className='sac-input transaction-new-input'
                 placeholder='Transaction Name'
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -71,7 +71,7 @@ const TransactionInputForm: React.FC<TransactionFormProps> = ({
 
             <input
                 type="number"
-                className='transaction-new-input'
+                className='sac-input transaction-new-input'
                 placeholder='Amount'
                 value={amount}
                 onChange={(e) => setAmount(Number(e.target.value))}
@@ -79,7 +79,7 @@ const TransactionInputForm: React.FC<TransactionFormProps> = ({
                 step="0.01"
             />
 
-            <button className='transaction-new-button' type="submit" disabled={isSubmitting}>
+            <button className='sac-button transaction-new-button' type="submit" disabled={isSubmitting}>
                 Add
             </button>
         </form>
