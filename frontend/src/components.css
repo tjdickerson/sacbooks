@@ -106,6 +106,10 @@ select:disabled {
   cursor: not-allowed;
 }
 
+.number-input {
+    text-align: right;
+}
+
 /* ============================================================================
    Form Groups
    ============================================================================ */
@@ -304,6 +308,7 @@ select:disabled {
 .view-bar {
     display: flex;
     justify-content: space-between;
+    padding: var(--gap);
 }
 
 .form-label {

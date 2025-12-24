@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { amountToCents, formatAmount } from './lib/format';
 
 interface TransactionFormProps {
     onSubmit: (name: string, amount: number) => Promise<void>;
@@ -13,13 +14,13 @@ const TransactionInputForm: React.FC<TransactionFormProps> = ({
 
     // ensure controlled values (strings) and keep in sync if initialValues changes
     const [name, setName] = useState<string>(initialValues?.name ?? '');
-    const [amount, setAmount] = useState<number>(initialValues?.amount != null ? initialValues.amount : 0);
+    const [amount, setAmount] = useState<string>(formatAmount(initialValues?.amount ?? 0));
     const [submitting, setSubmitting] = useState<boolean>(false);
     const [error, setError] = useState<string>('');
 
     useEffect(() => {
         setName(initialValues?.name ?? '');
-        setAmount(initialValues?.amount != null ? initialValues.amount : 0);
+        setAmount(formatAmount(initialValues?.amount ?? 0));
     }, [initialValues]);
 
     const isSubmitting: boolean = parentSubmitting || submitting;
@@ -36,7 +37,7 @@ const TransactionInputForm: React.FC<TransactionFormProps> = ({
             return;
         }
 
-        const amountInCents = Math.round(amount * 100);
+        const amountInCents = amountToCents(amount);
 
         try {
             if (!parentSubmitting) setSubmitting(true);
@@ -44,7 +45,7 @@ const TransactionInputForm: React.FC<TransactionFormProps> = ({
             const amount: number = amountInCents;
             onSubmit(clean_name, amount);
             setName('');
-            setAmount(0);
+            setAmount('0');
         } catch (err) {
             setError(err?.message || 'Error submitting transaction');
         } finally {
@@ -69,10 +70,10 @@ const TransactionInputForm: React.FC<TransactionFormProps> = ({
 
             <input
                 type="number"
-                className='transaction-new-input'
+                className='number-input transaction-new-input'
                 placeholder='Amount'
                 value={amount}
-                onChange={(e) => setAmount(Number(e.target.value))}
+                onChange={(e) => setAmount(e.target.value)}
                 aria-label="Transaction Amount"
                 step="0.01"
             />
