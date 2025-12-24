@@ -141,6 +141,22 @@ export namespace types {
 		    return a;
 		}
 	}
+	export class TransactionInput {
+	    id: number;
+	    amount: number;
+	    name: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new TransactionInput(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.amount = source["amount"];
+	        this.name = source["name"];
+	    }
+	}
 	export class TransactionListResult {
 	    success: boolean;
 	    message: string;

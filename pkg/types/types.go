@@ -2,6 +2,11 @@ package types
 
 import "time"
 
+type SimpleResult struct {
+	Success bool   `json:"success"`
+	Message string `json:"message"`
+}
+
 type Result[T any] struct {
 	Success bool   `json:"success"`
 	Message string `json:"message"`
@@ -74,7 +79,7 @@ type Recurring struct {
 }
 
 type TransactionInput struct {
-	Id     int64  `json:"id"`
-	Amount int64  `json:"amount"`
-	Name   string `json:"name"`
+	Id        int64  `json:"id"`
+	Amount    int64  `json:"amount"`
+	Name      string `json:"name"`
 }

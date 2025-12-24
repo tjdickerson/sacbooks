@@ -142,8 +142,14 @@ function Transactions() {
         setLoadingTransactions(true);
         setError("");
 
+        const updateInput: t.TransactionInput = {
+            id: id,
+            name: name,
+            amount: amount,
+        }
+
         try {
-            const result: t.TransactionResult = await UpdateTransaction(id, name, amount);
+            const result: t.TransactionResult = await UpdateTransaction(updateInput);
 
             if (result.success) {
                 const updated: t.Transaction = result.data;

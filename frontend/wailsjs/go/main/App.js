@@ -26,6 +26,6 @@ export function GetTransactions(arg1, arg2) {
   return window['go']['main']['App']['GetTransactions'](arg1, arg2);
 }
 
-export function UpdateTransaction(arg1, arg2, arg3) {
-  return window['go']['main']['App']['UpdateTransaction'](arg1, arg2, arg3);
+export function UpdateTransaction(arg1) {
+  return window['go']['main']['App']['UpdateTransaction'](arg1);
 }

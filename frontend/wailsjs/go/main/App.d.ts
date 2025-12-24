@@ -14,4 +14,4 @@ export function GetRecurringList():Promise<types.RecurringListResult>;
 
 export function GetTransactions(arg1:number,arg2:number):Promise<types.TransactionListResult>;
 
-export function UpdateTransaction(arg1:number,arg2:string,arg3:number):Promise<types.TransactionResult>;
+export function UpdateTransaction(arg1:types.TransactionInput):Promise<types.TransactionResult>;

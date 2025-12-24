@@ -79,8 +79,8 @@ func (a *App) DeleteTransaction(id int64) types.TransactionResult {
 	}
 }
 
-func (a *App) UpdateTransaction(id int64, newName string, newAmount int64) types.TransactionResult {
-	result := a.s.UpdateTransaction(id, newName, newAmount)
+func (a *App) UpdateTransaction(input types.TransactionInput) types.TransactionResult {
+	result := a.s.UpdateTransaction(input)
 	return types.TransactionResult {
 		Success: result.Success,
 		Message: result.Message,

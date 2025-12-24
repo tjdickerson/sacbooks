@@ -54,12 +54,11 @@ func (r *TransactionRepo) List(ctx context.Context, accountId int64, limit int, 
 
 const QSingleTransaction = `
 	select ` + transactionColumns + ` from transactions t
-	where account_id = @account_id
-	  and t.id = @transaction_id
+	where t.id = @transaction_id
 `
 
-func (r *TransactionRepo) Single(ctx context.Context, accountId int64, id int64) (domain.Transaction, error) {
-	row := r.db.QueryRowContext(ctx, QSingleTransaction, sql.Named("account_id", accountId), sql.Named("transaction_id", id))
+func (r *TransactionRepo) Single(ctx context.Context, id int64) (domain.Transaction, error) {
+	row := r.db.QueryRowContext(ctx, QSingleTransaction, sql.Named("transaction_id", id))
 	transaction, err := scanTransaction(row)
 
 	if err != nil {
@@ -73,21 +72,17 @@ const QUpdateTransaction = `
 	update transactions 
 	set name = @name,
 	    amount = @amount
-	where id = @id;
-`
+	where id = @id
+	returning ` + transactionColumnsNoAlias
 
-func (r *TransactionRepo) Update(ctx context.Context, t domain.Transaction) error {
-	_, err := r.db.ExecContext(ctx, QUpdateTransaction,
+func (r *TransactionRepo) Update(ctx context.Context, t domain.Transaction) (domain.Transaction, error) {
+	row := r.db.QueryRowContext(ctx, QUpdateTransaction,
 		sql.Named("id", t.Id),
 		sql.Named("name", t.Name),
 		sql.Named("amount", t.Amount),
 	)
 
-	if err != nil {
-		return fmt.Errorf("exec update transaction %d: %w", t.Id, err)
-	}
-
-	return nil
+	return scanTransaction(row)
 }
 
 const QInsertTransaction = `

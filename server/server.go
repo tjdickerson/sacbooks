@@ -86,52 +86,26 @@ func (s *Server) AddTransaction(accountId int64, name string, amount int64, date
 	return types.Ok(mapTransaction(transaction))
 }
 
-func (s *Server) DeleteTransaction(id int64) types.Result[types.Transaction] {
-	result := types.Result[types.Transaction]{
-		Success: true,
-		Message: "",
-	}
-	//
-	// temp := db.Transaction{Id: id}
-	// if err := db.Delete(&temp); err != nil {
-	// 	result.Success = false
-	// 	result.Message = fmt.Sprintf("failed to delete transaction: %s", err)
-	// }
+func (s *Server) DeleteTransaction(id int64) types.SimpleResult {
+	ctx := context.Background()
 
-	return result
+	err := s.transactionService.Delete(ctx, id)
+	if err != nil {
+		return types.SimpleResult { Success: false, Message: fmt.Sprintf("error deleting transaction: %s", err) }
+	}
+
+	return types.SimpleResult { Success: true, Message: "Deleted" }
 }
 
-func (s *Server) UpdateTransaction(id int64, newName string, newAmount int64) types.Result[types.Transaction] {
-	result := types.Result[types.Transaction]{
-		Success: true,
-		Message: "",
+func (s *Server) UpdateTransaction(input types.TransactionInput) types.Result[types.Transaction] {
+	ctx := context.Background()
+
+	t, err := s.transactionService.Update(ctx, input)
+	if err != nil {
+		return types.Fail[types.Transaction](fmt.Sprintf("updating transaction %s: %w", input.Id, err))
 	}
-	//
-	// temp, err := db.GetTransactionById(id)
-	// if err != nil {
-	// 	result.Success = false
-	// 	result.Message = fmt.Sprintf("error during update: %s", err)
-	// 	return result
-	// }
-	//
-	// temp.Name = newName
-	// temp.Amount = newAmount
-	//
-	// err = db.Update(&temp)
-	// if err != nil {
-	// 	result.Success = false
-	// 	result.Message = fmt.Sprintf("error during update: %s", err)
-	// 	return result
-	// }
-	//
-	// feo := types.Transaction{
-	// 	Id:     temp.Id,
-	// 	Name:   temp.Name,
-	// 	Amount: temp.Amount,
-	// }
-	// result.Object = feo
-	//
-	return result
+
+	return types.Ok(mapTransaction(t))
 }
 
 func (s *Server) ApplyRecurring(recurringId int64) types.Result[types.Transaction] {

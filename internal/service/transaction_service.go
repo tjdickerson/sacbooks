@@ -6,6 +6,7 @@ import (
 	"time"
 	"tjdickerson/sacbooks/internal/domain"
 	"tjdickerson/sacbooks/internal/repo"
+	"tjdickerson/sacbooks/pkg/types"
 )
 
 type TransactionService struct {
@@ -35,6 +36,27 @@ func (ts *TransactionService) Add(ctx context.Context, accountId int64, name str
 	})
 }
 
+func (ts *TransactionService) Update(ctx context.Context, input types.TransactionInput) (domain.Transaction, error) {
+	transaction, err := ts.transactionRepo.Single(ctx, input.Id)
+	if err != nil {
+		return transaction, fmt.Errorf("updating transaction %d: %w", input.Id, err)
+	}
+
+	transaction.Name = input.Name
+	transaction.Amount = input.Amount
+
+	return ts.transactionRepo.Update(ctx, transaction)
+}
+
+func (ts *TransactionService) Delete(ctx context.Context, transactionId int64) error {
+	transaction, err := ts.transactionRepo.Single(ctx, transactionId)
+	if err != nil {
+		return fmt.Errorf("deleting transaction %d: %w", transactionId, err)
+	}
+
+	return  ts.transactionRepo.Delete(ctx, transaction)
+}
+
 func (ts *TransactionService) ApplyRecurring(ctx context.Context, recurringId int64) (domain.Transaction, error) {
 	recurring, err := ts.recurringRepo.Single(ctx, recurringId)
 
@@ -44,3 +66,4 @@ func (ts *TransactionService) ApplyRecurring(ctx context.Context, recurringId in
 
 	return ts.Add(ctx, recurring.AccountId, recurring.Name, recurring.Amount, time.Now().UTC())
 }
+
