@@ -10,7 +10,7 @@ import (
 // App struct
 type App struct {
 	ctx context.Context
-	s server.Server
+	s   server.Server
 }
 
 // NewApp creates a new App application struct
@@ -32,8 +32,17 @@ func (a *App) shutdown(ctx context.Context) {
 
 func (a *App) GetTransactions(limit int, offset int) types.TransactionListResult {
 	accountId := int64(1)
-	result := a.s.GetTransactionList(accountId, limit, offset)
+	result := a.s.ListTransactions(accountId, limit, offset)
 	return types.TransactionListResult{
+		Success: result.Success,
+		Message: result.Message,
+		Data:    result.Object,
+	}
+}
+
+func (a *App) GetAccounts() types.AccountListResult {
+	result := a.s.ListAccounts()
+	return types.AccountListResult{
 		Success: result.Success,
 		Message: result.Message,
 		Data:    result.Object,
@@ -53,7 +62,7 @@ func (a *App) GetAccount() types.AccountResult {
 func (a *App) GetRecurringList() types.RecurringListResult {
 	accountId := int64(1)
 	result := a.s.GetRecurringList(accountId)
-	return types.RecurringListResult {
+	return types.RecurringListResult{
 		Success: result.Success,
 		Message: result.Message,
 		Data:    result.Object,
@@ -63,7 +72,7 @@ func (a *App) GetRecurringList() types.RecurringListResult {
 func (a *App) AddTransaction(name string, amount int64) types.TransactionResult {
 	accountId := int64(1)
 	result := a.s.AddTransaction(accountId, name, amount, time.Now())
-	resultOut := types.TransactionResult {
+	resultOut := types.TransactionResult{
 		Success: result.Success,
 		Message: result.Message,
 		Data:    result.Object,
@@ -81,18 +90,27 @@ func (a *App) DeleteTransaction(id int64) types.TransactionResult {
 
 func (a *App) UpdateTransaction(input types.TransactionInput) types.TransactionResult {
 	result := a.s.UpdateTransaction(input)
-	return types.TransactionResult {
+	return types.TransactionResult{
 		Success: result.Success,
 		Message: result.Message,
-		Data: result.Object,
+		Data:    result.Object,
 	}
 }
 
 func (a *App) ApplyRecurring(id int64) types.TransactionResult {
 	result := a.s.ApplyRecurring(id)
-	return types.TransactionResult {
+	return types.TransactionResult{
 		Success: result.Success,
 		Message: result.Message,
-		Data: result.Object,
+		Data:    result.Object,
+	}
+}
+
+func (a *App) AddAccount(name string) types.AccountResult {
+	result := a.s.AddAccount(name)
+	return types.AccountResult{
+		Success: result.Success,
+		Message: result.Message,
+		Data:    result.Object,
 	}
 }

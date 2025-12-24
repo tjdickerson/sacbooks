@@ -7,6 +7,7 @@ function Menu({currentView, onNavigate}) {
         { id: 'transactions', displayText: 'Transactions' },
         { id: 'recurring', displayText: 'Recurring' },
         { id: 'categories', displayText: 'Categories' },
+        { id: 'accounts', displayText: 'Accounts' },
     ];
     
     return (

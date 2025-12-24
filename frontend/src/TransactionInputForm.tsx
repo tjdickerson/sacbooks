@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
-import { types as t } from "../wailsjs/go/models";
 
 interface TransactionFormProps {
     onSubmit: (name: string, amount: number) => Promise<void>;
     submitting: boolean;
     initialValues: {name: string, amount: number};
-}
+};
 
 const TransactionInputForm: React.FC<TransactionFormProps> = ({
     onSubmit,
@@ -25,8 +24,7 @@ const TransactionInputForm: React.FC<TransactionFormProps> = ({
 
     const isSubmitting: boolean = parentSubmitting || submitting;
 
-    async function handleSubmit(e) {
-        e.preventDefault();
+    async function handleSubmit(_e: { preventDefault: () => void; }) {
         setError("");
 
         // simple validation (returns error message or null)

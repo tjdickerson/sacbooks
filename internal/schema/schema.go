@@ -1,4 +1,4 @@
-package database
+package schema
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 )
 
 func Ensure(ctx context.Context, db *sql.DB) error {
-	return nil
+	return createSchema(ctx, db)
 }
 
 func createSchema(ctx context.Context, db *sql.DB) error {
