@@ -3,12 +3,14 @@ import { useEffect, useState } from "react";
 
 interface NewAccountFormProps {
     onSubmit: (name: string) => Promise<void>;
+    onCancel: () => void;
     submitting: boolean;
     initialValues: { name: string };
 };
 
 const NewAccountForm: React.FC<NewAccountFormProps> = ({
     onSubmit,
+    onCancel,
     submitting: parentSubmitting,
     initialValues }) => {
 
@@ -45,6 +47,12 @@ const NewAccountForm: React.FC<NewAccountFormProps> = ({
         }
     }
 
+    async function handleCancel() {
+        setName('');
+        setSubmitting(false);
+        onCancel();
+    }
+
     return (
         <form className='inline-form account-input-form' onSubmit={handleSubmit}>
             {error && <div className='form-error'>{error}</div>}
@@ -60,8 +68,11 @@ const NewAccountForm: React.FC<NewAccountFormProps> = ({
             />
 
 
-            <button className='btn-primary transaction-new-button' type="submit" disabled={isSubmitting}>
+            <button className='btn-primary' type="submit" disabled={isSubmitting}>
                 Add
+            </button>
+            <button className='btn-danger' disabled={isSubmitting} onClick={handleCancel}>
+                Cancel
             </button>
         </form>
     )

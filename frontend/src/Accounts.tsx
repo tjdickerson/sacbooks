@@ -5,6 +5,7 @@ import { types as t } from "../wailsjs/go/models";
 
 function Accounts() {
     const [loadingAccounts, setLoadingAccounts] = useState<boolean>(false);
+    const [addingAccount, setAddingAccount] = useState<boolean>(false);
     const [error, setError] = useState<string>('');
     const [accounts, setAccounts] = useState<t.Account[]>([]);
 
@@ -16,7 +17,12 @@ function Accounts() {
             const results: t.AccountListResult = await GetAccounts();
             if (results.success) {
                 const data: t.Account[] = results.data;
-                setAccounts(data);
+                if (data.length > 0) {
+                    setAccounts(data);
+                } else {
+                    setAddingAccount(true);
+                }
+
             } else {
                 setError(results.message);
             }
@@ -54,20 +60,27 @@ function Accounts() {
     return (
         <div className='view-layout accounts-view'>
             {error && <p style={{ color: 'red' }}>Error: {error}</p>}
-
+            {loadingAccounts && <p>Loading..</p>}
+            
+            {addingAccount && (
             <div className='form-area'>
                 <NewAccountForm
                     onSubmit={handleAddAccount}
+                    onCancel={() => setAddingAccount(false)}
                     submitting={loadingAccounts}
                     initialValues={{ name: "" }} />
             </div>
+            )}
 
-            {loadingAccounts && <p>Loading..</p>}
             <div className='list-container'>
                 <div className='view-bar'>
                     <div className='view-name'>Accounts</div>
                     <div className='view-buttons'>
-                        <button className='btn-primary account-new-button' type="submit">
+                        <button 
+                            className='btn-primary account-new-button' 
+                            type="submit"
+                            onClick={() => setAddingAccount(true)}
+                        >
                             Add
                         </button>
                     </div>
