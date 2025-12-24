@@ -38,7 +38,6 @@
 
 .transaction-list,
 .recurring-transaction-list {
-    overflow-y: auto;
     min-height: 0;
     box-sizing: border-box;
 }

@@ -25,6 +25,10 @@
 }
 
 
+.scrollbox {
+    overflow-y: auto;
+}
+
 /* Width */
 .scrollbox::-webkit-scrollbar {
   width: 8px;

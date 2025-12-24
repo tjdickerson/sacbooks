@@ -6,6 +6,7 @@ import './style.css'
 import './App.css'
 import './components.css'
 import './transaction.css'
+import './account.css'
 
 import App from './App'
 

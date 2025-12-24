@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import NewAccountForm from "./NewAccountForm";
 import { AddAccount, GetAccounts } from "../wailsjs/go/main/App";
 import { types as t } from "../wailsjs/go/models";
+import { FaTrash } from "react-icons/fa";
 
 function Accounts() {
     const [loadingAccounts, setLoadingAccounts] = useState<boolean>(false);
@@ -61,23 +62,21 @@ function Accounts() {
         <div className='view-layout accounts-view'>
             {error && <p style={{ color: 'red' }}>Error: {error}</p>}
             {loadingAccounts && <p>Loading..</p>}
-            
-            {addingAccount && (
-            <div className='form-area'>
-                <NewAccountForm
-                    onSubmit={handleAddAccount}
-                    onCancel={() => setAddingAccount(false)}
-                    submitting={loadingAccounts}
-                    initialValues={{ name: "" }} />
-            </div>
-            )}
 
-            <div className='list-container'>
+            {addingAccount ? (
+                <div className='form-area'>
+                    <NewAccountForm
+                        onSubmit={handleAddAccount}
+                        onCancel={() => setAddingAccount(false)}
+                        submitting={loadingAccounts}
+                        initialValues={{ name: "" }} />
+                </div>
+            ) : (
                 <div className='view-bar'>
                     <div className='view-name'>Accounts</div>
                     <div className='view-buttons'>
-                        <button 
-                            className='btn-primary account-new-button' 
+                        <button
+                            className='btn-primary account-new-button'
                             type="submit"
                             onClick={() => setAddingAccount(true)}
                         >
@@ -85,12 +84,22 @@ function Accounts() {
                         </button>
                     </div>
                 </div>
+            )}
+
+            <div className='list-container'>
                 <div className='scrollbox container accounts-list'>
                     {
                         accounts.map((account) => {
                             return (
-                                <div className='card'>
-                                    <div className='label account-name'>{account.name}</div>
+                                <div className='card account-card'>
+                                    <div className='account-info'>
+                                        <div className='label account-name'>{account.name}</div>
+                                        <div className='action-buttons'>
+                                            <button className='danger' onClick={() => alert("no")}>
+                                                <FaTrash />
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             )
                         })
