@@ -73,7 +73,6 @@ function Transactions() {
 
         try {
             const result: t.RecurringListResult = await GetRecurringList();
-            console.log(result);
             if (result.success) {
                 const data: t.Recurring[] = result.data;
                 setRecurrings(data);
@@ -210,7 +209,7 @@ function Transactions() {
     }
 
     return (
-        <div className='transaction-view'>
+        <div className='view-layout transaction-view'>
 
             <div className='transaction-new'>
                 <TransactionInputForm 
@@ -232,7 +231,7 @@ function Transactions() {
                 </div>
             </div>
 
-            <div className='scrollbox transaction-container' ref={transactionContainerRef}>
+            <div className='scrollbox container transaction-list' ref={transactionContainerRef}>
                 {error && <p style={{ color: 'red' }}>Error: {error}</p>}
 
                 <div>

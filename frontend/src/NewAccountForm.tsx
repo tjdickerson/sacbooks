@@ -46,13 +46,13 @@ const NewAccountForm: React.FC<NewAccountFormProps> = ({
     }
 
     return (
-        <form className='account-input-form' onSubmit={handleSubmit}>
+        <form className='inline-form account-input-form' onSubmit={handleSubmit}>
             {error && <div className='form-error'>{error}</div>}
-            <div className='account-new-label'>New Account</div>
+            <div className='form-label'>New Account</div>
 
             <input
                 type="text"
-                className='sac-input transaction-new-input'
+                className='transaction-new-input'
                 placeholder='Account Name'
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -60,7 +60,7 @@ const NewAccountForm: React.FC<NewAccountFormProps> = ({
             />
 
 
-            <button className='sac-button transaction-new-button' type="submit" disabled={isSubmitting}>
+            <button className='btn-primary transaction-new-button' type="submit" disabled={isSubmitting}>
                 Add
             </button>
         </form>

@@ -4,15 +4,7 @@
 
 /* Transaction View Layout */
 .transaction-view {
-    display: grid;
     grid-template-columns: 1.5fr 1fr;
-    grid-template-rows: auto 1fr;
-    gap: var(--gap);
-    height: 100%;
-    width: 100%;
-    padding: var(--gap);
-    min-height: 0;
-    box-sizing: border-box;
 }
 
 .transaction-view-area:first-child {
@@ -24,15 +16,10 @@
 }
 
 /* Transaction Container */
-.transaction-container {
-    display: flex;
+.transaction-list {
     grid-column: 1;
     grid-row: 2;
-    flex-direction: column;
-    gap: 10px;
-    max-width: var(--max-width);
-    margin: 0 auto;
-    border-radius: var(--radius);
+    display: block;
     width: 100%;
     min-height: 0;
     box-sizing: border-box;
@@ -49,7 +36,7 @@
     width: 100%;
 }
 
-.transaction-container,
+.transaction-list,
 .recurring-transaction-list {
     overflow-y: auto;
     min-height: 0;
@@ -61,8 +48,8 @@
     display: flex;
     gap: 8px;
     align-items: center;
-    padding: 12px;
-    background: rgba(1, 131, 89, 0.02);
+    padding: var(--gap);
+    background: var(--form-bg);
     border: 1px solid rgba(1, 131, 89, 0.1);
     border-radius: var(--radius);
     box-shadow: var(--shadow-2);
@@ -92,23 +79,7 @@
    Transaction Card
    ============================================================================ */
 
-.transaction-card {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    background: var(--card);
-    padding: 10px 12px;
-    border-radius: var(--radius);
-    box-shadow: var(--shadow-2);
-    transition: transform 150ms ease, box-shadow 150ms ease;
-    border: 1px solid rgba(15, 20, 18, 0.03);
-    min-height: 48px;
-}
-
-.transaction-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 22px rgba(31, 45, 48, 0.08);
-}
+/* Cards use the shared `.card` class in components.css */
 
 /* Transaction Info Section */
 .transaction-info {
@@ -308,7 +279,7 @@
 }
 
 @media (max-width: 768px) {
-    .transaction-card {
+    .card {
         padding: 12px;
     }
 
@@ -318,7 +289,7 @@
 }
 
 @media (max-width: 520px) {
-    .transaction-card {
+    .card {
         padding: 8px 10px;
         flex-direction: column;
         align-items: stretch;

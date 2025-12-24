@@ -47,35 +47,7 @@
   background-color: rgba(0, 0, 0, 0.6);
 }
 
-.sac-button {
-    background: var(--positive);
-    color: white;
-    padding: 8px 16px;
-    border: none;
-    border-radius: var(--radius);
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 150ms ease;
-}
-
-.sac-button:hover {
-    background: #01704d;
-}
-
-.sac-input {
-    flex: 1;
-    padding: 8px 12px;
-    border: 1px solid;
-    border-radius: 6px;
-    font-size: 14px;
-    font-family: var(--font-sans);
-    background: var(--card);
-}
-
-.sac-input:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(1, 131, 89, 0.08);
-}
+/* Button and input styles moved to components.css for consistency */
 
 /* ============================================================================
    Menu Bar
@@ -196,15 +168,7 @@
 }
 
 .form-error {
-  position: absolute;
-  
-  top: 100%;
-  left: auto;
   color: var(--negative);
   font-size: 13px;
   margin-top: 4px;
-  
-  background-color: #e6f0ea;
-  box-shadow: inset 0 0 5px rgba(0,0,0,0.1) ;
-  font-size: large;
 }

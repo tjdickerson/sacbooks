@@ -52,18 +52,10 @@ function Accounts() {
     }
 
     return (
-        <div className='accounts-view'>
+        <div className='view-layout accounts-view'>
             {error && <p style={{ color: 'red' }}>Error: {error}</p>}
-            <div className='view-bar'>
-                <div className='view-name'>Accounts</div>
-                <div className='view-buttons'>
-                    <button className='sac-button account-new-button' type="submit">
-                        Add
-                    </button>
-                </div>
-            </div>
 
-            <div className='account-new'>
+            <div className='form-area'>
                 <NewAccountForm
                     onSubmit={handleAddAccount}
                     submitting={loadingAccounts}
@@ -71,16 +63,26 @@ function Accounts() {
             </div>
 
             {loadingAccounts && <p>Loading..</p>}
-            <div className='scrollbox container accounts-list'>
-                {
-                    accounts.map((account) => {
-                        return (
-                            <div className='card'>
-                                <div className='label account-name'>{account.name}</div>
-                            </div>
-                        )
-                    })
-                }
+            <div className='list-container'>
+                <div className='view-bar'>
+                    <div className='view-name'>Accounts</div>
+                    <div className='view-buttons'>
+                        <button className='btn-primary account-new-button' type="submit">
+                            Add
+                        </button>
+                    </div>
+                </div>
+                <div className='scrollbox container accounts-list'>
+                    {
+                        accounts.map((account) => {
+                            return (
+                                <div className='card'>
+                                    <div className='label account-name'>{account.name}</div>
+                                </div>
+                            )
+                        })
+                    }
+                </div>
             </div>
         </div>
     )
