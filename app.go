@@ -32,100 +32,64 @@ func (a *App) shutdown(ctx context.Context) {
 
 func (a *App) GetTransactions(accountId int64, limit int, offset int) types.TransactionListResult {
 	result := a.s.ListTransactions(accountId, limit, offset)
-	return types.TransactionListResult{
-		Success: result.Success,
-		Message: result.Message,
-		Data:    result.Object,
-	}
+	return types.MapTransactionListResult(result)
 }
 
 func (a *App) GetAccounts() types.AccountListResult {
 	result := a.s.ListAccounts()
-	return types.AccountListResult{
-		Success: result.Success,
-		Message: result.Message,
-		Data:    result.Object,
-	}
+	return types.MapAccountListResult(result)
 }
 
 func (a *App) GetAccount(accountId int64) types.AccountResult {
 	result := a.s.GetAccountInfo(accountId)
-	return types.AccountResult{
-		Success: result.Success,
-		Message: result.Message,
-		Data:    result.Object,
-	}
+	return types.MapAccountResult(result)
 }
 
 func (a *App) GetDefaultAccount() types.AccountResult {
 	accountId := int64(1)
 	result := a.s.GetAccountInfo(accountId)
-	return types.AccountResult{
-		Success: result.Success,
-		Message: result.Message,
-		Data:    result.Object,
-	}
+	return types.MapAccountResult(result)
 }
 
 func (a *App) GetRecurringList(accountId int64) types.RecurringListResult {
 	result := a.s.GetRecurringList(accountId)
-	return types.RecurringListResult{
-		Success: result.Success,
-		Message: result.Message,
-		Data:    result.Object,
-	}
+	return types.MapRecurringListResult(result)
 }
 
 func (a *App) AddTransaction(accountId int64, name string, amount int64) types.TransactionResult {
 	result := a.s.AddTransaction(accountId, name, amount, time.Now())
-	resultOut := types.TransactionResult{
-		Success: result.Success,
-		Message: result.Message,
-		Data:    result.Object,
-	}
-	return resultOut
+	return types.MapTransactionResult(result)
 }
 
-func (a *App) DeleteTransaction(id int64) types.TransactionResult {
-	result := a.s.DeleteTransaction(id)
-	return types.TransactionResult{
-		Success: result.Success,
-		Message: result.Message,
-	}
+func (a *App) DeleteTransaction(id int64) types.SimpleResult {
+	return a.s.DeleteTransaction(id)
 }
 
 func (a *App) UpdateTransaction(input types.TransactionInput) types.TransactionResult {
 	result := a.s.UpdateTransaction(input)
-	return types.TransactionResult{
-		Success: result.Success,
-		Message: result.Message,
-		Data:    result.Object,
-	}
+	return types.MapTransactionResult(result)
 }
 
 func (a *App) ApplyRecurring(id int64) types.TransactionResult {
 	result := a.s.ApplyRecurring(id)
-	return types.TransactionResult{
-		Success: result.Success,
-		Message: result.Message,
-		Data:    result.Object,
-	}
+	return types.MapTransactionResult(result)
 }
 
 func (a *App) AddAccount(name string) types.AccountResult {
 	result := a.s.AddAccount(name)
-	return types.AccountResult{
-		Success: result.Success,
-		Message: result.Message,
-		Data:    result.Object,
-	}
+	return types.MapAccountResult(result)
 }
 
 func (a *App) AddRecurring(accountId int64, name string, amount int64, day uint8) types.RecurringResult {
 	result := a.s.AddRecurring(accountId, name, amount, day)
-	return types.RecurringResult{
-		Success: result.Success,
-		Message: result.Message,
-		Data: result.Object,
-	}
+	return types.MapRecurringResult(result)
+}
+
+func (a *App) DeleteRecurring(id int64) types.SimpleResult {
+	return a.s.DeleteRecurring(id)
+}
+
+func (a *App) UpdateRecurring(input types.RecurringInput) types.RecurringResult {
+	result := a.s.UpdateRecurring(input)
+	return types.MapRecurringResult(result)
 }

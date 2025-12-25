@@ -4,6 +4,7 @@ import { AddAccount, GetAccounts } from "../wailsjs/go/main/App";
 import { types as t } from "../wailsjs/go/models";
 import { FaTrash } from "react-icons/fa";
 import { useAccountSelection } from "./AccountContext";
+import { formatAmount, getCurrencySymbol, getLocale } from "./lib/format";
 
 function Accounts() {
     const [loadingAccounts, setLoadingAccounts] = useState<boolean>(false);
@@ -41,7 +42,7 @@ function Accounts() {
         loadAccounts();
 
         return () => { mounted = false; }
-    }, []);
+    }, [selectedAccountId]);
 
     async function handleAddAccount(name: string) {
         setLoadingAccounts(true);
@@ -98,18 +99,28 @@ function Accounts() {
                     {
                         accounts.map((account) => {
                             const selected = account.id == selectedAccountId;
+                            const isPositive: boolean = account.balance > 0;
+                            const amountClass: string = `amount ${isPositive ? "positive" : "negative"}`;
                             return (
                                 <div key={account.id}
-                                    className={`card account-card ${selected ? "selected-account" : ""}`}>
-                                    <div className='account-info'
+                                    className={`card ${selected ? "selected-account" : ""}`}>
+                                    <div className='card-details'
                                         onClick={() => handleSwitchAccount(account.id)}>
-                                        <div className='label account-name'>
+                                        <div className='card-name label'>
                                             {account.name}
                                         </div>
-                                        <div className='action-buttons'>
-                                            <button className='danger' onClick={() => alert("no")}>
-                                                <FaTrash />
-                                            </button>
+                                        <div className='card-details'>
+                                            <div className='amount-holder'>
+                                                <div className='currency-symbol'>{getCurrencySymbol(getLocale())}</div>
+                                                <div className={amountClass}>
+                                                    {formatAmount(account.balance)}
+                                                </div>
+                                            </div>
+                                            <div className='action-buttons'>
+                                                <button className='danger' onClick={() => alert("no")}>
+                                                    <FaTrash />
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -118,7 +129,7 @@ function Accounts() {
                     }
                 </div>
             </div>
-        </div>
+        </div >
     )
 
 }

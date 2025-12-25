@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"time"
 	"tjdickerson/sacbooks/internal/database"
-	"tjdickerson/sacbooks/internal/domain"
 	"tjdickerson/sacbooks/internal/repo"
 	"tjdickerson/sacbooks/internal/schema"
 	"tjdickerson/sacbooks/internal/service"
@@ -53,7 +52,7 @@ func (s *Server) ListTransactions(accountId int64, limit int, offset int) types.
 		return types.Fail[[]types.Transaction](fmt.Sprintf("failed to get transactions: %s", err))
 	}
 
-	return types.Ok(mapTransactions(transactions))
+	return types.Ok(types.MapTransactions(transactions))
 }
 
 func (s *Server) GetAccountInfo(accountId int64) types.Result[types.Account] {
@@ -63,7 +62,7 @@ func (s *Server) GetAccountInfo(accountId int64) types.Result[types.Account] {
 	if err != nil {
 		return types.Fail[types.Account](fmt.Sprintf("failed to get account: %s", err))
 	}
-	return types.Ok(mapAccount(account))
+	return types.Ok(types.MapAccount(account))
 }
 
 func (s *Server) GetRecurringList(accountId int64) types.Result[[]types.Recurring] {
@@ -74,7 +73,7 @@ func (s *Server) GetRecurringList(accountId int64) types.Result[[]types.Recurrin
 		return types.Fail[[]types.Recurring](fmt.Sprintf("failed to get recurring transactions: %s", err))
 	}
 
-	return types.Ok(mapRecurrings(recurrings))
+	return types.Ok(types.MapRecurrings(recurrings))
 }
 
 func (s *Server) AddRecurring(accountId int64, name string, amount int64, day uint8) types.Result[types.Recurring] {
@@ -85,7 +84,7 @@ func (s *Server) AddRecurring(accountId int64, name string, amount int64, day ui
 		return types.Fail[types.Recurring](fmt.Sprintf("adding recurring: %s", err))
 	}
 
-	return types.Ok(mapRecurring(recurring))
+	return types.Ok(types.MapRecurring(recurring))
 }
 
 func (s *Server) AddTransaction(accountId int64, name string, amount int64, date time.Time) types.Result[types.Transaction] {
@@ -97,7 +96,7 @@ func (s *Server) AddTransaction(accountId int64, name string, amount int64, date
 		return types.Fail[types.Transaction](fmt.Sprintf("error adding transaction: %s", err))
 	}
 
-	return types.Ok(mapTransaction(transaction))
+	return types.Ok(types.MapTransaction(transaction))
 }
 
 func (s *Server) DeleteTransaction(id int64) types.SimpleResult {
@@ -119,7 +118,7 @@ func (s *Server) UpdateTransaction(input types.TransactionInput) types.Result[ty
 		return types.Fail[types.Transaction](fmt.Sprintf("updating transaction: %s", err))
 	}
 
-	return types.Ok(mapTransaction(t))
+	return types.Ok(types.MapTransaction(t))
 }
 
 func (s *Server) ApplyRecurring(recurringId int64) types.Result[types.Transaction] {
@@ -130,7 +129,7 @@ func (s *Server) ApplyRecurring(recurringId int64) types.Result[types.Transactio
 		return types.Fail[types.Transaction](fmt.Sprintf("applying recurring transaction: %s", err))
 	}
 
-	return types.Ok(mapTransaction(t))
+	return types.Ok(types.MapTransaction(t))
 }
 
 func (s *Server) AddAccount(name string) types.Result[types.Account] {
@@ -142,7 +141,7 @@ func (s *Server) AddAccount(name string) types.Result[types.Account] {
 		return types.Fail[types.Account](fmt.Sprintf("adding account: %s", err))
 	}
 
-	return types.Ok(mapAccount(a))
+	return types.Ok(types.MapAccount(a))
 }
 
 func (s *Server) ListAccounts() types.Result[[]types.Account] {
@@ -150,63 +149,32 @@ func (s *Server) ListAccounts() types.Result[[]types.Account] {
 
 	list, err := s.accountService.List(ctx)
 	if err != nil {
-		return types.Fail[[]types.Account](fmt.Sprintf("list accounts: %s", err))
+		return types.Fail[[]types.Account](fmt.Sprintf("error listing accounts: %s", err))
 	}
 
-	return types.Ok(mapAccounts(list))
+	return types.Ok(types.MapAccounts(list))
 
 }
 
-func mapAccount(account domain.Account) types.Account {
-	return types.Account{
-		Id:      account.Id,
-		Name:    account.Name,
-		Balance: account.Balance,
-	}
-}
+func (s *Server) UpdateRecurring(input types.RecurringInput) types.Result[types.Recurring] {
+	ctx := context.Background()
 
-func mapAccounts(accounts []domain.Account) []types.Account {
-	out := make([]types.Account, 0, len(accounts))
-	for _, account := range accounts {
-		out = append(out, mapAccount(account))
+	result, err := s.recurringService.Update(ctx, input)
+	if err != nil {
+		return types.Fail[types.Recurring](fmt.Sprintf("error updating recurring: %s", err))
 	}
 
-	return out
+	return types.Ok(types.MapRecurring(result))
 }
 
-func mapTransaction(transaction domain.Transaction) types.Transaction {
-	return types.Transaction{
-		Id:          transaction.Id,
-		Date:        transaction.Date,
-		DisplayDate: transaction.Date.Format("02 Jan 2006"),
-		Amount:      transaction.Amount,
-		Name:        transaction.Name,
-	}
-}
+func (s *Server) DeleteRecurring(id int64) types.SimpleResult {
+	ctx := context.Background()
 
-func mapTransactions(transactions []domain.Transaction) []types.Transaction {
-	out := make([]types.Transaction, 0, len(transactions))
-	for _, transaction := range transactions {
-		out = append(out, mapTransaction(transaction))
+	err := s.recurringService.Delete(ctx, id)
+	if err != nil {
+		return types.SimpleResult{Success: false, Message: fmt.Sprintf("error deleting recurring: %s", err)}
 	}
 
-	return out
+	return types.SimpleResult{Success: true, Message: "Deleted"}
 }
 
-func mapRecurring(recurring domain.Recurring) types.Recurring {
-	return types.Recurring{
-		Id:     recurring.Id,
-		Name:   recurring.Name,
-		Amount: recurring.Amount,
-		Day:    recurring.Day,
-	}
-}
-
-func mapRecurrings(recurrings []domain.Recurring) []types.Recurring {
-	out := make([]types.Recurring, 0, len(recurrings))
-	for _, recurring := range recurrings {
-		out = append(out, mapRecurring(recurring))
-	}
-
-	return out
-}

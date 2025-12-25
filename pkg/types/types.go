@@ -79,7 +79,14 @@ type Recurring struct {
 }
 
 type TransactionInput struct {
-	Id        int64  `json:"id"`
-	Amount    int64  `json:"amount"`
-	Name      string `json:"name"`
+	Id     int64  `json:"id"`
+	Amount int64  `json:"amount"`
+	Name   string `json:"name"`
+}
+
+type RecurringInput struct {
+	Id     int64  `json:"id"`
+	Amount int64  `json:"amount"`
+	Name   string `json:"name"`
+	Day    uint8  `json:"day"`
 }

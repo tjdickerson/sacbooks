@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useAccountSelection } from "./AccountContext";
-import { AddRecurring, GetRecurringList } from "../wailsjs/go/main/App";
+import { AddRecurring, DeleteRecurring, GetRecurringList, UpdateRecurring } from "../wailsjs/go/main/App";
 import { types as t } from "../wailsjs/go/models";
 import NewRecurringForm from "./NewRecurringForm";
-import { FaTrash } from "react-icons/fa";
+import Recurring from "./Recurring";
 
 function Recurrings() {
     const { selectedAccountId } = useAccountSelection();
@@ -35,7 +35,7 @@ function Recurrings() {
         loadRecurrings();
 
         return () => { mounted = false; }
-    }, []);
+    }, [selectedAccountId]);
 
     async function handleAddRecurring(name: string, amount: number, day: number) {
         setLoadingRecurring(true);
@@ -54,6 +54,55 @@ function Recurrings() {
         }
     }
 
+    async function handleDeleteRecurring(id: number) {
+        setLoadingRecurring(true);
+        setError("")
+
+        try {
+            const result: t.SimpleResult = await DeleteRecurring(id);
+
+            if (result.success) {
+                setRecurrings(prev => prev.filter(t => t.id !== id))
+            }
+            else {
+                setError(result?.message)
+            }
+
+        } catch (e) {
+            setError('error');
+        } finally {
+            setLoadingRecurring(false)
+        }
+    }
+
+    async function handleUpdateRecurring(id: number, name: string, amount: number, day: number) {
+        setLoadingRecurring(true);
+        setError("");
+
+        const updateInput: t.RecurringInput = {
+            id: id,
+            name: name,
+            amount: amount,
+            day: day,
+        }
+
+        try {
+            const result: t.RecurringResult = await UpdateRecurring(updateInput);
+
+            if (result.success) {
+                const updated: t.Recurring = result.data;
+                setRecurrings(prev => prev.map(r => r.id === updated.id ? updated : r))
+            }
+            else {
+                setError(result?.message)
+            }
+
+        } catch (err) {
+            setError('error');
+        } finally {
+            setLoadingRecurring(false);
+        }
+    }
     return (
         <div className='view-layout accounts-view'>
             {error && <p style={{ color: 'red' }}>Error: {error}</p>}
@@ -86,23 +135,14 @@ function Recurrings() {
                 <div className='scrollbox container accounts-list'>
                     {recurrings.length > 0 ?
                         (
-                            recurrings.map((recurring) => {
-                                return (
-                                    <div key={recurring.id}
-                                        className='card transaction-card'>
-                                        <div className='transaction-info'>
-                                            <div className='label transaction-name'>
-                                                {recurring.name}
-                                            </div>
-                                            <div className='action-buttons'>
-                                                <button className='danger' onClick={() => alert("no")}>
-                                                    <FaTrash />
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )
-                            })
+                            recurrings.map((recurring) => (
+                                <Recurring
+                                    key={recurring.id}
+                                    recurring={recurring}
+                                    onDelete={handleDeleteRecurring}
+                                    onSave={handleUpdateRecurring}
+                                />
+                            ))
                         ) : (
                             <div>No recurring transactions</div>
                         )}

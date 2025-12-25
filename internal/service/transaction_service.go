@@ -39,7 +39,7 @@ func (ts *TransactionService) Add(ctx context.Context, accountId int64, name str
 func (ts *TransactionService) Update(ctx context.Context, input types.TransactionInput) (domain.Transaction, error) {
 	transaction, err := ts.transactionRepo.Single(ctx, input.Id)
 	if err != nil {
-		return transaction, fmt.Errorf("updating transaction %d: %w", input.Id, err)
+		return transaction, fmt.Errorf("update transaction %d: %w", input.Id, err)
 	}
 
 	transaction.Name = input.Name
@@ -51,7 +51,7 @@ func (ts *TransactionService) Update(ctx context.Context, input types.Transactio
 func (ts *TransactionService) Delete(ctx context.Context, transactionId int64) error {
 	transaction, err := ts.transactionRepo.Single(ctx, transactionId)
 	if err != nil {
-		return fmt.Errorf("deleting transaction %d: %w", transactionId, err)
+		return fmt.Errorf("delete transaction %d: %w", transactionId, err)
 	}
 
 	return  ts.transactionRepo.Delete(ctx, transaction)
@@ -61,7 +61,7 @@ func (ts *TransactionService) ApplyRecurring(ctx context.Context, recurringId in
 	recurring, err := ts.recurringRepo.Single(ctx, recurringId)
 
 	if err != nil {
-		return domain.Transaction{}, fmt.Errorf("applying recurring: %w", err)
+		return domain.Transaction{}, fmt.Errorf("apply recurring: %w", err)
 	}
 
 	return ts.Add(ctx, recurring.AccountId, recurring.Name, recurring.Amount, time.Now().UTC())

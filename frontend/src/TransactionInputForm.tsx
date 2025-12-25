@@ -14,7 +14,7 @@ const TransactionInputForm: React.FC<TransactionFormProps> = ({
 
     // ensure controlled values (strings) and keep in sync if initialValues changes
     const [name, setName] = useState<string>(initialValues?.name ?? '');
-    const [amount, setAmount] = useState<string>(formatAmount(initialValues?.amount ?? 0));
+    const [amount, setAmount] = useState<string>('');
     const [submitting, setSubmitting] = useState<boolean>(false);
     const [error, setError] = useState<string>('');
 
@@ -46,7 +46,7 @@ const TransactionInputForm: React.FC<TransactionFormProps> = ({
             const amount: number = amountInCents;
             await onSubmit(clean_name, amount);
             setName('');
-            setAmount('0');
+            setAmount('');
         } catch (err) {
             setError('Error submitting transaction');
         } finally {

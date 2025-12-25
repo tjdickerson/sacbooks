@@ -13,8 +13,8 @@ function Menu({currentView, onNavigate}: MenuProps) {
     const items: {id: ViewId, displayText: string}[] = [
         { id: 'transactions', displayText: 'Transactions' },
         { id: 'recurrings', displayText: 'Recurring Transactions' },
-        { id: 'categories', displayText: 'Categories' },
         { id: 'accounts', displayText: 'Accounts' },
+        { id: 'categories', displayText: 'Categories' },
     ];
     
     return (

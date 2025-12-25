@@ -36,7 +36,7 @@ const NewRecurringForm: React.FC<NewRecurringFormProps> = ({
         // simple validation (returns error message or null)
         const nameError: string = !name.trim() ? 'Transaction name is required.' : '';
         const amountError : string = isNaN(Number(amount)) ? 'Amount must be a valid number.' : '';
-        const dayError : string = isNaN(Number(amount)) || day < 1 || day > 31 ? 'Day must be a day of a month.' : '';
+        const dayError : string = isNaN(Number(day)) || day < 1 || day > 31 ? 'Day must be a day of a month.' : '';
         const validationError = nameError || amountError || dayError;
         if (validationError) {
             setError(validationError);
@@ -50,7 +50,7 @@ const NewRecurringForm: React.FC<NewRecurringFormProps> = ({
             const clean_name: string = name.trim();
             await onSubmit(clean_name, amountInCents, day);
             setName('');
-            setAmount('0');
+            setAmount(formatAmount(0));
             setDay(1);
         } catch(err) {
             setError('error');
@@ -104,7 +104,7 @@ const NewRecurringForm: React.FC<NewRecurringFormProps> = ({
             <button className='btn-primary' type="submit" disabled={isSubmitting}>
                 Add
             </button>
-            <button className='btn-danger' disabled={isSubmitting} onClick={handleCancel}>
+            <button className='btn-danger' type="button" disabled={isSubmitting} onClick={handleCancel}>
                 Cancel
             </button>
         </form>

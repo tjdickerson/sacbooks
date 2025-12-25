@@ -102,6 +102,24 @@ export namespace types {
 	        this.day = source["day"];
 	    }
 	}
+	export class RecurringInput {
+	    id: number;
+	    amount: number;
+	    name: string;
+	    day: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new RecurringInput(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.amount = source["amount"];
+	        this.name = source["name"];
+	        this.day = source["day"];
+	    }
+	}
 	export class RecurringListResult {
 	    success: boolean;
 	    message: string;
@@ -169,6 +187,20 @@ export namespace types {
 		    }
 		    return a;
 		}
+	}
+	export class SimpleResult {
+	    success: boolean;
+	    message: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new SimpleResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.success = source["success"];
+	        this.message = source["message"];
+	    }
 	}
 	export class Transaction {
 	    id: number;

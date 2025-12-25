@@ -1,5 +1,4 @@
 import './App.css';
-import './transaction.css';
 
 import { types as t } from "../wailsjs/go/models";
 
@@ -7,39 +6,41 @@ import { useState } from 'react'
 import { FaTrash, FaEdit, FaSave, FaTimes } from 'react-icons/fa'
 import { formatAmount, getCurrencySymbol, getLocale, amountToCents } from './lib/format';
 
-interface TransactionProps {
-    transaction: t.Transaction;
-    onSave: (id: number, name: string, amount: number) => void;
+interface RecurringProps {
+    recurring: t.Recurring;
+    onSave: (id: number, name: string, amount: number, day: number) => void;
     onDelete: (id: number) => void;
 }
 
-const Transaction: React.FC<TransactionProps> = ({
-    transaction, 
+const Recurring: React.FC<RecurringProps> = ({
+    recurring, 
     onSave, 
     onDelete }) => {
 
     const [isEditing, setIsEditing] = useState(false);
-    const [editName, setEditName] = useState<string>(transaction.name);
-    const [editAmount, setEditAmount] = useState<string>((transaction.amount / 100).toFixed(2));
+    const [editName, setEditName] = useState<string>(recurring.name);
+    const [editAmount, setEditAmount] = useState<string>((recurring.amount / 100).toFixed(2));
+    const [editDay, setEditDay] = useState<number>(recurring.day);
 
-    const isPositive: boolean = Number(transaction.amount) >= 0;
+    const isPositive: boolean = Number(recurring.amount) >= 0;
     const amountClass: string = `amount ${isPositive ? 'positive' : 'negative'}`;
 
     const handleSave = () => {
         const amountInCents: number = amountToCents(editAmount);
-        onSave(transaction.id, editName, amountInCents);
+        onSave(recurring.id, editName, amountInCents, editDay);
         setIsEditing(false);
     }
 
     const handleCancel = () => {
-        setEditName(transaction.name);
-        setEditAmount((transaction.amount / 100).toFixed(2));
+        setEditName(recurring.name);
+        setEditAmount((recurring.amount / 100).toFixed(2));
+        setEditDay(recurring.day);
         setIsEditing(false);
     }
 
     return (
         <div className='card'>
-            <div className='card-info'>{transaction.display_date}</div>
+            <div className='card-info'>{recurring.day}</div>
             <div className='card-details'>
                 {
                     isEditing ? (
@@ -47,16 +48,16 @@ const Transaction: React.FC<TransactionProps> = ({
                             <input
                                 type="text"
                                 className='transaction-new-input'
-                                placeholder='Transaction Name'
+                                placeholder='Recurring Name'
                                 value={editName}
                                 onChange={(e) => setEditName(e.target.value)}
-                                aria-label="Transaction Name"
+                                aria-label="Recurring Name"
                             />
                         </>
                     )
                         :
                         (<>
-                            <div className='card-name'>{transaction.name}</div>
+                            <div className='card-name'>{recurring.name}</div>
                         </>)
                 }
                 <div className='card-details'>
@@ -69,8 +70,20 @@ const Transaction: React.FC<TransactionProps> = ({
                                     placeholder='Amount'
                                     value={editAmount}
                                     onChange={(e) => setEditAmount(e.target.value)}
-                                    aria-label="Transaction Amount"
+                                    aria-label="Recurring Amount"
                                     step="0.01" />
+
+                                <input
+                                    type="number"
+                                    className='transaction-edit-input'
+                                    placeholder='Day of month'
+                                    value={editDay}
+                                    onChange={(e) => setEditDay(Number(e.target.value))}
+                                    aria-label="Day of month"
+                                    step="1"
+                                    min="1"
+                                    max="31"
+                                    />
                             </>
                         )
                             :
@@ -78,7 +91,7 @@ const Transaction: React.FC<TransactionProps> = ({
                                 <>
                                     <div className='currency-symbol'>{getCurrencySymbol(getLocale())}</div>
                                     <div className={amountClass}>
-                                        {formatAmount(transaction.amount)}
+                                        {formatAmount(recurring.amount)}
                                     </div>
                                 </>
                             )
@@ -97,7 +110,7 @@ const Transaction: React.FC<TransactionProps> = ({
                                 <button onClick={() => setIsEditing(true)}>
                                     <FaEdit />
                                 </button>
-                                <button className='danger' onClick={() => onDelete(transaction.id)}>
+                                <button className='danger' onClick={() => onDelete(recurring.id)}>
                                     <FaTrash />
                                 </button>
                             </>)
@@ -109,4 +122,4 @@ const Transaction: React.FC<TransactionProps> = ({
     )
 }
 
-export default Transaction
+export default Recurring
