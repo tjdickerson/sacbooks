@@ -311,6 +311,11 @@ select:disabled {
     padding: var(--gap);
 }
 
+.label {
+    font-weight: 600;
+    color: var(--text);
+}
+
 .form-label {
     font-weight: 600;
     color: var(--text);

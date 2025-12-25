@@ -1,6 +1,8 @@
 
 .account-card {
     display: flex;
+    background-color: var(--shadow-2);
+    width: 100%
 }
 
 .account-info {
@@ -10,3 +12,11 @@
     align-items: center;
     width: 100%;
 }
+
+.selected-account {
+    border: 1px solid var(--positive);
+    background-color: var(--card);
+}
+
+
+

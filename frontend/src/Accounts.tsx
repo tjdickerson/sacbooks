@@ -3,14 +3,17 @@ import NewAccountForm from "./NewAccountForm";
 import { AddAccount, GetAccounts } from "../wailsjs/go/main/App";
 import { types as t } from "../wailsjs/go/models";
 import { FaTrash } from "react-icons/fa";
+import { useAccountSelection } from "./AccountContext";
 
 function Accounts() {
     const [loadingAccounts, setLoadingAccounts] = useState<boolean>(false);
     const [addingAccount, setAddingAccount] = useState<boolean>(false);
     const [error, setError] = useState<string>('');
     const [accounts, setAccounts] = useState<t.Account[]>([]);
+    const { selectedAccountId, setSelectedAccountId } = useAccountSelection();
 
     async function loadAccounts() {
+        if (loadingAccounts) return;
         setLoadingAccounts(true);
         setError('');
 
@@ -58,6 +61,10 @@ function Accounts() {
 
     }
 
+    function handleSwitchAccount(id: number) {
+        setSelectedAccountId(id);
+    }
+
     return (
         <div className='view-layout accounts-view'>
             {error && <p style={{ color: 'red' }}>Error: {error}</p>}
@@ -90,10 +97,15 @@ function Accounts() {
                 <div className='scrollbox container accounts-list'>
                     {
                         accounts.map((account) => {
+                            const selected = account.id == selectedAccountId;
                             return (
-                                <div className='card account-card'>
-                                    <div className='account-info'>
-                                        <div className='label account-name'>{account.name}</div>
+                                <div key={account.id}
+                                    className={`card account-card ${selected ? "selected-account" : ""}`}>
+                                    <div className='account-info'
+                                        onClick={() => handleSwitchAccount(account.id)}>
+                                        <div className='label account-name'>
+                                            {account.name}
+                                        </div>
                                         <div className='action-buttons'>
                                             <button className='danger' onClick={() => alert("no")}>
                                                 <FaTrash />

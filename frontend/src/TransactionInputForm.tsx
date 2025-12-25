@@ -47,7 +47,7 @@ const TransactionInputForm: React.FC<TransactionFormProps> = ({
             setName('');
             setAmount('0');
         } catch (err) {
-            setError(err?.message || 'Error submitting transaction');
+            setError('Error submitting transaction');
         } finally {
             setSubmitting(false);
         }

@@ -6,6 +6,7 @@ import TransactionInputForm from './TransactionInputForm';
 import './App.css';
 import { formatAmount, getCurrencySymbol, getLocale } from './lib/format';
 import { FaArrowLeft } from 'react-icons/fa'
+import { useAccountSelection } from './AccountContext';
 
 function Transactions() {
     const [transactions, setTransactions] = react.useState<t.Transaction[]>([]);
@@ -16,6 +17,7 @@ function Transactions() {
     const [error, setError] = react.useState<string>("");
     const [page, setPage] = react.useState<number>(0);
     const [hasMore, setHasMore] = react.useState<boolean>(true);
+    const { selectedAccountId } = useAccountSelection();
 
     const transactionContainerRef = react.useRef<HTMLDivElement | null>(null);
     const PAGE_SIZE: number = 20;
@@ -27,7 +29,7 @@ function Transactions() {
 
     async function refreshAccount() {
         try {
-            const result: t.AccountResult = await GetAccount();
+            const result: t.AccountResult = await GetAccount(selectedAccountId!);
             if (result.success) {
                 setAccount(result.data);
             } else {
@@ -35,7 +37,7 @@ function Transactions() {
             }
         }
         catch (err) {
-            setError(err?.Message || "Error getting account information");
+            setError("Error getting account information");
         }
     }
 
@@ -44,7 +46,7 @@ function Transactions() {
         setLoadingTransactions(true);
 
         try {
-            const result: t.TransactionListResult = await GetTransactions(PAGE_SIZE, page * PAGE_SIZE);
+            const result: t.TransactionListResult = await GetTransactions(selectedAccountId!, PAGE_SIZE, page * PAGE_SIZE);
 
             if (result.success) {
                 const data: t.Transaction[] = result.data;
@@ -72,7 +74,7 @@ function Transactions() {
         setLoadingRecurring(true);
 
         try {
-            const result: t.RecurringListResult = await GetRecurringList();
+            const result: t.RecurringListResult = await GetRecurringList(selectedAccountId!);
             if (result.success) {
                 const data: t.Recurring[] = result.data;
                 setRecurrings(data);
@@ -93,6 +95,15 @@ function Transactions() {
 
         return () => { mounted = false; }
     }, []);
+
+    react.useEffect(() => {
+        let mounted = true;
+        loadTransactions();
+        loadRecurrings();
+        refreshAccount();
+
+        return () => { mounted = false; }
+    }, [selectedAccountId]);
 
     react.useEffect(() => {
         const container: HTMLDivElement | null = transactionContainerRef.current;
@@ -131,7 +142,7 @@ function Transactions() {
 
             await refreshAccount();
         } catch (e) {
-            setError(e?.message || e);
+            setError('error');
         } finally {
             setLoadingTransactions(false)
         }
@@ -160,7 +171,7 @@ function Transactions() {
 
             await refreshAccount();
         } catch (err) {
-            setError(err?.Message || err);
+            setError('error');
         } finally {
             setLoadingTransactions(false);
         }
@@ -171,7 +182,7 @@ function Transactions() {
         setError("");
 
         try {
-            const result: t.TransactionResult = await AddTransaction(name, amount);
+            const result: t.TransactionResult = await AddTransaction(selectedAccountId!, name, amount);
 
             if (result.success) {
                 const newTransaction: t.Transaction = result.data;
@@ -183,7 +194,7 @@ function Transactions() {
 
             await refreshAccount()
         } catch (err) {
-            setError(err?.message || String(err));
+            setError('error');
         } finally {
             setLoadingTransactions(false);
         }
@@ -202,7 +213,7 @@ function Transactions() {
                 setError(result.message);
             }
         } catch (err) {
-            setError(err?.Message || err)
+            setError('error')
         } finally {
             setLoadingTransactions(false)
         }
@@ -212,10 +223,10 @@ function Transactions() {
         <div className='view-layout transaction-view'>
 
             <div className='transaction-new'>
-                <TransactionInputForm 
-                    onSubmit={handleAddTransaction} 
-                    submitting={loadingTransactions} 
-                    initialValues={{name: "", amount: 0}}/>
+                <TransactionInputForm
+                    onSubmit={handleAddTransaction}
+                    submitting={loadingTransactions}
+                    initialValues={{ name: "", amount: 0 }} />
             </div>
 
             <div className='current-balance'>

@@ -6,8 +6,8 @@ export function AddAccount(arg1) {
   return window['go']['main']['App']['AddAccount'](arg1);
 }
 
-export function AddTransaction(arg1, arg2) {
-  return window['go']['main']['App']['AddTransaction'](arg1, arg2);
+export function AddTransaction(arg1, arg2, arg3) {
+  return window['go']['main']['App']['AddTransaction'](arg1, arg2, arg3);
 }
 
 export function ApplyRecurring(arg1) {
@@ -18,20 +18,24 @@ export function DeleteTransaction(arg1) {
   return window['go']['main']['App']['DeleteTransaction'](arg1);
 }
 
-export function GetAccount() {
-  return window['go']['main']['App']['GetAccount']();
+export function GetAccount(arg1) {
+  return window['go']['main']['App']['GetAccount'](arg1);
 }
 
 export function GetAccounts() {
   return window['go']['main']['App']['GetAccounts']();
 }
 
-export function GetRecurringList() {
-  return window['go']['main']['App']['GetRecurringList']();
+export function GetDefaultAccount() {
+  return window['go']['main']['App']['GetDefaultAccount']();
 }
 
-export function GetTransactions(arg1, arg2) {
-  return window['go']['main']['App']['GetTransactions'](arg1, arg2);
+export function GetRecurringList(arg1) {
+  return window['go']['main']['App']['GetRecurringList'](arg1);
+}
+
+export function GetTransactions(arg1, arg2, arg3) {
+  return window['go']['main']['App']['GetTransactions'](arg1, arg2, arg3);
 }
 
 export function UpdateTransaction(arg1) {

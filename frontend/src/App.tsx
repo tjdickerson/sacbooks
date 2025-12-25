@@ -5,7 +5,7 @@ import Transactions from './Transactions';
 import Recurrings from './Recurrings';
 import Categories from './Categories';
 import Accounts from './Accounts';
-import { GetAccount } from '../wailsjs/go/main/App';
+import { GetDefaultAccount } from '../wailsjs/go/main/App';
 import { types as t } from "../wailsjs/go/models";
 import { AccountContext } from './AccountContext';
 
@@ -18,9 +18,10 @@ function App() {
     useEffect(() => {
         async function bootstrap() {
             try {
-                const result: t.AccountResult = await GetAccount();
+                const result: t.AccountResult = await GetDefaultAccount();
                 if (result.success) {
                     setHasAccount(true);
+                    setSelectedAccountId(result.data.id);
                     setCurrentView('transactions');
                 } else {
                     setHasAccount(false);

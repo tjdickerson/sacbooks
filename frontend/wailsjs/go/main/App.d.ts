@@ -4,18 +4,20 @@ import {types} from '../models';
 
 export function AddAccount(arg1:string):Promise<types.AccountResult>;
 
-export function AddTransaction(arg1:string,arg2:number):Promise<types.TransactionResult>;
+export function AddTransaction(arg1:number,arg2:string,arg3:number):Promise<types.TransactionResult>;
 
 export function ApplyRecurring(arg1:number):Promise<types.TransactionResult>;
 
 export function DeleteTransaction(arg1:number):Promise<types.TransactionResult>;
 
-export function GetAccount():Promise<types.AccountResult>;
+export function GetAccount(arg1:number):Promise<types.AccountResult>;
 
 export function GetAccounts():Promise<types.AccountListResult>;
 
-export function GetRecurringList():Promise<types.RecurringListResult>;
+export function GetDefaultAccount():Promise<types.AccountResult>;
 
-export function GetTransactions(arg1:number,arg2:number):Promise<types.TransactionListResult>;
+export function GetRecurringList(arg1:number):Promise<types.RecurringListResult>;
+
+export function GetTransactions(arg1:number,arg2:number,arg3:number):Promise<types.TransactionListResult>;
 
 export function UpdateTransaction(arg1:types.TransactionInput):Promise<types.TransactionResult>;

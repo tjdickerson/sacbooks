@@ -30,8 +30,7 @@ func (a *App) shutdown(ctx context.Context) {
 	a.s.Shutdown()
 }
 
-func (a *App) GetTransactions(limit int, offset int) types.TransactionListResult {
-	accountId := int64(1)
+func (a *App) GetTransactions(accountId int64, limit int, offset int) types.TransactionListResult {
 	result := a.s.ListTransactions(accountId, limit, offset)
 	return types.TransactionListResult{
 		Success: result.Success,
@@ -49,7 +48,16 @@ func (a *App) GetAccounts() types.AccountListResult {
 	}
 }
 
-func (a *App) GetAccount() types.AccountResult {
+func (a *App) GetAccount(accountId int64) types.AccountResult {
+	result := a.s.GetAccountInfo(accountId)
+	return types.AccountResult{
+		Success: result.Success,
+		Message: result.Message,
+		Data:    result.Object,
+	}
+}
+
+func (a *App) GetDefaultAccount() types.AccountResult {
 	accountId := int64(1)
 	result := a.s.GetAccountInfo(accountId)
 	return types.AccountResult{
@@ -59,8 +67,7 @@ func (a *App) GetAccount() types.AccountResult {
 	}
 }
 
-func (a *App) GetRecurringList() types.RecurringListResult {
-	accountId := int64(1)
+func (a *App) GetRecurringList(accountId int64) types.RecurringListResult {
 	result := a.s.GetRecurringList(accountId)
 	return types.RecurringListResult{
 		Success: result.Success,
@@ -69,8 +76,7 @@ func (a *App) GetRecurringList() types.RecurringListResult {
 	}
 }
 
-func (a *App) AddTransaction(name string, amount int64) types.TransactionResult {
-	accountId := int64(1)
+func (a *App) AddTransaction(accountId int64, name string, amount int64) types.TransactionResult {
 	result := a.s.AddTransaction(accountId, name, amount, time.Now())
 	resultOut := types.TransactionResult{
 		Success: result.Success,
