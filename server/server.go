@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"time"
 	"tjdickerson/sacbooks/internal/database"
@@ -24,7 +25,6 @@ func (s *Server) Startup() {
 	dbPath := ".\\active.db"
 
 	db, err := database.Startup(dbPath)
-	schema.Ensure(ctx, db)
 
 	if err != nil {
 		panic(fmt.Sprintf("Failed to open DB connection: %s", err))
@@ -38,6 +38,13 @@ func (s *Server) Startup() {
 	s.transactionService = service.NewTransactionService(transactionRepo, recurringRepo, accountRepo)
 	s.accountService = service.NewAccountService(accountRepo)
 	s.recurringService = service.NewRecurringService(recurringRepo)
+
+	err = schema.Ensure(ctx, db)
+	if errors.Is(err, schema.NoAccountError) {
+		s.accountService.Add(ctx, "Checking");
+	} else {
+		panic(fmt.Sprintf("Failed to initialize new database: %s", err))
+	}
 }
 
 func (s *Server) Shutdown() {

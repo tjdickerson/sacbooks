@@ -3,19 +3,51 @@ package schema
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 )
 
+var NoAccountError = errors.New("no account exists")
+
 func Ensure(ctx context.Context, db *sql.DB) error {
-	// TODO: create default account if none exists.
-	return createSchema(ctx, db)
+	err := createSchema(ctx, db)
+	if err != nil {
+		return err
+	}
+
+	return checkAccountExists(ctx, db)
 }
 
+func checkAccountExists(ctx context.Context, db *sql.DB) error {
+	row := db.QueryRowContext(ctx, "select count(1) from accounts")
+	var count int
+
+	err := row.Scan(&count)
+	if err != nil {
+		return fmt.Errorf("scan existing account: %w", err)
+	}
+
+	if count > 0 {
+		return nil
+	}
+	
+	return NoAccountError
+}
+
+
 func createSchema(ctx context.Context, db *sql.DB) error {
-	if err := createTable(ctx, db, CreateTableAccounts); err != nil {return err}
-	if err := createTable(ctx, db, CreateTableCategories); err != nil {return err}
-	if err := createTable(ctx, db, CreateTableTransactions); err != nil {return err}
-	if err := createTable(ctx, db, CreateTableRecurrings); err != nil {return err}
+	if err := createTable(ctx, db, CreateTableAccounts); err != nil {
+		return err
+	}
+	if err := createTable(ctx, db, CreateTableCategories); err != nil {
+		return err
+	}
+	if err := createTable(ctx, db, CreateTableTransactions); err != nil {
+		return err
+	}
+	if err := createTable(ctx, db, CreateTableRecurrings); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -41,9 +73,22 @@ const CreateTableTransactions = `
 	    name varchar(1000),
 	    account_id integer,
 	    category_id integer,
+		actualized_recurring_id integer,
+		period_id integer, 
 		timestamp_added integer,
 	    foreign key(account_id) references accounts(id),
-	    foreign key(category_id) references categories(id)
+	    foreign key(category_id) references categories(id),
+	    foreign key(period_id) references periods(id),
+		foreign key(actualized_recurring_id) references actualized_recurrings(id)
+	);
+`
+
+const CreatePeriodsTable = `
+	create table if not exists periods (
+		id integer primary key,
+		reporting_start integer,
+		reporting_end integer,
+		start_timestamp integer
 	);
 `
 
@@ -51,6 +96,21 @@ const CreateTableAccounts = `
 	create table if not exists accounts (
 		id integer primary key,
 	    name varchar(100)
+	);
+`
+
+const CreateTableAcrualizedRecurrings = `
+	create table if not exists actualized_recurrings (
+		id integer primary key,
+		account_id integer,
+		period_id integer,
+		category_snapshot varchar(100),
+		name_snapshot varchar(100),
+		occurence_day_snapshot integer,
+		amount_shapshot integer,
+	    timestamp_created integer,
+		foreign key(account_id) references accounts(id),
+		foreign key(period_id) references periods(id)
 	);
 `
 
