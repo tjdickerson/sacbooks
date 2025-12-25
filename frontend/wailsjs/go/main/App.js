@@ -6,6 +6,10 @@ export function AddAccount(arg1) {
   return window['go']['main']['App']['AddAccount'](arg1);
 }
 
+export function AddRecurring(arg1, arg2, arg3, arg4) {
+  return window['go']['main']['App']['AddRecurring'](arg1, arg2, arg3, arg4);
+}
+
 export function AddTransaction(arg1, arg2, arg3) {
   return window['go']['main']['App']['AddTransaction'](arg1, arg2, arg3);
 }

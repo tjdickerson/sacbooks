@@ -7,6 +7,7 @@ import (
 )
 
 func Ensure(ctx context.Context, db *sql.DB) error {
+	// TODO: create default account if none exists.
 	return createSchema(ctx, db)
 }
 

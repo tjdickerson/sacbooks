@@ -77,6 +77,17 @@ func (s *Server) GetRecurringList(accountId int64) types.Result[[]types.Recurrin
 	return types.Ok(mapRecurrings(recurrings))
 }
 
+func (s *Server) AddRecurring(accountId int64, name string, amount int64, day uint8) types.Result[types.Recurring] {
+	ctx := context.Background()
+
+	recurring, err := s.recurringService.Add(ctx, accountId, name, amount, day)
+	if err != nil {
+		return types.Fail[types.Recurring](fmt.Sprintf("adding recurring: %s", err))
+	}
+
+	return types.Ok(mapRecurring(recurring))
+}
+
 func (s *Server) AddTransaction(accountId int64, name string, amount int64, date time.Time) types.Result[types.Transaction] {
 	ctx := context.Background()
 

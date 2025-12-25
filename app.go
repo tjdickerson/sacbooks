@@ -120,3 +120,12 @@ func (a *App) AddAccount(name string) types.AccountResult {
 		Data:    result.Object,
 	}
 }
+
+func (a *App) AddRecurring(accountId int64, name string, amount int64, day uint8) types.RecurringResult {
+	result := a.s.AddRecurring(accountId, name, amount, day)
+	return types.RecurringResult{
+		Success: result.Success,
+		Message: result.Message,
+		Data: result.Object,
+	}
+}

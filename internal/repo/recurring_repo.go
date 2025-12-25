@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"time"
 	"tjdickerson/sacbooks/internal/domain"
 )
 
@@ -40,6 +41,29 @@ func (r *RecurringRepo) List(ctx context.Context, accountId int64) ([]domain.Rec
 	}
 
 	return result, nil
+}
+
+const QInsertRecurring = `
+	insert into recurring (
+		  account_id
+	    , name
+	    , amount
+	    , occurrence_day
+	    , timestamp_added)
+	values (@account_id, @name, @amount, @occurrence_day, @timestamp_added)
+	returning id, account_id, name, amount, occurrence_day, timestamp_added
+`
+
+func (r *RecurringRepo) Add(ctx context.Context, rt domain.Recurring) (domain.Recurring, error) {
+	row := r.db.QueryRowContext(ctx, QInsertRecurring,
+		sql.Named("account_id", rt.AccountId),
+		sql.Named("name", rt.Name),
+		sql.Named("amount", rt.Amount),
+		sql.Named("occurrence_day", rt.Day),
+		sql.Named("timestamp_added", time.Now().UnixMilli()),
+	)
+
+	return scanRecurring(row)
 }
 
 const QSingleRecurring = `

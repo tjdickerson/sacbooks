@@ -4,6 +4,8 @@ import {types} from '../models';
 
 export function AddAccount(arg1:string):Promise<types.AccountResult>;
 
+export function AddRecurring(arg1:number,arg2:string,arg3:number,arg4:number):Promise<types.RecurringResult>;
+
 export function AddTransaction(arg1:number,arg2:string,arg3:number):Promise<types.TransactionResult>;
 
 export function ApplyRecurring(arg1:number):Promise<types.TransactionResult>;

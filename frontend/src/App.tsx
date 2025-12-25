@@ -1,5 +1,5 @@
 import './App.css';
-import { SetStateAction, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Menu from "./Menu";
 import Transactions from './Transactions';
 import Recurrings from './Recurrings';
@@ -8,55 +8,47 @@ import Accounts from './Accounts';
 import { GetDefaultAccount } from '../wailsjs/go/main/App';
 import { types as t } from "../wailsjs/go/models";
 import { AccountContext } from './AccountContext';
+import { ViewId } from './views';
 
 
 function App() {
     const [selectedAccountId, setSelectedAccountId] = useState<number | null>(null);
-    const [currentView, setCurrentView] = useState('transactions');
-    const [hasAccount, setHasAccount] = useState<boolean | null>(null);
+    const [currentView, setCurrentView] = useState<ViewId>('transactions');
 
     useEffect(() => {
         async function bootstrap() {
-            try {
-                const result: t.AccountResult = await GetDefaultAccount();
-                if (result.success) {
-                    setHasAccount(true);
-                    setSelectedAccountId(result.data.id);
-                    setCurrentView('transactions');
-                } else {
-                    setHasAccount(false);
-                    setCurrentView('accounts');
-                }
-            } catch {
-                setHasAccount(false);
-                setCurrentView('accounts');
+            const result: t.AccountResult = await GetDefaultAccount();
+            if (result.success) {
+                setSelectedAccountId(result.data.id);
             }
         }
-        
+
         bootstrap();
     }, []);
 
-    function handleNavigate(viewId: SetStateAction<string>) {
+    function handleNavigate(viewId: ViewId) {
         setCurrentView(viewId);
     }
 
-    if (hasAccount === null) return ( <div>Loading...</div> );
+    if (selectedAccountId == null) {
+        return <div>Loading...</div>
+    }
 
     return (
         <AccountContext.Provider value={{ selectedAccountId, setSelectedAccountId }}>
-        <div id="App">
-            <header className="app-header">
-                <Menu currentView={currentView} onNavigate={handleNavigate} />
-            </header>
-            <main id="app-content" className="app-main">
-                <div className="container">
-                    {currentView === 'transactions' && <Transactions />}
-                    {currentView === 'recurrings' && <Recurrings />}
-                    {currentView === 'categories' && <Categories />}
-                    {currentView === 'accounts' && <Accounts />}
-                </div>
-            </main>
-        </div>
+            <div id="App">
+                <header className="app-header">
+                    <Menu currentView={currentView} onNavigate={handleNavigate} />
+                </header>
+                <main id="app-content" className="app-main">
+                    <div className="container">
+                        {currentView === 'transactions' && <Transactions />}
+                        {currentView === 'recurrings' && <Recurrings />}
+                        {currentView === 'categories' && <Categories />}
+                        {currentView === 'accounts' && <Accounts />}
+                    </div>
+                </main>
+            </div>
         </AccountContext.Provider>
     );
 }

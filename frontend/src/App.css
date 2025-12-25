@@ -25,7 +25,12 @@
 }
 
 
+.list-container {
+    min-height: 0;
+}
+
 .scrollbox {
+    min-height: 0;
     overflow-y: auto;
 }
 

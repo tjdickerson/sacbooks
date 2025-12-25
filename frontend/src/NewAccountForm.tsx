@@ -24,7 +24,8 @@ const NewAccountForm: React.FC<NewAccountFormProps> = ({
 
     const isSubmitting: boolean = parentSubmitting || submitting;
 
-    async function handleSubmit(_: { preventDefault: () => void; }) {
+    async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+        e.preventDefault();
         setError('');
 
         const nameError: string = !name.trim() ? 'Account name is required.' : '';
@@ -38,10 +39,10 @@ const NewAccountForm: React.FC<NewAccountFormProps> = ({
         try {
             if (!parentSubmitting) setSubmitting(true);
             const clean_name: string = name.trim();
-            onSubmit(clean_name);
+            await onSubmit(clean_name);
             setName('');
         } catch(err) {
-            setError(err?.message);
+            setError('error');
         } finally {
             setSubmitting(false);
         }
@@ -71,7 +72,7 @@ const NewAccountForm: React.FC<NewAccountFormProps> = ({
             <button className='btn-primary' type="submit" disabled={isSubmitting}>
                 Add
             </button>
-            <button className='btn-danger' disabled={isSubmitting} onClick={handleCancel}>
+            <button className='btn-danger' type="button" disabled={isSubmitting} onClick={handleCancel}>
                 Cancel
             </button>
         </form>

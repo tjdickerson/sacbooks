@@ -83,8 +83,8 @@ function Accounts() {
                     <div className='view-name'>Accounts</div>
                     <div className='view-buttons'>
                         <button
+                            type='button'
                             className='btn-primary account-new-button'
-                            type="submit"
                             onClick={() => setAddingAccount(true)}
                         >
                             Add

@@ -1,11 +1,18 @@
 import './App.css';
 import logo from './assets/images/SacHead.svg'
 import MenuItem from './MenuItem';
+import { ViewId } from './views';
 
-function Menu({currentView, onNavigate}) {
-    const items = [
+ 
+type MenuProps = {
+    currentView: ViewId;
+    onNavigate: (view: ViewId) => void;
+};
+
+function Menu({currentView, onNavigate}: MenuProps) {
+    const items: {id: ViewId, displayText: string}[] = [
         { id: 'transactions', displayText: 'Transactions' },
-        { id: 'recurring', displayText: 'Recurring' },
+        { id: 'recurrings', displayText: 'Recurring Transactions' },
         { id: 'categories', displayText: 'Categories' },
         { id: 'accounts', displayText: 'Accounts' },
     ];
