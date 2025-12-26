@@ -2,9 +2,13 @@ export namespace types {
 	
 	export class Account {
 	    id: number;
+	    period_id: number;
 	    name: string;
 	    balance: number;
 	    period_start_day: number;
+	    reporting_start: string;
+	    reporting_end: string;
+	    opened_on: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new Account(source);
@@ -13,9 +17,13 @@ export namespace types {
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.id = source["id"];
+	        this.period_id = source["period_id"];
 	        this.name = source["name"];
 	        this.balance = source["balance"];
 	        this.period_start_day = source["period_start_day"];
+	        this.reporting_start = source["reporting_start"];
+	        this.reporting_end = source["reporting_end"];
+	        this.opened_on = source["opened_on"];
 	    }
 	}
 	export class AccountListResult {
@@ -299,18 +307,20 @@ export namespace types {
 		    return a;
 		}
 	}
-	export class TransactionInput {
-	    id: number;
+	export class TransactionInsertInput {
+	    account_id: number;
+	    period_id: number;
 	    amount: number;
 	    name: string;
 	
 	    static createFrom(source: any = {}) {
-	        return new TransactionInput(source);
+	        return new TransactionInsertInput(source);
 	    }
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.id = source["id"];
+	        this.account_id = source["account_id"];
+	        this.period_id = source["period_id"];
 	        this.amount = source["amount"];
 	        this.name = source["name"];
 	    }
@@ -382,6 +392,22 @@ export namespace types {
 		    }
 		    return a;
 		}
+	}
+	export class TransactionUpdateInput {
+	    id: number;
+	    amount: number;
+	    name: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new TransactionUpdateInput(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.amount = source["amount"];
+	        this.name = source["name"];
+	    }
 	}
 
 }

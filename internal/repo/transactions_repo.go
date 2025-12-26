@@ -18,16 +18,17 @@ func NewTransactionRepo(db *sql.DB) *TransactionRepo {
 
 const QPagedTransactions = `
 	select ` + transactionColumns + ` from transactions t
-	where account_id = @account_id
+	where account_id = @account_id and period_id = @period_id
 	order by t.transaction_date desc
 			,t.timestamp_added desc
 		    ,t.id desc
 	limit @limit offset @offset
 `
 
-func (r *TransactionRepo) List(ctx context.Context, accountId int64, limit int, offset int) ([]domain.Transaction, error) {
+func (r *TransactionRepo) List(ctx context.Context, accountId int64, periodId int64, limit int, offset int) ([]domain.Transaction, error) {
 	rows, err := r.db.QueryContext(ctx, QPagedTransactions,
 		sql.Named("account_id", accountId),
+		sql.Named("period_id", periodId),
 		sql.Named("limit", limit),
 		sql.Named("offset", offset),
 	)
@@ -104,7 +105,7 @@ const QInsertTransaction = `
 		@account_id, 
 		@category_id,
 		@actualized_recurring_id,
-		@period_id
+		@period_id,
 		@timestamp_added)
 	returning ` + transactionColumnsNoAlias
 

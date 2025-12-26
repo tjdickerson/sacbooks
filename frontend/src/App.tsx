@@ -5,29 +5,25 @@ import Transactions from './Transactions';
 import Recurrings from './Recurrings';
 import Categories from './Categories';
 import Accounts from './Accounts';
-import { GetActivePeriod, GetDefaultAccount } from '../wailsjs/go/main/App';
+import { GetDefaultAccount } from '../wailsjs/go/main/App';
 import { types as t } from "../wailsjs/go/models";
 import { AccountContext } from './AccountContext';
 import { ViewId } from './views';
 
 
 function App() {
-    const [selectedAccountId, setSelectedAccountId] = useState<number | null>(null);
-    const [selectedAccountName, setSelectedAccountName] = useState<string | null>(null);
-    const [activeReportingStart, setActiveReportingStart] = useState<string | null>(null);
+    const [selectedAccount, setSelectedAccount] = useState<t.Account | null>(null);
     const [currentView, setCurrentView] = useState<ViewId>('transactions');
+    const [error, setError] = useState<string>('');
 
 
     useEffect(() => {
         async function bootstrap() {
             const result: t.AccountResult = await GetDefaultAccount();
             if (result.success) {
-                setSelectedAccountId(result.data.id);
-                setSelectedAccountName(result.data.name);
-                const periodResult: t.PeriodResult = await GetActivePeriod(result.data.id);
-                if (periodResult.success) {
-                    setActiveReportingStart(periodResult.data.reporting_start)
-                }
+                setSelectedAccount(result.data);
+            } else {
+               setError(result.message);
             }
         }
 
@@ -38,15 +34,17 @@ function App() {
         setCurrentView(viewId);
     }
 
-    if (selectedAccountId == null) {
+    if (error) {
+        return <div>Error: {error}</div>
+    }
+
+    if (selectedAccount == null || selectedAccount.id == null) {
         return <div>Loading...</div>
     }
 
     return (
         <AccountContext.Provider value={{ 
-            selectedAccountId, setSelectedAccountId, 
-            selectedAccountName, setSelectedAccountName, 
-            activeReportingStart, setActiveReportingStart }}>
+            selectedAccount, setSelectedAccount }}>
             <div id="App">
                 <header className="app-header">
                     <Menu

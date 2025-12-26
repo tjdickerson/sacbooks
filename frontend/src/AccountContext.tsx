@@ -1,15 +1,9 @@
 import {createContext, useContext} from 'react';
-
+import { types as t } from "../wailsjs/go/models";
 
 export type AccountContextValue = {
-    selectedAccountId: number | null;
-    setSelectedAccountId: (id: number | null) => void;
-
-    selectedAccountName: string | null;
-    setSelectedAccountName: (id: string | null) => void;
-
-    activeReportingStart: string | null;
-    setActiveReportingStart: (id: string | null) => void;
+    selectedAccount: t.Account | null;
+    setSelectedAccount: (account: t.Account | null) => void;
 };
 
 export const AccountContext = createContext<AccountContextValue | null>(null);

@@ -53,7 +53,7 @@ func MapAccountResult(in Result[Account]) AccountResult {
 }
 
 func MapPeriodResult(in Result[Period]) PeriodResult {
-	return PeriodResult {
+	return PeriodResult{
 		Success: in.Success,
 		Message: in.Message,
 		Data:    in.Object,
@@ -63,9 +63,13 @@ func MapPeriodResult(in Result[Period]) PeriodResult {
 func MapAccount(account domain.Account) Account {
 	return Account{
 		Id:             account.Id,
+		PeriodId:       account.PeriodId,
 		Name:           account.Name,
 		Balance:        account.Balance,
 		PeriodStartDay: account.PeriodStartDay,
+		ReportingStart: account.ReportingStartDisplay,
+		ReportingEnd:   account.ReportingEndDisplay,
+		OpenedOn:       account.OpenedOnDisplay,
 	}
 }
 
@@ -123,4 +127,3 @@ func MapPeriod(period domain.Period) Period {
 		OpenedOn:       period.OpenedOn.Format("02 Jan 2006"),
 	}
 }
-

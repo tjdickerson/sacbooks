@@ -11,7 +11,8 @@ function Accounts() {
     const [addingAccount, setAddingAccount] = useState<boolean>(false);
     const [error, setError] = useState<string>('');
     const [accounts, setAccounts] = useState<t.Account[]>([]);
-    const { selectedAccountId, setSelectedAccountId, selectedAccountName, setSelectedAccountName, activeReportingStart, setActiveReportingStart } = useAccountSelection();
+    const { selectedAccount, setSelectedAccount } = useAccountSelection();
+    const selectedAccountId = selectedAccount?.id;
     const [isEditing, setIsEditing] = useState(false);
     const [editName, setEditName] = useState<string>('');
     const [editPeriodStartDay, setEditPeriodStartDay] = useState<number>(1);
@@ -67,7 +68,10 @@ function Accounts() {
     }
 
     function handleSwitchAccount(id: number) {
-        setSelectedAccountId(id);
+        const account = accounts.find(a => a.id === id);
+        if (account) {
+            setSelectedAccount(account);
+        }
     }
 
     return (

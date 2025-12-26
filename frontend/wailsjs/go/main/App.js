@@ -10,12 +10,12 @@ export function AddRecurring(arg1, arg2, arg3, arg4) {
   return window['go']['main']['App']['AddRecurring'](arg1, arg2, arg3, arg4);
 }
 
-export function AddTransaction(arg1, arg2, arg3) {
-  return window['go']['main']['App']['AddTransaction'](arg1, arg2, arg3);
+export function AddTransaction(arg1) {
+  return window['go']['main']['App']['AddTransaction'](arg1);
 }
 
-export function ApplyRecurring(arg1) {
-  return window['go']['main']['App']['ApplyRecurring'](arg1);
+export function ApplyRecurring(arg1, arg2) {
+  return window['go']['main']['App']['ApplyRecurring'](arg1, arg2);
 }
 
 export function DeleteRecurring(arg1) {
@@ -42,12 +42,12 @@ export function GetDefaultAccount() {
   return window['go']['main']['App']['GetDefaultAccount']();
 }
 
-export function GetRecurringList(arg1) {
-  return window['go']['main']['App']['GetRecurringList'](arg1);
+export function GetRecurringList(arg1, arg2) {
+  return window['go']['main']['App']['GetRecurringList'](arg1, arg2);
 }
 
-export function GetTransactions(arg1, arg2, arg3) {
-  return window['go']['main']['App']['GetTransactions'](arg1, arg2, arg3);
+export function GetTransactions(arg1, arg2, arg3, arg4) {
+  return window['go']['main']['App']['GetTransactions'](arg1, arg2, arg3, arg4);
 }
 
 export function UpdateRecurring(arg1) {

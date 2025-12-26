@@ -6,7 +6,8 @@ import NewRecurringForm from "./NewRecurringForm";
 import Recurring from "./Recurring";
 
 function Recurrings() {
-    const { selectedAccountId } = useAccountSelection();
+    const { selectedAccount } = useAccountSelection();
+    const selectedAccountId = selectedAccount?.id;
     const [loadingRecurring, setLoadingRecurring] = useState(false);
     const [recurrings, setRecurrings] = useState<t.Recurring[]>([]);
     const [error, setError] = useState<string>('');
@@ -17,7 +18,7 @@ function Recurrings() {
         setLoadingRecurring(true);
 
         try {
-            const result: t.RecurringListResult = await GetRecurringList(selectedAccountId!);
+            const result: t.RecurringListResult = await GetRecurringList(selectedAccountId!, selectedAccount?.period_id ?? 0);
             if (result.success) {
                 const data: t.Recurring[] = result.data;
                 setRecurrings(data);

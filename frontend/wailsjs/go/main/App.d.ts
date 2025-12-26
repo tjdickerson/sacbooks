@@ -6,9 +6,9 @@ export function AddAccount(arg1:string,arg2:number):Promise<types.AccountResult>
 
 export function AddRecurring(arg1:number,arg2:string,arg3:number,arg4:number):Promise<types.RecurringResult>;
 
-export function AddTransaction(arg1:number,arg2:string,arg3:number):Promise<types.TransactionResult>;
+export function AddTransaction(arg1:types.TransactionInsertInput):Promise<types.TransactionResult>;
 
-export function ApplyRecurring(arg1:number):Promise<types.TransactionResult>;
+export function ApplyRecurring(arg1:number,arg2:number):Promise<types.TransactionResult>;
 
 export function DeleteRecurring(arg1:number):Promise<types.SimpleResult>;
 
@@ -22,10 +22,10 @@ export function GetActivePeriod(arg1:number):Promise<types.PeriodResult>;
 
 export function GetDefaultAccount():Promise<types.AccountResult>;
 
-export function GetRecurringList(arg1:number):Promise<types.RecurringListResult>;
+export function GetRecurringList(arg1:number,arg2:number):Promise<types.RecurringListResult>;
 
-export function GetTransactions(arg1:number,arg2:number,arg3:number):Promise<types.TransactionListResult>;
+export function GetTransactions(arg1:number,arg2:number,arg3:number,arg4:number):Promise<types.TransactionListResult>;
 
 export function UpdateRecurring(arg1:types.RecurringInput):Promise<types.RecurringResult>;
 
-export function UpdateTransaction(arg1:types.TransactionInput):Promise<types.TransactionResult>;
+export function UpdateTransaction(arg1:types.TransactionUpdateInput):Promise<types.TransactionResult>;

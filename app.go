@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"time"
 	"tjdickerson/sacbooks/pkg/types"
 	"tjdickerson/sacbooks/server"
 )
@@ -30,8 +29,8 @@ func (a *App) shutdown(ctx context.Context) {
 	a.s.Shutdown()
 }
 
-func (a *App) GetTransactions(accountId int64, limit int, offset int) types.TransactionListResult {
-	result := a.s.ListTransactions(accountId, limit, offset)
+func (a *App) GetTransactions(accountId int64, periodId int64, limit int, offset int) types.TransactionListResult {
+	result := a.s.ListTransactions(accountId, periodId, limit, offset)
 	return types.MapTransactionListResult(result)
 }
 
@@ -51,13 +50,13 @@ func (a *App) GetDefaultAccount() types.AccountResult {
 	return types.MapAccountResult(result)
 }
 
-func (a *App) GetRecurringList(accountId int64) types.RecurringListResult {
-	result := a.s.GetRecurringList(accountId)
+func (a *App) GetRecurringList(accountId int64, periodId int64) types.RecurringListResult {
+	result := a.s.GetRecurringList(accountId, periodId)
 	return types.MapRecurringListResult(result)
 }
 
-func (a *App) AddTransaction(accountId int64, name string, amount int64) types.TransactionResult {
-	result := a.s.AddTransaction(accountId, name, amount, time.Now())
+func (a *App) AddTransaction(input types.TransactionInsertInput) types.TransactionResult {
+	result := a.s.AddTransaction(input)
 	return types.MapTransactionResult(result)
 }
 
@@ -65,13 +64,13 @@ func (a *App) DeleteTransaction(id int64) types.SimpleResult {
 	return a.s.DeleteTransaction(id)
 }
 
-func (a *App) UpdateTransaction(input types.TransactionInput) types.TransactionResult {
+func (a *App) UpdateTransaction(input types.TransactionUpdateInput) types.TransactionResult {
 	result := a.s.UpdateTransaction(input)
 	return types.MapTransactionResult(result)
 }
 
-func (a *App) ApplyRecurring(id int64) types.TransactionResult {
-	result := a.s.ApplyRecurring(id)
+func (a *App) ApplyRecurring(recurringId int64, periodId int64) types.TransactionResult {
+	result := a.s.ApplyRecurring(recurringId, periodId)
 	return types.MapTransactionResult(result)
 }
 

@@ -62,9 +62,13 @@ type AccountListResult struct {
 
 type Account struct {
 	Id             int64  `json:"id"`
+	PeriodId       int64  `json:"period_id"`
 	Name           string `json:"name"`
 	Balance        int64  `json:"balance"`
 	PeriodStartDay uint8  `json:"period_start_day"`
+	ReportingStart string `json:"reporting_start"`
+	ReportingEnd   string `json:"reporting_end"`
+	OpenedOn       string `json:"opened_on"`
 }
 
 type Period struct {
@@ -94,10 +98,17 @@ type Recurring struct {
 	AccountedInPeriod bool   `json:"accounted_for"`
 }
 
-type TransactionInput struct {
+type TransactionUpdateInput struct {
 	Id     int64  `json:"id"`
 	Amount int64  `json:"amount"`
 	Name   string `json:"name"`
+}
+
+type TransactionInsertInput struct {
+	AccountId int64  `json:"account_id"`
+	PeriodId  int64  `json:"period_id"`
+	Amount    int64  `json:"amount"`
+	Name      string `json:"name"`
 }
 
 type RecurringInput struct {

@@ -23,20 +23,21 @@ func NewTransactionService(transactionRepo *repo.TransactionRepo, recurringRepo 
 	}
 }
 
-func (ts *TransactionService) List(ctx context.Context, accountId int64, limit int, offset int) ([]domain.Transaction, error) {
-	return ts.transactionRepo.List(ctx, accountId, limit, offset)
+func (ts *TransactionService) List(ctx context.Context, accountId int64, periodId int64, limit int, offset int) ([]domain.Transaction, error) {
+	return ts.transactionRepo.List(ctx, accountId, periodId, limit, offset)
 }
 
-func (ts *TransactionService) Add(ctx context.Context, accountId int64, name string, amount int64, date time.Time) (domain.Transaction, error) {
+func (ts *TransactionService) Add(ctx context.Context, input types.TransactionInsertInput) (domain.Transaction, error) {
 	return ts.transactionRepo.Add(ctx, domain.Transaction{
-		AccountId: accountId,
-		Name:      name,
-		Amount:    amount,
-		Date:      date.UTC(),
+		AccountId: input.AccountId,
+		Name:      input.Name,
+		Amount:    input.Amount,
+		PeriodId:  input.PeriodId,
+		Date:      time.Now().UTC(),
 	})
 }
 
-func (ts *TransactionService) Update(ctx context.Context, input types.TransactionInput) (domain.Transaction, error) {
+func (ts *TransactionService) Update(ctx context.Context, input types.TransactionUpdateInput) (domain.Transaction, error) {
 	transaction, err := ts.transactionRepo.Single(ctx, input.Id)
 	if err != nil {
 		return transaction, fmt.Errorf("update transaction %d: %w", input.Id, err)
@@ -54,16 +55,22 @@ func (ts *TransactionService) Delete(ctx context.Context, transactionId int64) e
 		return fmt.Errorf("delete transaction %d: %w", transactionId, err)
 	}
 
-	return  ts.transactionRepo.Delete(ctx, transaction)
+	return ts.transactionRepo.Delete(ctx, transaction)
 }
 
-func (ts *TransactionService) ApplyRecurring(ctx context.Context, recurringId int64) (domain.Transaction, error) {
-	recurring, err := ts.recurringRepo.Single(ctx, recurringId)
+func (ts *TransactionService) ApplyRecurring(ctx context.Context, recurringId int64, periodId int64) (domain.Transaction, error) {
+	recurring, err := ts.recurringRepo.ActualizeRecurring(ctx, recurringId, periodId)
 
 	if err != nil {
 		return domain.Transaction{}, fmt.Errorf("apply recurring: %w", err)
 	}
 
-	return ts.Add(ctx, recurring.AccountId, recurring.Name, recurring.Amount, time.Now().UTC())
+	return ts.transactionRepo.Add(ctx, domain.Transaction{
+		AccountId:             recurring.AccountId,
+		Name:                  recurring.Name,
+		Amount:                recurring.Amount,
+		PeriodId:              periodId,
+		ActualizedRecurringId: recurring.Id,
+		Date:                  time.Now().UTC(),
+	})
 }
-

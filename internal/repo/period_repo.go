@@ -17,14 +17,25 @@ func NewPeriodRepo(db *sql.DB) *PeriodRepo {
 }
 
 const QInsertPeriod = `
-	insert into periods (account_id, reporting_start_timestamp, opened_on_timestamp)
-	values (@account_id, @reporting_start_timestamp, @opened_on_timestamp)
+	insert into periods (
+		account_id, 
+		reporting_start_timestamp, 
+		reporting_end_timestamp, 
+		opened_on_timestamp
+	)
+	values (
+		@account_id, 
+		@reporting_start_timestamp, 
+		@reporting_end_timestamp, 
+		@opened_on_timestamp
+	)
 `
 
-func (r *PeriodRepo) StartPeriod(ctx context.Context, accountId int64, reportStartDate time.Time, startedOn time.Time) error {
+func (r *PeriodRepo) StartPeriod(ctx context.Context, accountId int64, reportStartDate time.Time, reportEndDate time.Time, startedOn time.Time) error {
 	_, err := r.db.ExecContext(ctx, QInsertPeriod,
 		sql.Named("account_id", accountId),
 		sql.Named("reporting_start_timestamp", reportStartDate.UnixMilli()),
+		sql.Named("reporting_end_timestamp", reportEndDate.UnixMilli()),
 		sql.Named("opened_on_timestamp", startedOn.UnixMilli()),
 	)
 	if err != nil {
@@ -48,7 +59,7 @@ const QGetActivePeriod = `
 
 func (r *PeriodRepo) GetActivePeriod(ctx context.Context, accountId int64) (domain.Period, error) {
 	row := r.db.QueryRowContext(ctx, QGetActivePeriod, sql.Named("account_id", accountId))
-	
+
 	var p domain.Period
 	var startMillis int64
 	var openedMillis int64

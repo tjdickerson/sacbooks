@@ -1,9 +1,10 @@
 import { useAccountSelection } from './AccountContext';
 import './App.css';
-import logo from './assets/images/SacHead.svg'
 import MenuItem from './MenuItem';
 import { ViewId } from './views';
 
+// @ts-ignore
+import logo from './assets/images/SacHead.svg'
 
 type MenuProps = {
     currentView: ViewId;
@@ -18,7 +19,7 @@ function Menu({ currentView, onNavigate }: MenuProps) {
         { id: 'categories', displayText: 'Categories' },
     ];
 
-    const { selectedAccountName, activeReportingStart } = useAccountSelection();
+    const { selectedAccount } = useAccountSelection();
 
     return (
         <div id="Menu" className="menu-bar">
@@ -46,8 +47,8 @@ function Menu({ currentView, onNavigate }: MenuProps) {
                 </div>
 
                 <div className="menu-user">
-                    <div className='active-account'>{selectedAccountName}</div>
-                    <div className='active-period'>{activeReportingStart}</div>
+                    <div className='active-account'>{selectedAccount?.name}</div>
+                    <div className='active-period'>{selectedAccount?.reporting_start} - {selectedAccount?.reporting_end}</div>
                 </div>
             </div>
         </div>

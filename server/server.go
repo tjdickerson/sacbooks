@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"time"
 	"tjdickerson/sacbooks/internal/database"
 	"tjdickerson/sacbooks/internal/repo"
 	"tjdickerson/sacbooks/internal/schema"
@@ -47,11 +46,11 @@ func (s *Server) Startup() {
 			panic(fmt.Sprintf("Failed to create default account: %s", err))
 		}
 
-		err = s.accountService.StartPeriod(ctx, account.Id, account.PeriodStartDay, nil);
+		err = s.accountService.StartPeriod(ctx, account.Id, account.PeriodStartDay, nil)
 		if err != nil {
 			panic(fmt.Sprintf("Failed to create default period: %s", err))
 		}
-	} else if (err != nil) {
+	} else if err != nil {
 		panic(fmt.Sprintf("Failed to initialize new database: %s", err))
 	}
 }
@@ -60,10 +59,10 @@ func (s *Server) Shutdown() {
 	database.Shutdown(s.db)
 }
 
-func (s *Server) ListTransactions(accountId int64, limit int, offset int) types.Result[[]types.Transaction] {
+func (s *Server) ListTransactions(accountId int64, periodId int64, limit int, offset int) types.Result[[]types.Transaction] {
 	ctx := context.Background()
 
-	transactions, err := s.transactionService.List(ctx, accountId, limit, offset)
+	transactions, err := s.transactionService.List(ctx, accountId, periodId, limit, offset)
 	if err != nil {
 		return types.Fail[[]types.Transaction](fmt.Sprintf("failed to get transactions: %s", err))
 	}
@@ -81,10 +80,10 @@ func (s *Server) GetAccountInfo(accountId int64) types.Result[types.Account] {
 	return types.Ok(types.MapAccount(account))
 }
 
-func (s *Server) GetRecurringList(accountId int64) types.Result[[]types.Recurring] {
+func (s *Server) GetRecurringList(accountId int64, periodId int64) types.Result[[]types.Recurring] {
 	ctx := context.Background()
 
-	recurrings, err := s.recurringService.List(ctx, accountId)
+	recurrings, err := s.recurringService.List(ctx, accountId, periodId)
 	if err != nil {
 		return types.Fail[[]types.Recurring](fmt.Sprintf("failed to get recurring transactions: %s", err))
 	}
@@ -103,10 +102,10 @@ func (s *Server) AddRecurring(accountId int64, name string, amount int64, day ui
 	return types.Ok(types.MapRecurring(recurring))
 }
 
-func (s *Server) AddTransaction(accountId int64, name string, amount int64, date time.Time) types.Result[types.Transaction] {
+func (s *Server) AddTransaction(input types.TransactionInsertInput) types.Result[types.Transaction] {
 	ctx := context.Background()
 
-	transaction, err := s.transactionService.Add(ctx, accountId, name, amount, date)
+	transaction, err := s.transactionService.Add(ctx, input)
 
 	if err != nil {
 		return types.Fail[types.Transaction](fmt.Sprintf("error adding transaction: %s", err))
@@ -126,7 +125,7 @@ func (s *Server) DeleteTransaction(id int64) types.SimpleResult {
 	return types.SimpleResult{Success: true, Message: "Deleted"}
 }
 
-func (s *Server) UpdateTransaction(input types.TransactionInput) types.Result[types.Transaction] {
+func (s *Server) UpdateTransaction(input types.TransactionUpdateInput) types.Result[types.Transaction] {
 	ctx := context.Background()
 
 	t, err := s.transactionService.Update(ctx, input)
@@ -137,10 +136,10 @@ func (s *Server) UpdateTransaction(input types.TransactionInput) types.Result[ty
 	return types.Ok(types.MapTransaction(t))
 }
 
-func (s *Server) ApplyRecurring(recurringId int64) types.Result[types.Transaction] {
+func (s *Server) ApplyRecurring(recurringId int64, periodId int64) types.Result[types.Transaction] {
 	ctx := context.Background()
 
-	t, err := s.transactionService.ApplyRecurring(ctx, recurringId)
+	t, err := s.transactionService.ApplyRecurring(ctx, recurringId, periodId)
 	if err != nil {
 		return types.Fail[types.Transaction](fmt.Sprintf("applying recurring transaction: %s", err))
 	}
@@ -200,8 +199,7 @@ func (s *Server) GetActivePeriod(accountId int64) types.Result[types.Period] {
 	result, err := s.accountService.GetActivePeriod(ctx, accountId)
 	if err != nil {
 		return types.Fail[types.Period](fmt.Sprintf("error getting active period: %s", err))
-	}	
+	}
 
 	return types.Ok(types.MapPeriod(result))
 }
-

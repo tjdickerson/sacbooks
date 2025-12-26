@@ -30,16 +30,15 @@ func checkAccountExists(ctx context.Context, db *sql.DB) error {
 	if count > 0 {
 		return nil
 	}
-	
+
 	return NoAccountError
 }
-
 
 func createSchema(ctx context.Context, db *sql.DB) error {
 	if err := createTable(ctx, db, CreateTableAccounts); err != nil {
 		return err
 	}
-	if err := createTable(ctx, db, CreatePeriodsTable); err != nil {
+	if err := createTable(ctx, db, CreateTablePeriods); err != nil {
 		return err
 	}
 	if err := createTable(ctx, db, CreateTableCategories); err != nil {
@@ -49,6 +48,9 @@ func createSchema(ctx context.Context, db *sql.DB) error {
 		return err
 	}
 	if err := createTable(ctx, db, CreateTableRecurrings); err != nil {
+		return err
+	}
+	if err := createTable(ctx, db, CreateTableActualizedRecurrings); err != nil {
 		return err
 	}
 	return nil
@@ -86,7 +88,7 @@ const CreateTableTransactions = `
 	);
 `
 
-const CreatePeriodsTable = `
+const CreateTablePeriods = `
 	create table if not exists periods (
 		id integer primary key,
 		account_id integer, 
@@ -106,16 +108,17 @@ const CreateTableAccounts = `
 	);
 `
 
-const CreateTableAcrualizedRecurrings = `
+const CreateTableActualizedRecurrings = `
 	create table if not exists actualized_recurrings (
 		id integer primary key,
 		account_id integer,
 		period_id integer,
 		category_snapshot varchar(100),
 		name_snapshot varchar(100),
-		occurence_day_snapshot integer,
-		amount_shapshot integer,
+		occurrence_day_snapshot integer,
+		amount_snapshot integer,
 	    timestamp_created integer,
+	    based_on_id integer,
 		foreign key(account_id) references accounts(id),
 		foreign key(period_id) references periods(id)
 	);

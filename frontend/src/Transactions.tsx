@@ -1,12 +1,20 @@
 import react from 'react';
-import { GetAccount, GetTransactions, GetRecurringList, DeleteTransaction, UpdateTransaction, AddTransaction, ApplyRecurring } from "../wailsjs/go/main/App";
-import { types as t } from "../wailsjs/go/models";
+import {
+    AddTransaction,
+    ApplyRecurring,
+    DeleteTransaction,
+    GetAccount,
+    GetRecurringList,
+    GetTransactions,
+    UpdateTransaction
+} from "../wailsjs/go/main/App";
+import {types as t} from "../wailsjs/go/models";
 import Transaction from './Transaction';
 import TransactionInputForm from './TransactionInputForm';
 import './App.css';
-import { formatAmount, getCurrencySymbol, getLocale } from './lib/format';
-import { FaArrowLeft } from 'react-icons/fa'
-import { useAccountSelection } from './AccountContext';
+import {formatAmount, getCurrencySymbol, getLocale} from './lib/format';
+import {FaArrowLeft} from 'react-icons/fa'
+import {useAccountSelection} from './AccountContext';
 
 function Transactions() {
     const [transactions, setTransactions] = react.useState<t.Transaction[]>([]);
@@ -17,7 +25,8 @@ function Transactions() {
     const [error, setError] = react.useState<string>("");
     const [page, setPage] = react.useState<number>(0);
     const [hasMore, setHasMore] = react.useState<boolean>(true);
-    const { selectedAccountId } = useAccountSelection();
+    const {selectedAccount} = useAccountSelection();
+    const selectedAccountId: number = selectedAccount?.id ?? 0;
 
     const transactionContainerRef = react.useRef<HTMLDivElement | null>(null);
     const PAGE_SIZE: number = 20;
@@ -35,8 +44,7 @@ function Transactions() {
             } else {
                 setError(result.message);
             }
-        }
-        catch (err) {
+        } catch (err) {
             setError("Error getting account information");
         }
     }
@@ -46,7 +54,11 @@ function Transactions() {
         setLoadingTransactions(true);
 
         try {
-            const result: t.TransactionListResult = await GetTransactions(selectedAccountId!, PAGE_SIZE, page * PAGE_SIZE);
+            if (selectedAccount === null) {
+                setError("no account info");
+                return;
+            }
+            const result: t.TransactionListResult = await GetTransactions(selectedAccountId!, selectedAccount.period_id, PAGE_SIZE, page * PAGE_SIZE);
 
             if (result.success) {
                 const data: t.Transaction[] = result.data;
@@ -74,7 +86,7 @@ function Transactions() {
         setLoadingRecurring(true);
 
         try {
-            const result: t.RecurringListResult = await GetRecurringList(selectedAccountId!);
+            const result: t.RecurringListResult = await GetRecurringList(selectedAccountId!, selectedAccount?.period_id ?? 0);
             if (result.success) {
                 const data: t.Recurring[] = result.data;
                 setRecurrings(data);
@@ -93,7 +105,9 @@ function Transactions() {
         loadRecurrings();
         refreshAccount();
 
-        return () => { mounted = false; }
+        return () => {
+            mounted = false;
+        }
     }, []);
 
     react.useEffect(() => {
@@ -102,7 +116,9 @@ function Transactions() {
         loadRecurrings();
         refreshAccount();
 
-        return () => { mounted = false; }
+        return () => {
+            mounted = false;
+        }
     }, [selectedAccountId]);
 
     react.useEffect(() => {
@@ -131,12 +147,11 @@ function Transactions() {
         setError("")
 
         try {
-            const result: t.TransactionResult = await DeleteTransaction(id);
+            const result: t.SimpleResult = await DeleteTransaction(id);
 
             if (result.success) {
                 setTransactions(prev => prev.filter(t => t.id !== id))
-            }
-            else {
+            } else {
                 setError(result?.message)
             }
 
@@ -152,7 +167,7 @@ function Transactions() {
         setLoadingTransactions(true);
         setError("");
 
-        const updateInput: t.TransactionInput = {
+        const updateInput: t.TransactionUpdateInput = {
             id: id,
             name: name,
             amount: amount,
@@ -164,8 +179,7 @@ function Transactions() {
             if (result.success) {
                 const updated: t.Transaction = result.data;
                 setTransactions(prev => prev.map(t => t.id === updated.id ? updated : t))
-            }
-            else {
+            } else {
                 setError(result?.message)
             }
 
@@ -182,13 +196,17 @@ function Transactions() {
         setError("");
 
         try {
-            const result: t.TransactionResult = await AddTransaction(selectedAccountId!, name, amount);
+            let newTransaction: t.TransactionInsertInput = new t.TransactionInsertInput();
+            newTransaction.name = name;
+            newTransaction.amount = amount;
+            newTransaction.account_id = selectedAccount?.id ?? 0;
+            newTransaction.period_id = selectedAccount?.period_id ?? 0;
+            const result: t.TransactionResult = await AddTransaction(newTransaction);
 
             if (result.success) {
                 const newTransaction: t.Transaction = result.data;
                 setTransactions(prev => [newTransaction, ...prev]);
-            }
-            else {
+            } else {
                 setError(result.message);
             }
 
@@ -205,7 +223,11 @@ function Transactions() {
         setError("");
 
         try {
-            const result: t.TransactionResult = await ApplyRecurring(recurringId)
+            if (selectedAccount === null) {
+                setError("no account info");
+                return;
+            }
+            const result: t.TransactionResult = await ApplyRecurring(recurringId, selectedAccount.period_id);
             if (result.success) {
                 const newTransaction: t.Transaction = result.data;
                 setTransactions(prev => [newTransaction, ...prev]);
@@ -226,7 +248,7 @@ function Transactions() {
                 <TransactionInputForm
                     onSubmit={handleAddTransaction}
                     submitting={loadingTransactions}
-                    initialValues={{ name: "", amount: 0 }} />
+                    initialValues={{name: "", amount: 0}}/>
             </div>
 
             <div className='current-balance'>
@@ -243,7 +265,7 @@ function Transactions() {
             </div>
 
             <div className='scrollbox container transaction-list' ref={transactionContainerRef}>
-                {error && <p style={{ color: 'red' }}>Error: {error}</p>}
+                {error && <p style={{color: 'red'}}>Error: {error}</p>}
 
                 <div>
                     {transactions.map((transaction) => (
@@ -263,32 +285,35 @@ function Transactions() {
                     {recurrings.length === 0 && <p>No Recurring Transactions</p>}
                     {recurrings.map((recurring) => {
 
-                        const isAccountedFor = transactionNameMap.has(recurring.name);
+                            const isAccountedFor = recurring.accounted_for;
 
-                        return (
-                            <div key={recurring.id} className='card recurring-transaction-item'>
-                                <div className='action-buttons transaction-action'>
-                                    <button onClick={() => handleApplyRecurring(recurring.id)}>
-                                        <FaArrowLeft />
-                                    </button>
-                                </div>
-                                <div className='recurring-transaction-data'>
-                                    <div className='transaction-date'>{recurring.day}</div>
-                                    <div className='transaction-info'>
-                                        <div className={`transaction-name ${isAccountedFor ? 'accounted-for' : ''}`}>{recurring.name}</div>
-                                        <div className='transaction-details'>
-                                            <div className='transaction-amount-holder'>
-                                                <div className='currency-symbol'>{getCurrencySymbol(getLocale())}</div>
-                                                <div className={`recurring-transaction-amount ${isAccountedFor ? 'accounted-for' : recurring.amount > 0 ? 'text-positive' : 'text-negative'}`}>
-                                                    {formatAmount(recurring.amount)}
+                            return (
+                                <div key={recurring.id} className='card recurring-transaction-item'>
+                                    <div className='action-buttons transaction-action'>
+                                        <button onClick={() => handleApplyRecurring(recurring.id)}>
+                                            <FaArrowLeft/>
+                                        </button>
+                                    </div>
+                                    <div className='recurring-transaction-data'>
+                                        <div className='transaction-date'>{recurring.day}</div>
+                                        <div className='transaction-info'>
+                                            <div
+                                                className={`transaction-name ${isAccountedFor ? 'accounted-for' : ''}`}>{recurring.name}</div>
+                                            <div className='transaction-details'>
+                                                <div className='transaction-amount-holder'>
+                                                    <div
+                                                        className='currency-symbol'>{getCurrencySymbol(getLocale())}</div>
+                                                    <div
+                                                        className={`recurring-transaction-amount ${isAccountedFor ? 'accounted-for' : recurring.amount > 0 ? 'text-positive' : 'text-negative'}`}>
+                                                        {formatAmount(recurring.amount)}
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        )
-                    }
+                            )
+                        }
                     )}
                 </div>
             </div>
