@@ -27,7 +27,7 @@ function App() {
             }
         }
 
-        bootstrap();
+        void bootstrap();
     }, []);
 
     function handleNavigate(viewId: ViewId) {

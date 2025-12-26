@@ -32,10 +32,10 @@ function Recurrings() {
     }
 
     useEffect(() => {
-        let mounted = true;
-        loadRecurrings();
-
-        return () => { mounted = false; }
+        async function init() {
+            await loadRecurrings();
+        }
+        void init();
     }, [selectedAccountId]);
 
     async function handleAddRecurring(name: string, amount: number, day: number) {

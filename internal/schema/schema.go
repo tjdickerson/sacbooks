@@ -156,7 +156,7 @@ const CreateTableRecurrings = `
 const CreateTableCategories = `
 	create table if not exists categories (
 		id integer primary key,
-		account_id integer
+		account_id integer,
 		name varchar(100),
 		foreign key(account_id) references accounts(id)
 	);

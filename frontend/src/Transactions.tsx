@@ -31,9 +31,6 @@ function Transactions() {
     const transactionContainerRef = react.useRef<HTMLDivElement | null>(null);
     const PAGE_SIZE: number = 20;
 
-    const transactionNameMap = react.useMemo(() => {
-        return new Set(transactions.map(t => t.name));
-    }, [transactions]);
 
 
     async function refreshAccount() {
@@ -100,26 +97,56 @@ function Transactions() {
     }
 
     react.useEffect(() => {
-        let mounted = true;
-        loadTransactions();
-        loadRecurrings();
-        refreshAccount();
+        setTransactions([]);
+        setPage(0);
+        setHasMore(true);
+        setError("");
 
-        return () => {
-            mounted = false;
+        async function init() {
+            setLoadingTransactions(true);
+            try {
+                if (!selectedAccount) return;
+                
+                const [txResult, recResult, accResult] = await Promise.all([
+                    GetTransactions(selectedAccountId!, selectedAccount.period_id, PAGE_SIZE, 0),
+                    GetRecurringList(selectedAccountId!, selectedAccount.period_id ?? 0),
+                    GetAccount(selectedAccountId!)
+                ]);
+
+                if (txResult.success) {
+                    setTransactions(txResult.data);
+                    setHasMore(txResult.data.length === PAGE_SIZE);
+                    setPage(1);
+                } else {
+                    setError(txResult.message);
+                }
+
+                if (recResult.success) {
+                    setRecurrings(recResult.data);
+                } else {
+                    setError(recResult.message);
+                }
+
+                if (accResult.success) {
+                    setAccount(accResult.data);
+                } else {
+                    setError(accResult.message);
+                }
+            } finally {
+                setLoadingTransactions(false);
+            }
         }
-    }, []);
+        void init();
+    }, [selectedAccountId]);
 
     react.useEffect(() => {
-        let mounted = true;
-        loadTransactions();
-        loadRecurrings();
-        refreshAccount();
+        const container: HTMLDivElement | null = transactionContainerRef.current;
+        if (!container || loadingTransactions || !hasMore) return;
 
-        return () => {
-            mounted = false;
+        if (container.scrollHeight <= container.clientHeight) {
+            void loadTransactions();
         }
-    }, [selectedAccountId]);
+    }, [transactions, hasMore, loadingTransactions]);
 
     react.useEffect(() => {
         const container: HTMLDivElement | null = transactionContainerRef.current;
@@ -129,10 +156,10 @@ function Transactions() {
             const scrollTop: number | undefined = container?.scrollTop;
             const scrollHeight: number | undefined = container?.scrollHeight;
             const clientHeight: number | undefined = container?.clientHeight;
-            if (scrollTop && scrollHeight && clientHeight) {
+            if (scrollTop !== undefined && scrollHeight !== undefined && clientHeight !== undefined) {
                 if (scrollTop + clientHeight >= scrollHeight - 50) {
                     // near bottom -> load more
-                    loadTransactions();
+                    void loadTransactions();
                 }
             }
         }

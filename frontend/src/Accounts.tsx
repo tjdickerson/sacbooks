@@ -41,11 +41,10 @@ function Accounts() {
     }
 
     useEffect(() => {
-        let mounted = true;
-
-        loadAccounts();
-
-        return () => { mounted = false; }
+        async function init() {
+            await loadAccounts();
+        }
+        void init();
     }, [selectedAccountId]);
 
     async function handleAddAccount(name: string) {
@@ -56,7 +55,7 @@ function Accounts() {
             // TODO: change 7 to user input for period start day
             const addResult = await AddAccount(name, 7);
             if (addResult.success) {
-                loadAccounts();
+                await loadAccounts();
             }
             else {
                 setError(addResult.message)
