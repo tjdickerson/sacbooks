@@ -53,6 +53,11 @@ func createSchema(ctx context.Context, db *sql.DB) error {
 	if err := createTable(ctx, db, CreateTableActualizedRecurrings); err != nil {
 		return err
 	}
+
+	// create triggers
+	if err := createTable(ctx, db, CreateTriggerTransactions); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -86,6 +91,16 @@ const CreateTableTransactions = `
 	    foreign key(period_id) references periods(id),
 		foreign key(actualized_recurring_id) references actualized_recurrings(id)
 	);
+`
+
+const CreateTriggerTransactions = `
+	create trigger if not exists delete_actualized_recurring_on_transaction_delete
+	after delete on transactions
+	for each row
+	when old.actualized_recurring_id is not null
+	begin
+		delete from actualized_recurrings where id = old.actualized_recurring_id;
+	end;
 `
 
 const CreateTablePeriods = `

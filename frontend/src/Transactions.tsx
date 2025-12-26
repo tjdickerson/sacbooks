@@ -151,6 +151,7 @@ function Transactions() {
 
             if (result.success) {
                 setTransactions(prev => prev.filter(t => t.id !== id))
+                await loadRecurrings();
             } else {
                 setError(result?.message)
             }
@@ -231,9 +232,12 @@ function Transactions() {
             if (result.success) {
                 const newTransaction: t.Transaction = result.data;
                 setTransactions(prev => [newTransaction, ...prev]);
+                await loadRecurrings();
             } else {
                 setError(result.message);
             }
+
+            await refreshAccount()
         } catch (err) {
             setError('error')
         } finally {
@@ -284,27 +288,26 @@ function Transactions() {
                     {loadingRecurring && <p>Loading..</p>}
                     {recurrings.length === 0 && <p>No Recurring Transactions</p>}
                     {recurrings.map((recurring) => {
-
-                            const isAccountedFor = recurring.accounted_for;
-
                             return (
                                 <div key={recurring.id} className='card recurring-transaction-item'>
                                     <div className='action-buttons transaction-action'>
-                                        <button onClick={() => handleApplyRecurring(recurring.id)}>
-                                            <FaArrowLeft/>
-                                        </button>
+                                        {!recurring.accounted_for && (
+                                            <button onClick={() => handleApplyRecurring(recurring.id)}>
+                                                <FaArrowLeft/>
+                                            </button>
+                                        )}
                                     </div>
                                     <div className='recurring-transaction-data'>
                                         <div className='transaction-date'>{recurring.day}</div>
                                         <div className='transaction-info'>
                                             <div
-                                                className={`transaction-name ${isAccountedFor ? 'accounted-for' : ''}`}>{recurring.name}</div>
+                                                className={`transaction-name ${recurring.accounted_for ? 'accounted-for' : ''}`}>{recurring.name}</div>
                                             <div className='transaction-details'>
                                                 <div className='transaction-amount-holder'>
                                                     <div
                                                         className='currency-symbol'>{getCurrencySymbol(getLocale())}</div>
                                                     <div
-                                                        className={`recurring-transaction-amount ${isAccountedFor ? 'accounted-for' : recurring.amount > 0 ? 'text-positive' : 'text-negative'}`}>
+                                                        className={`recurring-transaction-amount ${recurring.accounted_for ? 'accounted-for' : recurring.amount > 0 ? 'text-positive' : 'text-negative'}`}>
                                                         {formatAmount(recurring.amount)}
                                                     </div>
                                                 </div>

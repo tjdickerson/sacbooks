@@ -84,9 +84,10 @@ func (r *RecurringRepo) Add(ctx context.Context, rt domain.Recurring) (domain.Re
 
 const QSingleRecurring = `
 	select r.id
-		, r.account_id , r.name
-		, r.amount
-		, r.occurrence_day
+	 	 , r.account_id 
+		 , r.name
+		 , r.amount
+		 , r.occurrence_day
     from
 	recurrings r
 	where r.id = @id
@@ -96,6 +97,9 @@ func (r *RecurringRepo) Single(ctx context.Context, id int64) (domain.Recurring,
 	row := r.db.QueryRowContext(ctx, QSingleRecurring, sql.Named("id", id))
 	var rt domain.Recurring
 	err := row.Scan(&rt.Id, &rt.AccountId, &rt.Name, &rt.Amount, &rt.Day)
+	if err != nil {
+		return rt, fmt.Errorf("scan single recurring %d: %w", id, err)
+	}
 	return rt, err
 }
 
@@ -103,7 +107,7 @@ const QUpdateRecurring = `
 	update recurrings
 	set name = @name, occurrence_day = @day, amount = @amount
 	where id = @id
-	returning (id, account_id, name, amount, occurrence_day)
+	returning id, account_id, name, amount, occurrence_day
 `
 
 func (r *RecurringRepo) Update(ctx context.Context, rt domain.Recurring) (domain.Recurring, error) {
@@ -114,8 +118,11 @@ func (r *RecurringRepo) Update(ctx context.Context, rt domain.Recurring) (domain
 		sql.Named("amount", rt.Amount),
 	)
 
-	err := row.Scan(rt.Id, rt.AccountId, rt.Name, rt.Amount, rt.Day)
-	return rt, err
+	err := row.Scan(&rt.Id, &rt.AccountId, &rt.Name, &rt.Amount, &rt.Day)
+	if err != nil {
+		return rt, fmt.Errorf("scan update recurring %d: %w", rt.Id, err)
+	}
+	return rt, nil
 }
 
 const QDeleteRecurring = `
