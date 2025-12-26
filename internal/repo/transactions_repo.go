@@ -71,7 +71,8 @@ func (r *TransactionRepo) Single(ctx context.Context, id int64) (domain.Transact
 const QUpdateTransaction = `
 	update transactions 
 	set name = @name,
-	    amount = @amount
+	    amount = @amount,
+	    category_id = @category_id
 	where id = @id
 	returning ` + transactionColumnsNoAlias
 
@@ -80,6 +81,7 @@ func (r *TransactionRepo) Update(ctx context.Context, t domain.Transaction) (dom
 		sql.Named("id", t.Id),
 		sql.Named("name", t.Name),
 		sql.Named("amount", t.Amount),
+		sql.Named("category_id", t.CategoryId),
 	)
 
 	return scanTransaction(row)
@@ -87,20 +89,34 @@ func (r *TransactionRepo) Update(ctx context.Context, t domain.Transaction) (dom
 
 const QInsertTransaction = `
 	insert into transactions (
-		  account_id
-		, name
+	      transaction_date
 	    , amount
-	    , transaction_date
+		, name
+		, account_id
+	    , category_id
+	    , actualized_recurring_id
+	    , period_id
 	    , timestamp_added)
-	values (@account_id, @name, @amount, @transaction_date, @timestamp_added)
+	values (
+		@transaction_date, 
+		@amount, 
+		@name, 
+		@account_id, 
+		@category_id,
+		@actualized_recurring_id,
+		@period_id
+		@timestamp_added)
 	returning ` + transactionColumnsNoAlias
 
 func (r *TransactionRepo) Add(ctx context.Context, t domain.Transaction) (domain.Transaction, error) {
 	row := r.db.QueryRowContext(ctx, QInsertTransaction,
-		sql.Named("account_id", t.AccountId),
-		sql.Named("name", t.Name),
-		sql.Named("amount", t.Amount),
 		sql.Named("transaction_date", t.Date.UnixMilli()),
+		sql.Named("amount", t.Amount),
+		sql.Named("name", t.Name),
+		sql.Named("account_id", t.AccountId),
+		sql.Named("category_id", t.CategoryId),
+		sql.Named("actualized_recurring_id", t.ActualizedRecurringId),
+		sql.Named("period_id", t.PeriodId),
 		sql.Named("timestamp_added", time.Now().UnixMilli()),
 	)
 
@@ -125,6 +141,8 @@ const transactionColumns = `
 , t.name
 , t.amount
 , t.transaction_date
+, t.period_id
+, t.actualized_recurring_id
 `
 
 const transactionColumnsNoAlias = `
@@ -133,6 +151,8 @@ const transactionColumnsNoAlias = `
 , name
 , amount
 , transaction_date
+, period_id
+, actualized_recurring_id
 `
 
 func scanTransaction(row interface{ Scan(dest ...any) error }) (domain.Transaction, error) {
@@ -145,6 +165,8 @@ func scanTransaction(row interface{ Scan(dest ...any) error }) (domain.Transacti
 		&t.Name,
 		&t.Amount,
 		&dateMillis,
+		&t.PeriodId,
+		&t.ActualizedRecurringId,
 	)
 
 	if err != nil {

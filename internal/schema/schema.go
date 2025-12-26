@@ -39,6 +39,9 @@ func createSchema(ctx context.Context, db *sql.DB) error {
 	if err := createTable(ctx, db, CreateTableAccounts); err != nil {
 		return err
 	}
+	if err := createTable(ctx, db, CreatePeriodsTable); err != nil {
+		return err
+	}
 	if err := createTable(ctx, db, CreateTableCategories); err != nil {
 		return err
 	}
@@ -86,15 +89,19 @@ const CreateTableTransactions = `
 const CreatePeriodsTable = `
 	create table if not exists periods (
 		id integer primary key,
-		reporting_start integer,
-		reporting_end integer,
-		start_timestamp integer
+		account_id integer, 
+		reporting_start_timestamp integer,
+		reporting_end_timestamp integer,
+		opened_on_timestamp integer,
+		closed_on_timestamp integer,
+	    foreign key(account_id) references accounts(id)
 	);
 `
 
 const CreateTableAccounts = `
 	create table if not exists accounts (
 		id integer primary key,
+		period_start_day integer,
 	    name varchar(100)
 	);
 `

@@ -11,7 +11,10 @@ function Accounts() {
     const [addingAccount, setAddingAccount] = useState<boolean>(false);
     const [error, setError] = useState<string>('');
     const [accounts, setAccounts] = useState<t.Account[]>([]);
-    const { selectedAccountId, setSelectedAccountId } = useAccountSelection();
+    const { selectedAccountId, setSelectedAccountId, selectedAccountName, setSelectedAccountName, activeReportingStart, setActiveReportingStart } = useAccountSelection();
+    const [isEditing, setIsEditing] = useState(false);
+    const [editName, setEditName] = useState<string>('');
+    const [editPeriodStartDay, setEditPeriodStartDay] = useState<number>(1);
 
     async function loadAccounts() {
         if (loadingAccounts) return;
@@ -49,7 +52,8 @@ function Accounts() {
         setError('');
 
         try {
-            const addResult = await AddAccount(name);
+            // TODO: change 7 to user input for period start day
+            const addResult = await AddAccount(name, 7);
             if (addResult.success) {
                 loadAccounts();
             }
@@ -104,6 +108,9 @@ function Accounts() {
                             return (
                                 <div key={account.id}
                                     className={`card ${selected ? "selected-account" : ""}`}>
+                                    <div className='card-info'>
+                                        Period Start Day of Month: {account.period_start_day}
+                                    </div>
                                     <div className='card-details'
                                         onClick={() => handleSwitchAccount(account.id)}>
                                         <div className='card-name label'>

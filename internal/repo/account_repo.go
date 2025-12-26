@@ -18,6 +18,7 @@ func NewAccountRepo(db *sql.DB) *AccountRepo {
 const QListAccount = `
 	select a.id
 	     , a.name
+	     , a.period_start_day
 	     , coalesce(sum(t.amount), 0) as total_available
 	from accounts a
 	left join transactions t on a.id = t.account_id
@@ -37,7 +38,7 @@ func (r *AccountRepo) List(ctx context.Context) ([]domain.Account, error) {
 
 	var a domain.Account
 	for rows.Next() {
-		err := rows.Scan(&a.Id, &a.Name, &a.Balance)
+		err := rows.Scan(&a.Id, &a.Name, &a.PeriodStartDay, &a.Balance)
 		if err != nil {
 			return results, fmt.Errorf("scan list accounts: %w", err)
 		}
@@ -51,6 +52,7 @@ func (r *AccountRepo) List(ctx context.Context) ([]domain.Account, error) {
 const QSingleAccount = `
 	select a.id
 	     , a.name
+	     , a.period_start_day
 	     , coalesce(sum(t.amount), 0) as total_available
 	from accounts a
 	left join transactions t on a.id = t.account_id
@@ -62,7 +64,7 @@ func (r *AccountRepo) Single(ctx context.Context, accountId int64) (domain.Accou
 	row := r.db.QueryRowContext(ctx, QSingleAccount, sql.Named("id", accountId))
 
 	var result domain.Account
-	err := row.Scan(&result.Id, &result.Name, &result.Balance)
+	err := row.Scan(&result.Id, &result.Name, &result.PeriodStartDay, &result.Balance)
 	if err != nil {
 		return result, fmt.Errorf("scan single account %d: %w", accountId, err)
 	}
@@ -71,19 +73,19 @@ func (r *AccountRepo) Single(ctx context.Context, accountId int64) (domain.Accou
 }
 
 const QInsertAccount = `
-	insert into accounts (
-		name)
-	values (@name) 
-	returning id, name
+	insert into accounts (name, period_start_day)
+	values (@name, @period_start_day) 
+	returning id, name, period_start_day
 `
 
 func (r *AccountRepo) Add(ctx context.Context, a domain.Account) (domain.Account, error) {
 	row := r.db.QueryRowContext(ctx, QInsertAccount,
 		sql.Named("name", a.Name),
+		sql.Named("period_start_day", a.PeriodStartDay),
 	)
 
 	var result domain.Account
-	err := row.Scan(&result.Id, &result.Name)
+	err := row.Scan(&result.Id, &result.Name, &result.PeriodStartDay)
 	if err != nil {
 		return result, fmt.Errorf("scan add account: %w", err)
 	}

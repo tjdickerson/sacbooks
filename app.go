@@ -75,8 +75,8 @@ func (a *App) ApplyRecurring(id int64) types.TransactionResult {
 	return types.MapTransactionResult(result)
 }
 
-func (a *App) AddAccount(name string) types.AccountResult {
-	result := a.s.AddAccount(name)
+func (a *App) AddAccount(name string, periodStartDay uint8) types.AccountResult {
+	result := a.s.AddAccount(name, periodStartDay)
 	return types.MapAccountResult(result)
 }
 
@@ -92,4 +92,9 @@ func (a *App) DeleteRecurring(id int64) types.SimpleResult {
 func (a *App) UpdateRecurring(input types.RecurringInput) types.RecurringResult {
 	result := a.s.UpdateRecurring(input)
 	return types.MapRecurringResult(result)
+}
+
+func (a *App) GetActivePeriod(accountId int64) types.PeriodResult {
+	result := a.s.GetActivePeriod(accountId)
+	return types.MapPeriodResult(result)
 }

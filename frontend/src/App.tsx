@@ -5,7 +5,7 @@ import Transactions from './Transactions';
 import Recurrings from './Recurrings';
 import Categories from './Categories';
 import Accounts from './Accounts';
-import { GetDefaultAccount } from '../wailsjs/go/main/App';
+import { GetActivePeriod, GetDefaultAccount } from '../wailsjs/go/main/App';
 import { types as t } from "../wailsjs/go/models";
 import { AccountContext } from './AccountContext';
 import { ViewId } from './views';
@@ -13,13 +13,21 @@ import { ViewId } from './views';
 
 function App() {
     const [selectedAccountId, setSelectedAccountId] = useState<number | null>(null);
+    const [selectedAccountName, setSelectedAccountName] = useState<string | null>(null);
+    const [activeReportingStart, setActiveReportingStart] = useState<string | null>(null);
     const [currentView, setCurrentView] = useState<ViewId>('transactions');
+
 
     useEffect(() => {
         async function bootstrap() {
             const result: t.AccountResult = await GetDefaultAccount();
             if (result.success) {
                 setSelectedAccountId(result.data.id);
+                setSelectedAccountName(result.data.name);
+                const periodResult: t.PeriodResult = await GetActivePeriod(result.data.id);
+                if (periodResult.success) {
+                    setActiveReportingStart(periodResult.data.reporting_start)
+                }
             }
         }
 
@@ -35,10 +43,16 @@ function App() {
     }
 
     return (
-        <AccountContext.Provider value={{ selectedAccountId, setSelectedAccountId }}>
+        <AccountContext.Provider value={{ 
+            selectedAccountId, setSelectedAccountId, 
+            selectedAccountName, setSelectedAccountName, 
+            activeReportingStart, setActiveReportingStart }}>
             <div id="App">
                 <header className="app-header">
-                    <Menu currentView={currentView} onNavigate={handleNavigate} />
+                    <Menu
+                        currentView={currentView}
+                        onNavigate={handleNavigate}
+                    />
                 </header>
                 <main id="app-content" className="app-main">
                     <div className="container">

@@ -1,4 +1,4 @@
-# sacbooks
+# sacbooks (wip)
 
 ## What is it?
 This is a simple app made balance accounts. Made specifically for how I want to keep track of things.
@@ -7,3 +7,7 @@ This is a simple app made balance accounts. Made specifically for how I want to 
 I wanted to experiment with a go backend and a react front end on a project. This seemed to be a good candidate. The architecture here isn't necessarily a good way to set up a personal app.
 
 
+
+## TODO
+
+- Need to pull period data back with account data instead of it being a seperate query. Can easily get initial data and set AccountContext this way.

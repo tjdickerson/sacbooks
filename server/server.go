@@ -33,16 +33,25 @@ func (s *Server) Startup() {
 	transactionRepo := repo.NewTransactionRepo(db)
 	recurringRepo := repo.NewRecurringsRepo(db)
 	accountRepo := repo.NewAccountRepo(db)
+	periodRepo := repo.NewPeriodRepo(db)
 
 	s.db = db
 	s.transactionService = service.NewTransactionService(transactionRepo, recurringRepo, accountRepo)
-	s.accountService = service.NewAccountService(accountRepo)
+	s.accountService = service.NewAccountService(accountRepo, periodRepo)
 	s.recurringService = service.NewRecurringService(recurringRepo)
 
 	err = schema.Ensure(ctx, db)
 	if errors.Is(err, schema.NoAccountError) {
-		s.accountService.Add(ctx, "Checking");
-	} else {
+		account, err := s.accountService.Add(ctx, "Checking", 7)
+		if err != nil {
+			panic(fmt.Sprintf("Failed to create default account: %s", err))
+		}
+
+		err = s.accountService.StartPeriod(ctx, account.Id, account.PeriodStartDay, nil);
+		if err != nil {
+			panic(fmt.Sprintf("Failed to create default period: %s", err))
+		}
+	} else if (err != nil) {
 		panic(fmt.Sprintf("Failed to initialize new database: %s", err))
 	}
 }
@@ -139,10 +148,10 @@ func (s *Server) ApplyRecurring(recurringId int64) types.Result[types.Transactio
 	return types.Ok(types.MapTransaction(t))
 }
 
-func (s *Server) AddAccount(name string) types.Result[types.Account] {
+func (s *Server) AddAccount(name string, periodStartDay uint8) types.Result[types.Account] {
 	ctx := context.Background()
 
-	a, err := s.accountService.Add(ctx, name)
+	a, err := s.accountService.Add(ctx, name, periodStartDay)
 
 	if err != nil {
 		return types.Fail[types.Account](fmt.Sprintf("adding account: %s", err))
@@ -183,5 +192,16 @@ func (s *Server) DeleteRecurring(id int64) types.SimpleResult {
 	}
 
 	return types.SimpleResult{Success: true, Message: "Deleted"}
+}
+
+func (s *Server) GetActivePeriod(accountId int64) types.Result[types.Period] {
+	ctx := context.Background()
+
+	result, err := s.accountService.GetActivePeriod(ctx, accountId)
+	if err != nil {
+		return types.Fail[types.Period](fmt.Sprintf("error getting active period: %s", err))
+	}	
+
+	return types.Ok(types.MapPeriod(result))
 }
 

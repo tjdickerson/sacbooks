@@ -4,6 +4,12 @@ import {createContext, useContext} from 'react';
 export type AccountContextValue = {
     selectedAccountId: number | null;
     setSelectedAccountId: (id: number | null) => void;
+
+    selectedAccountName: string | null;
+    setSelectedAccountName: (id: string | null) => void;
+
+    activeReportingStart: string | null;
+    setActiveReportingStart: (id: string | null) => void;
 };
 
 export const AccountContext = createContext<AccountContextValue | null>(null);

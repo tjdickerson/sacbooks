@@ -52,11 +52,20 @@ func MapAccountResult(in Result[Account]) AccountResult {
 	}
 }
 
+func MapPeriodResult(in Result[Period]) PeriodResult {
+	return PeriodResult {
+		Success: in.Success,
+		Message: in.Message,
+		Data:    in.Object,
+	}
+}
+
 func MapAccount(account domain.Account) Account {
 	return Account{
-		Id:      account.Id,
-		Name:    account.Name,
-		Balance: account.Balance,
+		Id:             account.Id,
+		Name:           account.Name,
+		Balance:        account.Balance,
+		PeriodStartDay: account.PeriodStartDay,
 	}
 }
 
@@ -90,10 +99,11 @@ func MapTransactions(transactions []domain.Transaction) []Transaction {
 
 func MapRecurring(recurring domain.Recurring) Recurring {
 	return Recurring{
-		Id:     recurring.Id,
-		Name:   recurring.Name,
-		Amount: recurring.Amount,
-		Day:    recurring.Day,
+		Id:                recurring.Id,
+		Name:              recurring.Name,
+		Amount:            recurring.Amount,
+		Day:               recurring.Day,
+		AccountedInPeriod: recurring.AccountedInPeriod,
 	}
 }
 
@@ -105,3 +115,12 @@ func MapRecurrings(recurrings []domain.Recurring) []Recurring {
 
 	return out
 }
+
+func MapPeriod(period domain.Period) Period {
+	return Period{
+		ReportingStart: period.ReportingStart.Format("02 Jan 2006"),
+		ReportingEnd:   period.ReportingEnd.Format("02 Jan 2006"),
+		OpenedOn:       period.OpenedOn.Format("02 Jan 2006"),
+	}
+}
+

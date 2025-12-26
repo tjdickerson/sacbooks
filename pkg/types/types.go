@@ -34,17 +34,24 @@ type TransactionListResult struct {
 }
 
 type Transaction struct {
-	Id          int64     `json:"id"`
-	Date        time.Time `json:"date"`
-	DisplayDate string    `json:"display_date"`
-	Amount      int64     `json:"amount"`
-	Name        string    `json:"name"`
+	Id              int64     `json:"id"`
+	Date            time.Time `json:"date"`
+	DisplayDate     string    `json:"display_date"`
+	Amount          int64     `json:"amount"`
+	Name            string    `json:"name"`
+	FromRecurringId int64     `json:"from_recurring_id"`
 }
 
 type AccountResult struct {
 	Success bool    `json:"success"`
 	Message string  `json:"message"`
 	Data    Account `json:"data"`
+}
+
+type PeriodResult struct {
+	Success bool   `json:"success"`
+	Message string `json:"message"`
+	Data    Period `json:"data"`
 }
 
 type AccountListResult struct {
@@ -54,9 +61,17 @@ type AccountListResult struct {
 }
 
 type Account struct {
-	Id      int64  `json:"id"`
-	Name    string `json:"name"`
-	Balance int64  `json:"balance"`
+	Id             int64  `json:"id"`
+	Name           string `json:"name"`
+	Balance        int64  `json:"balance"`
+	PeriodStartDay uint8  `json:"period_start_day"`
+}
+
+type Period struct {
+	Id             int64  `json:"id"`
+	ReportingStart string `json:"reporting_start"`
+	ReportingEnd   string `json:"reporting_end"`
+	OpenedOn       string `json:"opened_on"`
 }
 
 type RecurringResult struct {
@@ -72,10 +87,11 @@ type RecurringListResult struct {
 }
 
 type Recurring struct {
-	Id     int64  `json:"id"`
-	Name   string `json:"name"`
-	Amount int64  `json:"amount"`
-	Day    uint8  `json:"day"`
+	Id                int64  `json:"id"`
+	Name              string `json:"name"`
+	Amount            int64  `json:"amount"`
+	Day               uint8  `json:"day"`
+	AccountedInPeriod bool   `json:"accounted_for"`
 }
 
 type TransactionInput struct {
