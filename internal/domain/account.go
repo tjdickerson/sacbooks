@@ -9,4 +9,5 @@ type Account struct {
 	ReportingStartDisplay string
 	ReportingEndDisplay   string
 	OpenedOnDisplay       string
+	CanDelete             bool
 }

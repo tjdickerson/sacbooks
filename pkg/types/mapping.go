@@ -70,6 +70,7 @@ func MapAccount(account domain.Account) Account {
 		ReportingStart: account.ReportingStartDisplay,
 		ReportingEnd:   account.ReportingEndDisplay,
 		OpenedOn:       account.OpenedOnDisplay,
+		CanDelete:      account.CanDelete,
 	}
 }
 

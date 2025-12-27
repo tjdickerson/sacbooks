@@ -69,6 +69,7 @@ type Account struct {
 	ReportingStart string `json:"reporting_start"`
 	ReportingEnd   string `json:"reporting_end"`
 	OpenedOn       string `json:"opened_on"`
+	CanDelete      bool   `json:"can_delete"`
 }
 
 type Period struct {
@@ -116,4 +117,9 @@ type RecurringInput struct {
 	Amount int64  `json:"amount"`
 	Name   string `json:"name"`
 	Day    uint8  `json:"day"`
+}
+
+type AccountUpdateInput struct {
+	Name           string `json:"name"`
+	PeriodStartDay uint8  `json:"period_start_day"`
 }

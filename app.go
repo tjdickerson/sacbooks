@@ -97,3 +97,11 @@ func (a *App) GetActivePeriod(accountId int64) types.PeriodResult {
 	result := a.s.GetActivePeriod(accountId)
 	return types.MapPeriodResult(result)
 }
+
+func (a *App) UpdateAccount(accountId int64, input types.AccountUpdateInput) types.SimpleResult {
+	return a.s.UpdateAccount(accountId, input)
+}
+
+func (a *App) DeleteAccount(accountId int64) types.SimpleResult {
+	return a.s.DeleteAccount(accountId)
+}

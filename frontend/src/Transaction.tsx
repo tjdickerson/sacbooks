@@ -39,7 +39,7 @@ const Transaction: React.FC<TransactionProps> = ({
 
     return (
         <div className='card'>
-            <div className='card-info'>{transaction.id}</div>
+            <div className='card-info'>{transaction.display_date}</div>
             <div className='card-details'>
                 {
                     isEditing ? (

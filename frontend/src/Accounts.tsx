@@ -1,21 +1,17 @@
-import { useEffect, useState } from "react";
+import {useEffect, useState} from "react";
 import NewAccountForm from "./NewAccountForm";
-import { AddAccount, GetAccounts } from "../wailsjs/go/main/App";
-import { types as t } from "../wailsjs/go/models";
-import { FaTrash } from "react-icons/fa";
-import { useAccountSelection } from "./AccountContext";
-import { formatAmount, getCurrencySymbol, getLocale } from "./lib/format";
+import {AddAccount, DeleteAccount, GetAccounts, UpdateAccount} from "../wailsjs/go/main/App";
+import {types as t} from "../wailsjs/go/models";
+import {useAccountSelection} from "./AccountContext";
+import AccountCard from "./AccountCard";
 
 function Accounts() {
     const [loadingAccounts, setLoadingAccounts] = useState<boolean>(false);
     const [addingAccount, setAddingAccount] = useState<boolean>(false);
     const [error, setError] = useState<string>('');
     const [accounts, setAccounts] = useState<t.Account[]>([]);
-    const { selectedAccount, setSelectedAccount } = useAccountSelection();
+    const {selectedAccount, setSelectedAccount} = useAccountSelection();
     const selectedAccountId = selectedAccount?.id;
-    const [isEditing, setIsEditing] = useState(false);
-    const [editName, setEditName] = useState<string>('');
-    const [editPeriodStartDay, setEditPeriodStartDay] = useState<number>(1);
 
     async function loadAccounts() {
         if (loadingAccounts) return;
@@ -44,20 +40,19 @@ function Accounts() {
         async function init() {
             await loadAccounts();
         }
+
         void init();
     }, [selectedAccountId]);
 
-    async function handleAddAccount(name: string) {
+    async function handleAddAccount(name: string, periodStartDay: number): Promise<void> {
         setLoadingAccounts(true);
         setError('');
 
         try {
-            // TODO: change 7 to user input for period start day
-            const addResult = await AddAccount(name, 7);
+            const addResult: t.AccountResult = await AddAccount(name, periodStartDay);
             if (addResult.success) {
                 await loadAccounts();
-            }
-            else {
+            } else {
                 setError(addResult.message)
             }
         } finally {
@@ -66,16 +61,56 @@ function Accounts() {
 
     }
 
-    function handleSwitchAccount(id: number) {
+    async function handleSwitchAccount(id: number): Promise<void> {
         const account = accounts.find(a => a.id === id);
         if (account) {
             setSelectedAccount(account);
         }
     }
 
+    async function handleSave(accountId: number, name: string, periodStartDay: number): Promise<void> {
+        setLoadingAccounts(true);
+        setError('');
+
+        try {
+            const input: t.AccountUpdateInput = {name: name, period_start_day: periodStartDay};
+            const result: t.SimpleResult = await UpdateAccount(accountId, input)
+
+            if (result.success) {
+                await loadAccounts();
+            } else {
+                setError(result.message)
+            }
+        } finally {
+            setLoadingAccounts(false);
+        }
+    }
+
+    async function handleDelete(accountId: number) {
+        setLoadingAccounts(true);
+        setError('');
+
+        // TODO: need to add something different here maybe.
+        if(!confirm('Are you sure you want to delete this account?')) {
+            setLoadingAccounts(false);
+            return;
+        }
+
+        try {
+            const result: t.SimpleResult = await DeleteAccount(accountId)
+
+            if (result.success) {
+                await loadAccounts();
+            } else {
+                setError(result.message)
+            }
+        } finally {
+            setLoadingAccounts(false);
+        }
+    }
+
     return (
         <div className='view-layout accounts-view'>
-            {error && <p style={{ color: 'red' }}>Error: {error}</p>}
             {loadingAccounts && <p>Loading..</p>}
 
             {addingAccount ? (
@@ -84,7 +119,7 @@ function Accounts() {
                         onSubmit={handleAddAccount}
                         onCancel={() => setAddingAccount(false)}
                         submitting={loadingAccounts}
-                        initialValues={{ name: "" }} />
+                        initialValues={{name: "", periodStartDay: 7}}/>
                 </div>
             ) : (
                 <div className='view-bar'>
@@ -102,46 +137,23 @@ function Accounts() {
             )}
 
             <div className='list-container'>
+                {error && <p style={{color: 'red'}}>Error: {error}</p>}
                 <div className='scrollbox container accounts-list'>
-                    {
-                        accounts.map((account) => {
-                            const selected = account.id == selectedAccountId;
-                            const isPositive: boolean = account.balance > 0;
-                            const amountClass: string = `amount ${isPositive ? "positive" : "negative"}`;
-                            return (
-                                <div key={account.id}
-                                    className={`card ${selected ? "selected-account" : ""}`}>
-                                    <div className='card-info'>
-                                        Period Start Day of Month: {account.period_start_day}
-                                    </div>
-                                    <div className='card-details'
-                                        onClick={() => handleSwitchAccount(account.id)}>
-                                        <div className='card-name label'>
-                                            {account.name}
-                                        </div>
-                                        <div className='card-details'>
-                                            <div className='amount-holder'>
-                                                <div className='currency-symbol'>{getCurrencySymbol(getLocale())}</div>
-                                                <div className={amountClass}>
-                                                    {formatAmount(account.balance)}
-                                                </div>
-                                            </div>
-                                            <div className='action-buttons'>
-                                                <button className='danger' onClick={() => alert("no")}>
-                                                    <FaTrash />
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            )
-                        })
-                    }
+                    {accounts.map((account) => (
+                        <AccountCard key={account.id}
+                                     account={account}
+                                     selected={selectedAccountId === account.id}
+                                     onSwitch={() => handleSwitchAccount(account.id)}
+                                     onDelete={() => handleDelete(account.id)}
+                                     onSave={handleSave}
+                        />
+                    ))}
                 </div>
             </div>
-        </div >
+        </div>
     )
 
 }
 
-export default Accounts;
+export default Accounts
+

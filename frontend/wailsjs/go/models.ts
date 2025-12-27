@@ -9,6 +9,7 @@ export namespace types {
 	    reporting_start: string;
 	    reporting_end: string;
 	    opened_on: string;
+	    can_delete: boolean;
 	
 	    static createFrom(source: any = {}) {
 	        return new Account(source);
@@ -24,6 +25,7 @@ export namespace types {
 	        this.reporting_start = source["reporting_start"];
 	        this.reporting_end = source["reporting_end"];
 	        this.opened_on = source["opened_on"];
+	        this.can_delete = source["can_delete"];
 	    }
 	}
 	export class AccountListResult {
@@ -93,6 +95,20 @@ export namespace types {
 		    }
 		    return a;
 		}
+	}
+	export class AccountUpdateInput {
+	    name: string;
+	    period_start_day: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new AccountUpdateInput(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.name = source["name"];
+	        this.period_start_day = source["period_start_day"];
+	    }
 	}
 	export class Period {
 	    id: number;

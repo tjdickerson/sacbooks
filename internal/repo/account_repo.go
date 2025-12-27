@@ -16,6 +16,8 @@ func NewAccountRepo(db *sql.DB) *AccountRepo {
 	return &AccountRepo{db: db}
 }
 
+var ErrorCantDeleteAccount = fmt.Errorf("can't delete account")
+
 const QListAccount = `
 select a.id
      , p.id as period_id
@@ -25,6 +27,7 @@ select a.id
 	 , p.reporting_start_timestamp
 	 , p.reporting_end_timestamp
 	 , p.opened_on_timestamp
+     , a.can_delete
 from accounts a
 	left join transactions t on a.id = t.account_id
 	left join periods p on a.id = p.account_id
@@ -39,7 +42,12 @@ func (r *AccountRepo) List(ctx context.Context) ([]domain.Account, error) {
 		return nil, fmt.Errorf("list accounts: %w", err)
 	}
 
-	defer rows.Close()
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			fmt.Printf("error closing rows in list accounts: %v\n", err)
+		}
+	}(rows)
 
 	results := make([]domain.Account, 0, 10)
 
@@ -57,6 +65,7 @@ func (r *AccountRepo) List(ctx context.Context) ([]domain.Account, error) {
 			&reportingStartTs,
 			&reportingEndTs,
 			&openedOnTs,
+			&a.CanDelete,
 		)
 		if err != nil {
 			return results, fmt.Errorf("scan list accounts: %w", err)
@@ -80,6 +89,7 @@ const QSingleAccount = `
          , p.reporting_start_timestamp
          , p.reporting_end_timestamp
          , p.opened_on_timestamp
+	     , a.can_delete
 	from accounts a
 	left join transactions t on a.id = t.account_id
 	left join periods p on a.id = p.account_id
@@ -105,6 +115,7 @@ func (r *AccountRepo) Single(ctx context.Context, accountId int64) (domain.Accou
 		&reportingStartTs,
 		&reportingEndTs,
 		&openedOnTs,
+		&result.CanDelete,
 	)
 	if err != nil {
 		return result, fmt.Errorf("scan single account %d: %w", accountId, err)
@@ -117,8 +128,8 @@ func (r *AccountRepo) Single(ctx context.Context, accountId int64) (domain.Accou
 }
 
 const QInsertAccount = `
-	insert into accounts (name, period_start_day)
-	values (@name, @period_start_day) 
+	insert into accounts (name, period_start_day, can_delete)
+	values (@name, @period_start_day, @can_delete) 
 	returning id, name, period_start_day
 `
 
@@ -126,6 +137,7 @@ func (r *AccountRepo) Add(ctx context.Context, a domain.Account) (domain.Account
 	row := r.db.QueryRowContext(ctx, QInsertAccount,
 		sql.Named("name", a.Name),
 		sql.Named("period_start_day", a.PeriodStartDay),
+		sql.Named("can_delete", a.CanDelete),
 	)
 
 	var result domain.Account
@@ -135,4 +147,41 @@ func (r *AccountRepo) Add(ctx context.Context, a domain.Account) (domain.Account
 	}
 
 	return result, nil
+}
+
+const QUpdateAccount = `
+	update accounts set name = @name, period_start_day = @period_start_day, can_delete = @can_delete
+	where id = @id
+	returning id, name, period_start_day, can_delete
+`
+
+func (r *AccountRepo) Update(ctx context.Context, a domain.Account) error {
+	row := r.db.QueryRowContext(ctx, QUpdateAccount,
+		sql.Named("id", a.Id),
+		sql.Named("name", a.Name),
+		sql.Named("period_start_day", a.PeriodStartDay),
+		sql.Named("can_delete", a.CanDelete),
+	)
+
+	err := row.Scan(&a.Id, &a.Name, &a.PeriodStartDay, &a.CanDelete)
+	if err != nil {
+		return fmt.Errorf("update account %d: %w", a.Id, err)
+	}
+
+	return nil
+}
+
+const QDeleteAccount = `
+	delete from accounts where id = @id
+`
+
+func (r *AccountRepo) Delete(ctx context.Context, a domain.Account) error {
+	if !a.CanDelete {
+		return ErrorCantDeleteAccount
+	}
+	_, err := r.db.ExecContext(ctx, QDeleteAccount, sql.Named("id", a.Id))
+	if err != nil {
+		return fmt.Errorf("exec delete account %d: %w", a.Id, err)
+	}
+	return nil
 }

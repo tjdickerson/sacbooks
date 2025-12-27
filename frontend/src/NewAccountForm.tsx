@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 
 interface NewAccountFormProps {
-    onSubmit: (name: string) => Promise<void>;
+    onSubmit: (name: string, periodStartDay: number) => Promise<void>;
     onCancel: () => void;
     submitting: boolean;
-    initialValues: { name: string };
+    initialValues: { name: string, periodStartDay: number };
 };
 
 const NewAccountForm: React.FC<NewAccountFormProps> = ({
@@ -15,11 +15,13 @@ const NewAccountForm: React.FC<NewAccountFormProps> = ({
     initialValues }) => {
 
     const [name, setName] = useState<string>(initialValues?.name ?? '');
+    const [periodStartDay, setPeriodStartDay] = useState<number>(7);
     const [submitting, setSubmitting] = useState<boolean>(false);
     const [error, setError] = useState<string>('');
 
     useEffect(() => {
         setName(initialValues?.name ?? '');
+        setPeriodStartDay(7);
     }, [initialValues]);
 
     const isSubmitting: boolean = parentSubmitting || submitting;
@@ -29,7 +31,8 @@ const NewAccountForm: React.FC<NewAccountFormProps> = ({
         setError('');
 
         const nameError: string = !name.trim() ? 'Account name is required.' : '';
-        const validationError = nameError;
+        const dayError: string = periodStartDay < 1 || periodStartDay > 31 ? 'Period start day must be a day of a month.' : '';
+        const validationError = nameError || dayError;
 
         if (validationError) {
             setError(validationError);
@@ -39,7 +42,7 @@ const NewAccountForm: React.FC<NewAccountFormProps> = ({
         try {
             if (!parentSubmitting) setSubmitting(true);
             const clean_name: string = name.trim();
-            await onSubmit(clean_name);
+            await onSubmit(clean_name, periodStartDay);
             setName('');
         } catch(err) {
             setError('error');

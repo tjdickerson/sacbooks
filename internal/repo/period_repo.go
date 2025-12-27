@@ -39,7 +39,7 @@ func (r *PeriodRepo) StartPeriod(ctx context.Context, accountId int64, reportSta
 		sql.Named("opened_on_timestamp", startedOn.UnixMilli()),
 	)
 	if err != nil {
-		return fmt.Errorf("start period: %w", err)
+		return fmt.Errorf("insert period: %w", err)
 	}
 
 	return nil
@@ -73,4 +73,14 @@ func (r *PeriodRepo) GetActivePeriod(ctx context.Context, accountId int64) (doma
 	p.OpenedOn = time.UnixMilli(openedMillis)
 
 	return p, nil
+}
+
+const QClosePeriod = `update periods set closed_on_timestamp = @closed_on_timestamp where id = @id`
+
+func (r *PeriodRepo) ClosePeriod(ctx context.Context, periodId int64) error {
+	_, err := r.db.ExecContext(ctx, QClosePeriod,
+		sql.Named("closed_on_timestamp", time.Now().UnixMilli()),
+		sql.Named("id", periodId),
+	)
+	return err
 }

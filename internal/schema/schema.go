@@ -86,6 +86,7 @@ const CreateTableTransactions = `
 		actualized_recurring_id integer,
 		period_id integer, 
 		timestamp_added integer,
+		can_delete boolean default true,
 	    foreign key(account_id) references accounts(id),
 	    foreign key(category_id) references categories(id),
 	    foreign key(period_id) references periods(id),
@@ -119,6 +120,7 @@ const CreateTableAccounts = `
 	create table if not exists accounts (
 		id integer primary key,
 		period_start_day integer,
+		can_delete boolean default true,
 	    name varchar(100)
 	);
 `

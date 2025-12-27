@@ -11,4 +11,5 @@ type Transaction struct {
 	Amount                int64
 	ActualizedRecurringId int64
 	Date                  time.Time
+	CanDelete             bool
 }
