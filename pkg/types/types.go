@@ -62,14 +62,10 @@ type AccountListResult struct {
 
 type Account struct {
 	Id             int64  `json:"id"`
-	PeriodId       int64  `json:"period_id"`
 	Name           string `json:"name"`
-	Balance        int64  `json:"balance"`
 	PeriodStartDay uint8  `json:"period_start_day"`
-	ReportingStart string `json:"reporting_start"`
-	ReportingEnd   string `json:"reporting_end"`
-	OpenedOn       string `json:"opened_on"`
 	CanDelete      bool   `json:"can_delete"`
+	Period         Period `json:"period"`
 }
 
 type Period struct {
@@ -77,6 +73,7 @@ type Period struct {
 	ReportingStart string `json:"reporting_start"`
 	ReportingEnd   string `json:"reporting_end"`
 	OpenedOn       string `json:"opened_on"`
+	Balance        int64  `json:"balance"`
 }
 
 type RecurringResult struct {

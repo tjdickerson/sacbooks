@@ -1,26 +1,28 @@
-import { useState, useEffect } from 'react';
-import { amountToCents, formatAmount } from './lib/format';
+import {useEffect, useState} from 'react';
+import {amountToCents} from './lib/format';
+import TextInput from "./input/TextInput";
+import NumberInput from "./input/NumberInput";
 
 interface TransactionFormProps {
     onSubmit: (name: string, amount: number) => Promise<void>;
     submitting: boolean;
-    initialValues: {name: string, amount: number};
+    initialValues: { name: string, amount: number };
 };
 
 const TransactionInputForm: React.FC<TransactionFormProps> = ({
-    onSubmit,
-    submitting: parentSubmitting, 
-    initialValues }) => {
+                                                                  onSubmit,
+                                                                  submitting: parentSubmitting,
+                                                                  initialValues
+                                                              }) => {
 
-    // ensure controlled values (strings) and keep in sync if initialValues changes
     const [name, setName] = useState<string>(initialValues?.name ?? '');
-    const [amount, setAmount] = useState<string>('');
+    const [amount, setAmount] = useState<number>(initialValues?.amount ?? 0.00);
     const [submitting, setSubmitting] = useState<boolean>(false);
     const [error, setError] = useState<string>('');
 
     useEffect(() => {
         setName(initialValues?.name ?? '');
-        setAmount(formatAmount(initialValues?.amount ?? 0));
+        setAmount(initialValues?.amount ?? 0.00);
     }, [initialValues]);
 
     const isSubmitting: boolean = parentSubmitting || submitting;
@@ -31,14 +33,14 @@ const TransactionInputForm: React.FC<TransactionFormProps> = ({
 
         // simple validation (returns error message or null)
         const nameError: string = !name.trim() ? 'Transaction name is required.' : '';
-        const amountError : string = isNaN(Number(amount)) ? 'Amount must be a valid number.' : '';
+        const amountError: string = isNaN(Number(amount)) ? 'Amount must be a valid number.' : '';
         const validationError = nameError || amountError;
         if (validationError) {
             setError(validationError);
             return;
         }
 
-        const amountInCents = amountToCents(amount);
+        const amountInCents = amountToCents(amount.toFixed(2));
 
         try {
             if (!parentSubmitting) setSubmitting(true);
@@ -46,7 +48,7 @@ const TransactionInputForm: React.FC<TransactionFormProps> = ({
             const amount: number = amountInCents;
             await onSubmit(clean_name, amount);
             setName('');
-            setAmount('');
+            setAmount(0);
         } catch (err) {
             setError('Error submitting transaction');
         } finally {
@@ -55,33 +57,34 @@ const TransactionInputForm: React.FC<TransactionFormProps> = ({
     }
 
     return (
-        <form className='inline-form transaction-input-form' onSubmit={handleSubmit}>
+        <form className='inline-form' onSubmit={handleSubmit}>
             {error && <div className='form-error'>{error}</div>}
-            <div className='transaction-new-label'>New Transaction</div>
+            <div className='form-header form-label'>New Transaction</div>
 
-            <input
-                type="text"
-                className='transaction-new-input'
-                placeholder='Transaction Name'
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                aria-label="Transaction Name"
-            />
+            <div className='form-content'>
+                <div className='form-fields'>
+                    <TextInput
+                        label='Transaction Name'
+                        value={name}
+                        onChange={setName}
+                        placeholder='Name'
+                    />
 
+                    <NumberInput
+                        label='Amount'
+                        value={amount}
+                        onChange={setAmount}
+                        placeholder='0.00'
+                    />
+                </div>
 
-            <input
-                type="number"
-                className='number-input transaction-new-input'
-                placeholder='Amount'
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                aria-label="Transaction Amount"
-                step="0.01"
-            />
-
-            <button className='btn-primary transaction-new-button' type="submit" disabled={isSubmitting}>
-                Add
-            </button>
+                <div className='form-action-area'>
+                    <button className='btn-primary transaction-new-button' type="submit"
+                            disabled={isSubmitting}>
+                        Add
+                    </button>
+                </div>
+            </div>
         </form>
     )
 }

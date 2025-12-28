@@ -55,7 +55,7 @@ function Transactions() {
                 setError("no account info");
                 return;
             }
-            const result: t.TransactionListResult = await GetTransactions(selectedAccountId!, selectedAccount.period_id, PAGE_SIZE, page * PAGE_SIZE);
+            const result: t.TransactionListResult = await GetTransactions(selectedAccountId!, selectedAccount.period.id, PAGE_SIZE, page * PAGE_SIZE);
 
             if (result.success) {
                 const data: t.Transaction[] = result.data;
@@ -83,7 +83,7 @@ function Transactions() {
         setLoadingRecurring(true);
 
         try {
-            const result: t.RecurringListResult = await GetRecurringList(selectedAccountId!, selectedAccount?.period_id ?? 0);
+            const result: t.RecurringListResult = await GetRecurringList(selectedAccountId!, selectedAccount?.period.id ?? 0);
             if (result.success) {
                 const data: t.Recurring[] = result.data;
                 setRecurrings(data);
@@ -108,8 +108,8 @@ function Transactions() {
                 if (!selectedAccount) return;
                 
                 const [txResult, recResult, accResult] = await Promise.all([
-                    GetTransactions(selectedAccountId!, selectedAccount.period_id, PAGE_SIZE, 0),
-                    GetRecurringList(selectedAccountId!, selectedAccount.period_id ?? 0),
+                    GetTransactions(selectedAccountId!, selectedAccount.period.id, PAGE_SIZE, 0),
+                    GetRecurringList(selectedAccountId!, selectedAccount.period.id ?? 0),
                     GetAccount(selectedAccountId!)
                 ]);
 
@@ -228,7 +228,7 @@ function Transactions() {
             newTransaction.name = name;
             newTransaction.amount = amount;
             newTransaction.account_id = selectedAccount?.id ?? 0;
-            newTransaction.period_id = selectedAccount?.period_id ?? 0;
+            newTransaction.period_id = selectedAccount?.period.id ?? 0;
             const result: t.TransactionResult = await AddTransaction(newTransaction);
 
             if (result.success) {
@@ -255,7 +255,7 @@ function Transactions() {
                 setError("no account info");
                 return;
             }
-            const result: t.TransactionResult = await ApplyRecurring(recurringId, selectedAccount.period_id);
+            const result: t.TransactionResult = await ApplyRecurring(recurringId, selectedAccount.period.id);
             if (result.success) {
                 const newTransaction: t.Transaction = result.data;
                 setTransactions(prev => [newTransaction, ...prev]);
@@ -290,7 +290,7 @@ function Transactions() {
                 <div className='current-balance-amount'>
                     <div className='currency-symbol'>{getCurrencySymbol(getLocale())}</div>
                     <div className='balance-amount-value'>
-                        {account ? formatAmount(account.balance) : 'N/A'}
+                        {account ? formatAmount(account.period.balance) : 'N/A'}
                     </div>
                 </div>
             </div>
@@ -298,7 +298,7 @@ function Transactions() {
             <div className='scrollbox container transaction-list' ref={transactionContainerRef}>
                 {error && <p style={{color: 'red'}}>Error: {error}</p>}
 
-                <div>
+                <div className='card-list'>
                     {transactions.map((transaction) => (
                         <Transaction
                             key={transaction.id}
@@ -311,7 +311,7 @@ function Transactions() {
             </div>
 
             <div className='scrollbox recurring-transaction-list'>
-                <div className='recurring-transaction-items'>
+                <div className='card-list recurring-transaction-items'>
                     {loadingRecurring && <p>Loading..</p>}
                     {recurrings.length === 0 && <p>No Recurring Transactions</p>}
                     {recurrings.map((recurring) => {

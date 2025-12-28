@@ -1,13 +1,9 @@
 package domain
 
 type Account struct {
-	Id                    int64
-	PeriodId              int64
-	Name                  string
-	Balance               int64
-	PeriodStartDay        uint8
-	ReportingStartDisplay string
-	ReportingEndDisplay   string
-	OpenedOnDisplay       string
-	CanDelete             bool
+	Id             int64
+	Name           string
+	PeriodStartDay uint8
+	CanDelete      bool
+	Period         *Period
 }

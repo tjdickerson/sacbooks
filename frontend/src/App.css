@@ -4,29 +4,37 @@
 
 /* App Root Layout */
 #App {
-  display: flex;
-  flex-direction: column;
-  background: var(--bg);
-  color: var(--text);
-  height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
 }
 
 .app-header {
-  position: sticky;
-  top: 0;
-  z-index: 40;
+    position: sticky;
+    top: 0;
+    z-index: 40;
 }
 
 .app-main {
-  flex: 1;
-  overflow: hidden;
-  padding: 0;
-  height: 100%;
+    flex: 1;
+    overflow: hidden;
+    padding: 0;
+    height: 100%;
 }
 
 
 .list-container {
     min-height: 0;
+}
+
+.card-list {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 16px;
+    background: transparent;
 }
 
 .scrollbox {
@@ -36,24 +44,24 @@
 
 /* Width */
 .scrollbox::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+    width: 8px;
+    height: 8px;
 }
 
 /* Track (gutter) */
 .scrollbox::-webkit-scrollbar-track {
-  background: transparent; /* removes gutter background */
+    background: transparent; /* removes gutter background */
 }
 
 /* Thumb */
 .scrollbox::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.4);
-  border-radius: var(--radius);
+    background-color: rgba(0, 0, 0, 0.4);
+    border-radius: var(--radius);
 }
 
 /* Optional hover effect */
 .scrollbox::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(0, 0, 0, 0.6);
+    background-color: rgba(0, 0, 0, 0.6);
 }
 
 /* Button and input styles moved to components.css for consistency */
@@ -63,88 +71,88 @@
    ============================================================================ */
 
 .menu-bar {
-  background: linear-gradient(180deg, var(--menu-bg), rgba(32,56,32,0.92));
-  height: 68px;
-  width: 100%;
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  box-shadow: 0 4px 18px rgba(16,24,16,0.12);
-  backdrop-filter: blur(4px);
+    background: var(--menu-bg);
+    height: 68px;
+    width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    box-shadow: 0 4px 18px rgba(16, 24, 16, 0.12);
+    backdrop-filter: blur(4px);
 }
 
 .menu-layout {
-  max-width: var(--max-width);
-  width: 100%;
-  height: 100%;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 18px;
-  gap: 12px;
+    max-width: var(--max-width);
+    width: 100%;
+    height: 100%;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 18px;
+    gap: 12px;
 }
 
 .menu-title {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
 .menu-logo {
-  display: flex;
-  align-items: center;
+    display: flex;
+    align-items: center;
 }
 
 .menu-logo-image {
-  height: 44px;
-  width: auto;
-  border-radius: 8px;
-  background: rgba(255,255,255,0.00);
-  padding: 6px;
+    height: 44px;
+    width: auto;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.00);
+    padding: 6px;
 }
 
 .menu-title-text {
-  color: #e6f0ea;
-  font-size: 1.1rem;
-  font-weight: 700;
-  letter-spacing: 0.3px;
+    color: #e6f0ea;
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
 }
 
 .menu-items {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  margin-left: 28px;
-  flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-left: 28px;
+    flex: 1;
 }
 
 .menu-item {
-  color: rgba(255,255,255,0.82);
-  display: inline-flex;
-  align-items: center;
-  padding: 8px 12px;
-  border-radius: 10px;
-  transition: background 180ms ease, transform 120ms ease, color 180ms ease;
-  font-weight: 600;
-  font-size: 0.95rem;
-  cursor: pointer;
+    color: rgba(255, 255, 255, 0.82);
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 10px;
+    transition: background 180ms ease, transform 120ms ease, color 180ms ease;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
 }
 
 .menu-item:hover {
-  background: rgba(255,255,255,0.04);
-  color: #fff;
-  transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.04);
+    color: #fff;
+    transform: translateY(-2px);
 }
 
 .menu-item-active {
-  background: rgba(255,255,255,0.12);
-  color: #fff;
-  transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    transform: translateY(-2px);
 }
 
 .menu-user {
-  margin-left: auto;
+    margin-left: auto;
 }
 
 /* ============================================================================
@@ -152,11 +160,11 @@
    ============================================================================ */
 
 .container {
-  max-width: var(--max-width);
-  margin: 0 auto;
-  padding: 3px 0 0;
-  background: transparent;
-  height: 100%;
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 3px 0 0;
+    background: transparent;
+    height: 100%;
 }
 
 /* ============================================================================
@@ -164,20 +172,39 @@
    ============================================================================ */
 
 @media (max-width: 768px) {
-  .menu-items { gap: 12px; }
-  .menu-layout { padding: 0 12px; }
+    .menu-items {
+        gap: 12px;
+    }
+
+    .menu-layout {
+        padding: 0 12px;
+    }
 }
 
 @media (max-width: 640px) {
-  .menu-items { display: none; }
-  .menu-title-text { font-size: 1rem; }
-  .menu-logo-image { height: 36px; }
-  .app-main { padding: 16px 12px; }
-  .menu-layout { padding: 0 12px; }
+    .menu-items {
+        display: none;
+    }
+
+    .menu-title-text {
+        font-size: 1rem;
+    }
+
+    .menu-logo-image {
+        height: 36px;
+    }
+
+    .app-main {
+        padding: 16px 12px;
+    }
+
+    .menu-layout {
+        padding: 0 12px;
+    }
 }
 
 .form-error {
-  color: var(--negative);
-  font-size: 13px;
-  margin-top: 4px;
+    color: var(--negative);
+    font-size: 13px;
+    margin-top: 4px;
 }

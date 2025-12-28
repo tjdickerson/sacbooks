@@ -9,4 +9,5 @@ type Period struct {
 	ReportingEnd   time.Time
 	OpenedOn       time.Time
 	ClosedOn       time.Time
+	Balance        int64
 }

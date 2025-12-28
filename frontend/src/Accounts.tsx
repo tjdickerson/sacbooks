@@ -74,7 +74,7 @@ function Accounts() {
 
         try {
             const input: t.AccountUpdateInput = {name: name, period_start_day: periodStartDay};
-            const result: t.SimpleResult = await UpdateAccount(accountId, input)
+            const result: t.AccountResult = await UpdateAccount(accountId, input)
 
             if (result.success) {
                 await loadAccounts();
@@ -138,7 +138,7 @@ function Accounts() {
 
             <div className='list-container'>
                 {error && <p style={{color: 'red'}}>Error: {error}</p>}
-                <div className='scrollbox container accounts-list'>
+                <div className='scrollbox card-list container accounts-list'>
                     {accounts.map((account) => (
                         <AccountCard key={account.id}
                                      account={account}

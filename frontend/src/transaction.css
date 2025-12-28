@@ -46,7 +46,6 @@
 .transaction-new {
     grid-column: 1;
     grid-row: 1;
-    margin: 0;
 }
 
 .transaction-input-form {

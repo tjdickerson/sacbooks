@@ -28,7 +28,7 @@ export function GetRecurringList(arg1:number,arg2:number):Promise<types.Recurrin
 
 export function GetTransactions(arg1:number,arg2:number,arg3:number,arg4:number):Promise<types.TransactionListResult>;
 
-export function UpdateAccount(arg1:number,arg2:types.AccountUpdateInput):Promise<types.SimpleResult>;
+export function UpdateAccount(arg1:number,arg2:types.AccountUpdateInput):Promise<types.AccountResult>;
 
 export function UpdateRecurring(arg1:types.RecurringInput):Promise<types.RecurringResult>;
 

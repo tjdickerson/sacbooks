@@ -40,13 +40,15 @@ func (s *Server) Startup() {
 	s.recurringService = service.NewRecurringService(recurringRepo)
 
 	err = schema.Ensure(ctx, db)
+	if err != nil && !errors.Is(err, schema.NoAccountError) {
+		panic(fmt.Sprintf("Failed to initialize new database: %s", err))
+	}
+
 	if errors.Is(err, schema.NoAccountError) {
 		_, err := s.accountService.Add(ctx, "Checking", 7, false)
 		if err != nil {
 			panic(fmt.Sprintf("Failed to create default account: %s", err))
 		}
-	} else if err != nil {
-		panic(fmt.Sprintf("Failed to initialize new database: %s", err))
 	}
 }
 
@@ -202,15 +204,15 @@ func (s *Server) GetActivePeriod(accountId int64) types.Result[types.Period] {
 	return types.Ok(types.MapPeriod(result))
 }
 
-func (s *Server) UpdateAccount(accountId int64, input types.AccountUpdateInput) types.SimpleResult {
+func (s *Server) UpdateAccount(accountId int64, input types.AccountUpdateInput) types.Result[types.Account] {
 	ctx := context.Background()
 
-	err := s.accountService.Update(ctx, accountId, input)
+	a, err := s.accountService.Update(ctx, accountId, input)
 	if err != nil {
-		return types.SimpleResult{Success: false, Message: fmt.Sprintf("error updating account: %s", err)}
+		return types.Fail[types.Account](fmt.Sprintf("updating account: %s", err))
 	}
 
-	return types.SimpleResult{Success: true, Message: "Updated"}
+	return types.Ok(types.MapAccount(a))
 }
 
 func (s *Server) DeleteAccount(accountId int64) types.SimpleResult {

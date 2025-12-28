@@ -48,7 +48,7 @@ function Menu({ currentView, onNavigate }: MenuProps) {
 
                 <div className="menu-user">
                     <div className='active-account'>{selectedAccount?.name}</div>
-                    <div className='active-period'>{selectedAccount?.reporting_start} - {selectedAccount?.reporting_end}</div>
+                    <div className='active-period'>{selectedAccount?.period?.reporting_start} - {selectedAccount?.period?.reporting_end}</div>
                 </div>
             </div>
         </div>

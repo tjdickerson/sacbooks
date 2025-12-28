@@ -18,7 +18,7 @@ function Recurrings() {
         setLoadingRecurring(true);
 
         try {
-            const result: t.RecurringListResult = await GetRecurringList(selectedAccountId!, selectedAccount?.period_id ?? 0);
+            const result: t.RecurringListResult = await GetRecurringList(selectedAccountId!, selectedAccount?.period.id ?? 0);
             if (result.success) {
                 const data: t.Recurring[] = result.data;
                 setRecurrings(data);
@@ -133,7 +133,7 @@ function Recurrings() {
             )}
 
             <div className='list-container'>
-                <div className='scrollbox container accounts-list'>
+                <div className='scrollbox card-list container recurrings-list'>
                     {recurrings.length > 0 ?
                         (
                             recurrings.map((recurring) => (

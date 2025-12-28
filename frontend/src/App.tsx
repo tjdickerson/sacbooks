@@ -45,7 +45,7 @@ function App() {
     return (
         <AccountContext.Provider value={{ 
             selectedAccount, setSelectedAccount }}>
-            <div id="App">
+            <div id="App" data-theme="light" className="app-layout">
                 <header className="app-header">
                     <Menu
                         currentView={currentView}

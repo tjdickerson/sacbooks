@@ -243,13 +243,6 @@ select:disabled {
     color: var(--negative);
 }
 
-.amount-holder {
-    display: flex;
-    gap: 4px;
-    align-items: baseline;
-    min-width: 100px;
-    justify-content: flex-end;
-}
 
 /* ============================================================================
    Alerts / Messages
@@ -417,6 +410,7 @@ select:disabled {
 .form-area {
     display: flex;
     gap: 8px;
+    margin: 0 16px;
     align-items: center;
     padding: var(--gap);
     background: var(--form-bg);
@@ -430,7 +424,8 @@ select:disabled {
 /* Inline / compact form layout used across small input groups */
 .inline-form {
     display: flex;
-    gap: 8px;
+    flex-direction: column;
+    gap: var(--gap);
     align-items: center;
     width: 100%;
 }
@@ -443,18 +438,60 @@ select:disabled {
     /* prevents overflow in flex children */
 }
 
+.form-header {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    top: -6px;
+    width: 100%;
+    color: #5e6667;
+    font-size: 1em;
+}
+
+.form-content {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    width: 100%;
+    justify-content: space-between;
+    padding: 12px 0;
+}
+
+.form-fields {
+    display: flex;
+    flex-direction: row;
+    gap: var(--gap);
+    flex: 1;
+}
+
+.form-action-area {
+    display:flex;
+    flex-direction: row;
+    gap: var(--gap);
+}
+
 .inline-form .btn-primary,
 .inline-form button {
     flex: 0 0 auto;
 }
 
-@media (max-width: 768px) {
-    .inline-form {
-        flex-direction: column;
-        align-items: stretch;
-    }
+.text-input-container {
+    display: flex;
+    flex-direction: column;
+}
 
-    .inline-form .btn-primary {
-        width: 100%;
-    }
+.text-input-label {
+    color: #747e80;
+    font-size: 0.75em;
+    position: fixed;
+    margin-top: -16px;
+}
+
+.text-input-error {
+    color: var(--negative);
+    font-size: 0.75em;
+    position: fixed;
+    margin-top: -30px;
 }

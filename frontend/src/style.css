@@ -3,16 +3,31 @@
    ============================================================================ */
 
 /* CSS Custom Properties (Design Tokens) */
-:root {
-    /* Colors */
+[data-theme="dark"] {
+    --bg: #1c2e40;
+    --card: #23394e;
+    --muted: #acb0b1;
+    --text: #ecf0f1;
+    --positive: #16a085;
+    --negative: #be6461;
+    --menu-bg: rgb(40 37 53 / 95%);
+    --form-bg: rgba(1, 131, 89, 0.02);
+}
+
+[data-theme="light"] {
     --bg: #f6f7f9;
-    --card: #ffffff;
+    --card: #f7f8fa;
     --muted: #7b8a8f;
     --text: #1f2d30;
     --positive: #018359;
     --negative: #b0100b;
     --menu-bg: rgba(32, 56, 32, 0.95);
     --form-bg: rgba(1, 131, 89, 0.02);
+
+}
+
+:root {
+    --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
 
     /* Shadows */
     --shadow-1: 0 6px 18px rgba(31, 45, 48, 0.06);
@@ -23,11 +38,6 @@
     --radius: 6px;
     --card-border: rgba(31, 45, 48, 0.04);
     --max-width: 1200px;
-
-    /* Typography */
-    --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-
-
 }
 
 /* Reset and Base Styles */
