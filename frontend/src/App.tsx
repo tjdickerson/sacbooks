@@ -1,14 +1,15 @@
 import './App.css';
-import { useEffect, useState } from 'react';
+import {useEffect, useState} from 'react';
 import Menu from "./Menu";
 import Transactions from './Transactions';
 import Recurrings from './Recurrings';
 import Categories from './Categories';
 import Accounts from './Accounts';
-import { GetDefaultAccount } from '../wailsjs/go/main/App';
-import { types as t } from "../wailsjs/go/models";
-import { AccountContext } from './AccountContext';
-import { ViewId } from './views';
+import {GetDefaultAccount} from '../wailsjs/go/main/App';
+import {types as t} from "../wailsjs/go/models";
+import {AccountContext} from './AccountContext';
+import {ViewId} from './views';
+import {refreshCategoryCache} from "./lib/category";
 
 
 function App() {
@@ -16,22 +17,33 @@ function App() {
     const [currentView, setCurrentView] = useState<ViewId>('transactions');
     const [error, setError] = useState<string>('');
 
-
     useEffect(() => {
         async function bootstrap() {
             const result: t.AccountResult = await GetDefaultAccount();
             if (result.success) {
-                setSelectedAccount(result.data);
+                const account: t.Account = result.data;
+                setSelectedAccount(account);
             } else {
-               setError(result.message);
+                setError(result.message);
             }
         }
 
         void bootstrap();
     }, []);
 
+    useEffect(() => {
+        if (selectedAccount?.id) {
+            void refreshCategoryCache(selectedAccount?.id ?? 1);
+        }
+    }, [selectedAccount?.id]);
+
     function handleNavigate(viewId: ViewId) {
         setCurrentView(viewId);
+    }
+
+
+    const handleSetSelectedAccount = async (account: t.Account | null) => {
+        setSelectedAccount(account);
     }
 
     if (error) {
@@ -43,8 +55,9 @@ function App() {
     }
 
     return (
-        <AccountContext.Provider value={{ 
-            selectedAccount, setSelectedAccount }}>
+        <AccountContext.Provider value={{
+            selectedAccount, setSelectedAccount: handleSetSelectedAccount
+        }}>
             <div id="App" data-theme="light" className="app-layout">
                 <header className="app-header">
                     <Menu
@@ -54,10 +67,10 @@ function App() {
                 </header>
                 <main id="app-content" className="app-main">
                     <div className="container">
-                        {currentView === 'transactions' && <Transactions />}
-                        {currentView === 'recurrings' && <Recurrings />}
-                        {currentView === 'categories' && <Categories />}
-                        {currentView === 'accounts' && <Accounts />}
+                        {currentView === 'transactions' && <Transactions/>}
+                        {currentView === 'recurrings' && <Recurrings/>}
+                        {currentView === 'categories' && <Categories/>}
+                        {currentView === 'accounts' && <Accounts/>}
                     </div>
                 </main>
             </div>

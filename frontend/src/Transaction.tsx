@@ -8,6 +8,7 @@ import {FaEdit, FaSave, FaTimes, FaTrash} from 'react-icons/fa'
 import {amountToCents, formatAmount, getCurrencySymbol, getLocale} from './lib/format';
 import TextInput from "./input/TextInput";
 import NumberInput from "./input/NumberInput";
+import {getCategoryColor} from "./lib/category";
 
 interface TransactionProps {
     transaction: t.Transaction;
@@ -42,6 +43,7 @@ const Transaction: React.FC<TransactionProps> = ({
 
     return (
         <div className='card'>
+            <div className='card-color-stripe' style={{backgroundColor: getCategoryColor(transaction.category_id)}}/>
             {!isEditing && <div className='card-info'>{transaction.display_date}</div>}
             <div className={`card-details ${isEditing ? 'form-content' : ''}`}>
                 <div className='form-fields'>

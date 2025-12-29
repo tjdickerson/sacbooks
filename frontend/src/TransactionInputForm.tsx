@@ -2,9 +2,11 @@ import {useEffect, useState} from 'react';
 import {amountToCents} from './lib/format';
 import TextInput from "./input/TextInput";
 import NumberInput from "./input/NumberInput";
+import CategorySelector from "./input/CategorySelector";
+import {getCategoryCache} from "./lib/category";
 
 interface TransactionFormProps {
-    onSubmit: (name: string, amount: number) => Promise<void>;
+    onSubmit: (name: string, amount: number, categoryId: number) => Promise<void>;
     submitting: boolean;
     initialValues: { name: string, amount: number };
 };
@@ -17,15 +19,18 @@ const TransactionInputForm: React.FC<TransactionFormProps> = ({
 
     const [name, setName] = useState<string>(initialValues?.name ?? '');
     const [amount, setAmount] = useState<number>(initialValues?.amount ?? 0.00);
+    const [categoryId, setCategoryId] = useState<number>(0);
     const [submitting, setSubmitting] = useState<boolean>(false);
     const [error, setError] = useState<string>('');
 
     useEffect(() => {
         setName(initialValues?.name ?? '');
         setAmount(initialValues?.amount ?? 0.00);
+        setCategoryId(0);
     }, [initialValues]);
 
     const isSubmitting: boolean = parentSubmitting || submitting;
+    const categories = getCategoryCache();
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -45,10 +50,10 @@ const TransactionInputForm: React.FC<TransactionFormProps> = ({
         try {
             if (!parentSubmitting) setSubmitting(true);
             const clean_name: string = name.trim();
-            const amount: number = amountInCents;
-            await onSubmit(clean_name, amount);
+            await onSubmit(clean_name, amountInCents, categoryId);
             setName('');
             setAmount(0);
+            setCategoryId(0);
         } catch (err) {
             setError('Error submitting transaction');
         } finally {
@@ -75,6 +80,13 @@ const TransactionInputForm: React.FC<TransactionFormProps> = ({
                         value={amount}
                         onChange={setAmount}
                         placeholder='0.00'
+                    />
+
+                    <CategorySelector
+                        label='Category'
+                        selectedId={categoryId}
+                        onChange={setCategoryId}
+                        dataSource={categories}
                     />
                 </div>
 

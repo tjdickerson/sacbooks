@@ -17,6 +17,7 @@ type Server struct {
 	transactionService *service.TransactionService
 	accountService     *service.AccountService
 	recurringService   *service.RecurringService
+	categoryService    *service.CategoryService
 }
 
 func (s *Server) Startup() {
@@ -33,11 +34,13 @@ func (s *Server) Startup() {
 	recurringRepo := repo.NewRecurringsRepo(db)
 	accountRepo := repo.NewAccountRepo(db)
 	periodRepo := repo.NewPeriodRepo(db)
+	categoryRepo := repo.NewCategoryRepo(db)
 
 	s.db = db
 	s.transactionService = service.NewTransactionService(transactionRepo, recurringRepo, accountRepo)
-	s.accountService = service.NewAccountService(accountRepo, periodRepo, transactionRepo)
+	s.accountService = service.NewAccountService(accountRepo, periodRepo, transactionRepo, categoryRepo)
 	s.recurringService = service.NewRecurringService(recurringRepo)
+	s.categoryService = service.NewCategoryService(categoryRepo)
 
 	err = schema.Ensure(ctx, db)
 	if err != nil && !errors.Is(err, schema.NoAccountError) {
@@ -221,6 +224,50 @@ func (s *Server) DeleteAccount(accountId int64) types.SimpleResult {
 	err := s.accountService.Delete(ctx, accountId)
 	if err != nil {
 		return types.SimpleResult{Success: false, Message: fmt.Sprintf("error deleting account: %s", err)}
+	}
+
+	return types.SimpleResult{Success: true, Message: "Deleted"}
+}
+
+func (s *Server) ListCategories(accountId int64) types.Result[[]types.Category] {
+	ctx := context.Background()
+
+	list, err := s.categoryService.List(ctx, accountId)
+	if err != nil {
+		return types.Fail[[]types.Category](fmt.Sprintf("list categories: %s", err))
+	}
+
+	return types.Ok(types.MapCategories(list))
+}
+
+func (s *Server) AddCategory(accountId int64, input types.CategoryInsertInput) types.Result[types.Category] {
+	ctx := context.Background()
+
+	c, err := s.categoryService.Add(ctx, accountId, input)
+	if err != nil {
+		return types.Fail[types.Category](fmt.Sprintf("add category: %s", err))
+	}
+
+	return types.Ok(types.MapCategory(c))
+}
+
+func (s *Server) UpdateCategory(accountId int64, input types.CategoryUpdateInput) types.Result[types.Category] {
+	ctx := context.Background()
+
+	c, err := s.categoryService.Update(ctx, accountId, input)
+	if err != nil {
+		return types.Fail[types.Category](fmt.Sprintf("add category: %s", err))
+	}
+
+	return types.Ok(types.MapCategory(c))
+}
+
+func (s *Server) DeleteCategory(categoryId int64) types.SimpleResult {
+	ctx := context.Background()
+
+	err := s.categoryService.Delete(ctx, categoryId)
+	if err != nil {
+		return types.SimpleResult{Success: false, Message: fmt.Sprintf("error deleting category: %s", err)}
 	}
 
 	return types.SimpleResult{Success: true, Message: "Deleted"}

@@ -17,12 +17,21 @@ func NewTransactionRepo(db *sql.DB) *TransactionRepo {
 }
 
 const QPagedTransactions = `
-	select ` + transactionColumns + ` from transactions t
-	where account_id = @account_id and period_id = @period_id
-	order by t.transaction_date desc
-			,t.timestamp_added desc
-		    ,t.id desc
-	limit @limit offset @offset
+select t.id
+     , t.account_id
+     , t.period_id
+     , t.category_id
+     , t.name
+     , t.amount
+     , t.transaction_date
+     , t.actualized_recurring_id
+from transactions t
+where account_id = @account_id
+  and period_id = @period_id
+order by t.transaction_date desc
+       , t.timestamp_added desc
+       , t.id desc
+limit @limit offset @offset
 `
 
 func (r *TransactionRepo) List(ctx context.Context, accountId int64, periodId int64, limit int, offset int) ([]domain.Transaction, error) {
@@ -37,7 +46,12 @@ func (r *TransactionRepo) List(ctx context.Context, accountId int64, periodId in
 		return nil, fmt.Errorf("query list transactions: %w", err)
 	}
 
-	defer rows.Close()
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			fmt.Printf("list transaction cant close rows: %s", err)
+		}
+	}(rows)
 
 	results := make([]domain.Transaction, 0, limit)
 
@@ -54,8 +68,16 @@ func (r *TransactionRepo) List(ctx context.Context, accountId int64, periodId in
 }
 
 const QSingleTransaction = `
-	select ` + transactionColumns + ` from transactions t
-	where t.id = @transaction_id
+select t.id
+     , t.account_id
+     , t.period_id
+     , t.category_id
+     , t.name
+     , t.amount
+     , t.transaction_date
+     , t.actualized_recurring_id
+from transactions t
+where t.id = @transaction_id
 `
 
 func (r *TransactionRepo) Single(ctx context.Context, id int64) (domain.Transaction, error) {
@@ -70,12 +92,13 @@ func (r *TransactionRepo) Single(ctx context.Context, id int64) (domain.Transact
 }
 
 const QUpdateTransaction = `
-	update transactions 
-	set name = @name,
-	    amount = @amount,
-	    category_id = @category_id
-	where id = @id
-	returning ` + transactionColumnsNoAlias
+update transactions
+set name        = @name,
+    amount      = @amount,
+    category_id = @category_id
+where id = @id
+returning id, account_id, period_id, category_id, name, amount, transaction_date, actualized_recurring_id 
+`
 
 func (r *TransactionRepo) Update(ctx context.Context, t domain.Transaction) (domain.Transaction, error) {
 	row := r.db.QueryRowContext(ctx, QUpdateTransaction,
@@ -107,7 +130,8 @@ const QInsertTransaction = `
 		@actualized_recurring_id,
 		@period_id,
 		@timestamp_added)
-	returning ` + transactionColumnsNoAlias
+returning id, account_id, period_id, category_id, name, amount, transaction_date, actualized_recurring_id 
+`
 
 func (r *TransactionRepo) Add(ctx context.Context, t domain.Transaction) (domain.Transaction, error) {
 	row := r.db.QueryRowContext(ctx, QInsertTransaction,
@@ -136,26 +160,6 @@ func (r *TransactionRepo) Delete(ctx context.Context, t domain.Transaction) erro
 	return nil
 }
 
-const transactionColumns = `
-  t.id
-, t.account_id
-, t.name
-, t.amount
-, t.transaction_date
-, t.period_id
-, t.actualized_recurring_id
-`
-
-const transactionColumnsNoAlias = `
-  id
-, account_id
-, name
-, amount
-, transaction_date
-, period_id
-, actualized_recurring_id
-`
-
 func scanTransaction(row interface{ Scan(dest ...any) error }) (domain.Transaction, error) {
 	var t domain.Transaction
 	var dateMillis int64
@@ -163,10 +167,11 @@ func scanTransaction(row interface{ Scan(dest ...any) error }) (domain.Transacti
 	err := row.Scan(
 		&t.Id,
 		&t.AccountId,
+		&t.PeriodId,
+		&t.CategoryId,
 		&t.Name,
 		&t.Amount,
 		&dateMillis,
-		&t.PeriodId,
 		&t.ActualizedRecurringId,
 	)
 

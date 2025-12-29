@@ -5,5 +5,5 @@ type Account struct {
 	Name           string
 	PeriodStartDay uint8
 	CanDelete      bool
-	Period         *Period
+	ActivePeriod   *Period
 }

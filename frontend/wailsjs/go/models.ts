@@ -25,7 +25,7 @@ export namespace types {
 	    name: string;
 	    period_start_day: number;
 	    can_delete: boolean;
-	    period: Period;
+	    active_period: Period;
 	
 	    static createFrom(source: any = {}) {
 	        return new Account(source);
@@ -37,7 +37,7 @@ export namespace types {
 	        this.name = source["name"];
 	        this.period_start_day = source["period_start_day"];
 	        this.can_delete = source["can_delete"];
-	        this.period = this.convertValues(source["period"], Period);
+	        this.active_period = this.convertValues(source["active_period"], Period);
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -138,6 +138,120 @@ export namespace types {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.name = source["name"];
 	        this.period_start_day = source["period_start_day"];
+	    }
+	}
+	export class Category {
+	    id: number;
+	    name: string;
+	    color: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new Category(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.name = source["name"];
+	        this.color = source["color"];
+	    }
+	}
+	export class CategoryInsertInput {
+	    name: string;
+	    color: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new CategoryInsertInput(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.name = source["name"];
+	        this.color = source["color"];
+	    }
+	}
+	export class CategoryListResult {
+	    success: boolean;
+	    message: string;
+	    data: Category[];
+	
+	    static createFrom(source: any = {}) {
+	        return new CategoryListResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.success = source["success"];
+	        this.message = source["message"];
+	        this.data = this.convertValues(source["data"], Category);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class CategoryResult {
+	    success: boolean;
+	    message: string;
+	    data: Category;
+	
+	    static createFrom(source: any = {}) {
+	        return new CategoryResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.success = source["success"];
+	        this.message = source["message"];
+	        this.data = this.convertValues(source["data"], Category);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class CategoryUpdateInput {
+	    id: number;
+	    name: string;
+	    color: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new CategoryUpdateInput(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.name = source["name"];
+	        this.color = source["color"];
 	    }
 	}
 	
@@ -297,6 +411,7 @@ export namespace types {
 	}
 	export class Transaction {
 	    id: number;
+	    category_id: number;
 	    // Go type: time
 	    date: any;
 	    display_date: string;
@@ -311,6 +426,7 @@ export namespace types {
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.id = source["id"];
+	        this.category_id = source["category_id"];
 	        this.date = this.convertValues(source["date"], null);
 	        this.display_date = source["display_date"];
 	        this.amount = source["amount"];
@@ -339,6 +455,7 @@ export namespace types {
 	export class TransactionInsertInput {
 	    account_id: number;
 	    period_id: number;
+	    category_id: number;
 	    amount: number;
 	    name: string;
 	
@@ -350,6 +467,7 @@ export namespace types {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.account_id = source["account_id"];
 	        this.period_id = source["period_id"];
+	        this.category_id = source["category_id"];
 	        this.amount = source["amount"];
 	        this.name = source["name"];
 	    }

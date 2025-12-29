@@ -26,7 +26,7 @@ const AccountCard: React.FC<AccountProps> = ({
     const [editName, setEditName] = useState<string>(account.name);
     const [editPeriodStartDay, setEditPeriodStartDay] = useState<number>(account.period_start_day);
 
-    const isPositive: boolean = account.period.balance > 0;
+    const isPositive: boolean = account.active_period.balance > 0;
     const amountClass: string = `amount ${isPositive ? "positive" : "negative"}`;
 
     function handleSwitchAccount(id: number) {
@@ -85,7 +85,7 @@ const AccountCard: React.FC<AccountProps> = ({
                             <div
                                 className='currency-symbol'>{getCurrencySymbol(getLocale())}</div>
                             <div className={amountClass}>
-                                {formatAmount(account.period.balance)}
+                                {formatAmount(account.active_period.balance)}
                             </div>
                         </>
                     )}

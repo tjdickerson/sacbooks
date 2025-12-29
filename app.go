@@ -105,3 +105,19 @@ func (a *App) UpdateAccount(accountId int64, input types.AccountUpdateInput) typ
 func (a *App) DeleteAccount(accountId int64) types.SimpleResult {
 	return a.s.DeleteAccount(accountId)
 }
+
+func (a *App) ListCategories(accountId int64) types.CategoryListResult {
+	return types.MapCategoryListResult(a.s.ListCategories(accountId))
+}
+
+func (a *App) AddCategory(accountId int64, input types.CategoryInsertInput) types.CategoryResult {
+	return types.MapCategoryResult(a.s.AddCategory(accountId, input))
+}
+
+func (a *App) UpdateCategory(accountId int64, input types.CategoryUpdateInput) types.CategoryResult {
+	return types.MapCategoryResult(a.s.UpdateCategory(accountId, input))
+}
+
+func (a *App) DeleteCategory(categoryId int64) types.SimpleResult {
+	return a.s.DeleteCategory(categoryId)
+}

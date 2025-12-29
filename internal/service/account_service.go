@@ -13,13 +13,19 @@ type AccountService struct {
 	accountRepo     *repo.AccountRepo
 	periodRepo      *repo.PeriodRepo
 	transactionRepo *repo.TransactionRepo
+	categoryRepo    *repo.CategoryRepo
 }
 
-func NewAccountService(accountRepo *repo.AccountRepo, periodRepo *repo.PeriodRepo, transactionRepo *repo.TransactionRepo) *AccountService {
+func NewAccountService(
+	accountRepo *repo.AccountRepo,
+	periodRepo *repo.PeriodRepo,
+	transactionRepo *repo.TransactionRepo,
+	categoryRepo *repo.CategoryRepo) *AccountService {
 	return &AccountService{
 		accountRepo:     accountRepo,
 		periodRepo:      periodRepo,
 		transactionRepo: transactionRepo,
+		categoryRepo:    categoryRepo,
 	}
 }
 
@@ -35,7 +41,7 @@ func (as *AccountService) List(ctx context.Context) ([]domain.Account, error) {
 		if err != nil {
 			return nil, fmt.Errorf("get active period for account %d: %w", list[i].Id, err)
 		}
-		list[i].Period = &p
+		list[i].ActivePeriod = &p
 	}
 
 	return list, nil
@@ -52,7 +58,7 @@ func (as *AccountService) Single(ctx context.Context, accountId int64) (domain.A
 		return a, fmt.Errorf("get active period for account %d: %w", accountId, err)
 	}
 
-	a.Period = &p
+	a.ActivePeriod = &p
 	return a, nil
 }
 
@@ -70,12 +76,18 @@ func (as *AccountService) Add(ctx context.Context, name string, periodStartDay u
 		return account, fmt.Errorf("add account: %w", err)
 	}
 
+	category := domain.Category{AccountId: account.Id, Name: "Other", Color: "#cacaca"}
+	_, err = as.categoryRepo.Add(ctx, category)
+	if err != nil {
+		return account, fmt.Errorf("default category for new account %d: %w", account.Id, err)
+	}
+
 	p, err := as.StartPeriod(ctx, account.Id, account.PeriodStartDay, nil)
 	if err != nil {
 		return account, fmt.Errorf("start period for account %d: %w", account.Id, err)
 	}
 
-	account.Period = p
+	account.ActivePeriod = p
 	return account, err
 }
 
@@ -125,7 +137,7 @@ func (as *AccountService) StartPeriod(ctx context.Context, accountId int64, star
 			return currentPeriod, fmt.Errorf("get account pre close out %d: %w", accountId, err)
 		}
 
-		endingBalance = account.Period.Balance
+		endingBalance = account.ActivePeriod.Balance
 	}
 
 	reportEnd = reportStart.AddDate(0, 1, -1)

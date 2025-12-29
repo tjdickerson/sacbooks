@@ -4,6 +4,7 @@ import {AddAccount, DeleteAccount, GetAccounts, UpdateAccount} from "../wailsjs/
 import {types as t} from "../wailsjs/go/models";
 import {useAccountSelection} from "./AccountContext";
 import AccountCard from "./AccountCard";
+import {refreshCategoryCache} from "./lib/category";
 
 function Accounts() {
     const [loadingAccounts, setLoadingAccounts] = useState<boolean>(false);

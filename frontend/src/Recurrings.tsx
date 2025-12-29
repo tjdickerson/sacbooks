@@ -18,7 +18,7 @@ function Recurrings() {
         setLoadingRecurring(true);
 
         try {
-            const result: t.RecurringListResult = await GetRecurringList(selectedAccountId!, selectedAccount?.period.id ?? 0);
+            const result: t.RecurringListResult = await GetRecurringList(selectedAccountId!, selectedAccount?.active_period.id ?? 0);
             if (result.success) {
                 const data: t.Recurring[] = result.data;
                 setRecurrings(data);

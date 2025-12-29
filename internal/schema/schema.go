@@ -160,6 +160,7 @@ const CreateTableCategories = `
 		id integer primary key,
 		account_id integer,
 		name varchar(100),
+		color varchar(10),
 		foreign key(account_id) references accounts(id)
 	);
 `

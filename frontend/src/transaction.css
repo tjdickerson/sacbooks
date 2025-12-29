@@ -221,7 +221,7 @@
 /* Amount row: currency symbol + large value */
 .current-balance-amount {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     gap: 8px;
     margin-top: 6px;
 }

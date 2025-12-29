@@ -66,7 +66,7 @@ func MapAccount(account domain.Account) Account {
 		Name:           account.Name,
 		PeriodStartDay: account.PeriodStartDay,
 		CanDelete:      account.CanDelete,
-		Period:         MapPeriod(*account.Period),
+		ActivePeriod:   MapPeriod(*account.ActivePeriod),
 	}
 }
 
@@ -82,6 +82,7 @@ func MapAccounts(accounts []domain.Account) []Account {
 func MapTransaction(transaction domain.Transaction) Transaction {
 	return Transaction{
 		Id:          transaction.Id,
+		CategoryId:  transaction.CategoryId,
 		Date:        transaction.Date,
 		DisplayDate: transaction.Date.Format("Mon Jan 02"),
 		Amount:      transaction.Amount,
@@ -124,5 +125,38 @@ func MapPeriod(period domain.Period) Period {
 		ReportingEnd:   period.ReportingEnd.Format("Mon Jan 02"),
 		OpenedOn:       period.OpenedOn.Format("Mon Jan 02"),
 		Balance:        period.Balance,
+	}
+}
+
+func MapCategory(category domain.Category) Category {
+	return Category{
+		Id:    category.Id,
+		Name:  category.Name,
+		Color: category.Color,
+	}
+}
+
+func MapCategories(categories []domain.Category) []Category {
+	out := make([]Category, 0, len(categories))
+	for _, category := range categories {
+		out = append(out, MapCategory(category))
+	}
+
+	return out
+}
+
+func MapCategoryResult(in Result[Category]) CategoryResult {
+	return CategoryResult{
+		Success: in.Success,
+		Message: in.Message,
+		Data:    in.Object,
+	}
+}
+
+func MapCategoryListResult(in Result[[]Category]) CategoryListResult {
+	return CategoryListResult{
+		Success: in.Success,
+		Message: in.Message,
+		Data:    in.Object,
 	}
 }

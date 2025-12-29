@@ -85,13 +85,13 @@ input[type="email"],
 input[type="password"],
 textarea,
 select {
-    font-family: var(--font-sans);
+    font-family: var(--font-sans), sans-serif;
     padding: 8px 12px;
-    border: 1px solid rgba(31, 45, 48, 0.12);
-    border-radius: var(--radius);
     font-size: 14px;
     background: var(--card);
     color: var(--text);
+    border: 1px solid rgba(31, 45, 48, 0.12);
+    border-radius: var(--radius);
     transition: border-color 150ms ease, box-shadow 150ms ease;
 }
 
@@ -99,6 +99,7 @@ input[type="text"]:focus,
 input[type="number"]:focus,
 input[type="email"]:focus,
 input[type="password"]:focus,
+input[type="color"]:focus,
 textarea:focus,
 select:focus {
     outline: none;
@@ -108,11 +109,19 @@ select:focus {
 
 input[type="text"]:disabled,
 input[type="number"]:disabled,
+input[type="color"]:disabled,
 textarea:disabled,
 select:disabled {
     background: rgba(31, 45, 48, 0.02);
     color: var(--muted);
     cursor: not-allowed;
+}
+
+input[type="color"] {
+    height: 36px;
+    border: 1px solid rgba(31, 45, 48, 0.12);
+    border-radius: var(--radius);
+    transition: border-color 150ms ease, box-shadow 150ms ease;
 }
 
 .number-input {
@@ -155,6 +164,14 @@ select:disabled {
    Cards / Panels
    ============================================================================ */
 
+.card-color-stripe {
+    width: 6px;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
 .card,
 .panel {
     background: var(--card);
@@ -163,6 +180,8 @@ select:disabled {
     border: 1px solid var(--card-border);
     padding: var(--gap);
     transition: transform 150ms ease, box-shadow 150ms ease;
+    position: relative;
+    overflow: hidden;
 }
 
 .card:hover {
@@ -462,6 +481,7 @@ select:disabled {
 .form-fields {
     display: flex;
     flex-direction: row;
+    align-items: center;
     gap: var(--gap);
     flex: 1;
 }

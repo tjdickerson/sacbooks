@@ -29,11 +29,12 @@ func (ts *TransactionService) List(ctx context.Context, accountId int64, periodI
 
 func (ts *TransactionService) Add(ctx context.Context, input types.TransactionInsertInput) (domain.Transaction, error) {
 	return ts.transactionRepo.Add(ctx, domain.Transaction{
-		AccountId: input.AccountId,
-		Name:      input.Name,
-		Amount:    input.Amount,
-		PeriodId:  input.PeriodId,
-		Date:      time.Now().UTC(),
+		AccountId:  input.AccountId,
+		PeriodId:   input.PeriodId,
+		CategoryId: input.CategoryId,
+		Name:       input.Name,
+		Amount:     input.Amount,
+		Date:       time.Now().UTC(),
 	})
 }
 

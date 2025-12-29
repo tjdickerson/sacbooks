@@ -4,6 +4,8 @@ import {types} from '../models';
 
 export function AddAccount(arg1:string,arg2:number):Promise<types.AccountResult>;
 
+export function AddCategory(arg1:number,arg2:types.CategoryInsertInput):Promise<types.CategoryResult>;
+
 export function AddRecurring(arg1:number,arg2:string,arg3:number,arg4:number):Promise<types.RecurringResult>;
 
 export function AddTransaction(arg1:types.TransactionInsertInput):Promise<types.TransactionResult>;
@@ -11,6 +13,8 @@ export function AddTransaction(arg1:types.TransactionInsertInput):Promise<types.
 export function ApplyRecurring(arg1:number,arg2:number):Promise<types.TransactionResult>;
 
 export function DeleteAccount(arg1:number):Promise<types.SimpleResult>;
+
+export function DeleteCategory(arg1:number):Promise<types.SimpleResult>;
 
 export function DeleteRecurring(arg1:number):Promise<types.SimpleResult>;
 
@@ -28,7 +32,11 @@ export function GetRecurringList(arg1:number,arg2:number):Promise<types.Recurrin
 
 export function GetTransactions(arg1:number,arg2:number,arg3:number,arg4:number):Promise<types.TransactionListResult>;
 
+export function ListCategories(arg1:number):Promise<types.CategoryListResult>;
+
 export function UpdateAccount(arg1:number,arg2:types.AccountUpdateInput):Promise<types.AccountResult>;
+
+export function UpdateCategory(arg1:number,arg2:types.CategoryUpdateInput):Promise<types.CategoryResult>;
 
 export function UpdateRecurring(arg1:types.RecurringInput):Promise<types.RecurringResult>;
 

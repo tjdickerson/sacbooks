@@ -31,8 +31,6 @@ function Transactions() {
     const transactionContainerRef = react.useRef<HTMLDivElement | null>(null);
     const PAGE_SIZE: number = 20;
 
-
-
     async function refreshAccount() {
         try {
             const result: t.AccountResult = await GetAccount(selectedAccountId!);
@@ -55,7 +53,7 @@ function Transactions() {
                 setError("no account info");
                 return;
             }
-            const result: t.TransactionListResult = await GetTransactions(selectedAccountId!, selectedAccount.period.id, PAGE_SIZE, page * PAGE_SIZE);
+            const result: t.TransactionListResult = await GetTransactions(selectedAccountId!, selectedAccount.active_period.id, PAGE_SIZE, page * PAGE_SIZE);
 
             if (result.success) {
                 const data: t.Transaction[] = result.data;
@@ -83,7 +81,7 @@ function Transactions() {
         setLoadingRecurring(true);
 
         try {
-            const result: t.RecurringListResult = await GetRecurringList(selectedAccountId!, selectedAccount?.period.id ?? 0);
+            const result: t.RecurringListResult = await GetRecurringList(selectedAccountId!, selectedAccount?.active_period.id ?? 0);
             if (result.success) {
                 const data: t.Recurring[] = result.data;
                 setRecurrings(data);
@@ -108,8 +106,8 @@ function Transactions() {
                 if (!selectedAccount) return;
                 
                 const [txResult, recResult, accResult] = await Promise.all([
-                    GetTransactions(selectedAccountId!, selectedAccount.period.id, PAGE_SIZE, 0),
-                    GetRecurringList(selectedAccountId!, selectedAccount.period.id ?? 0),
+                    GetTransactions(selectedAccountId!, selectedAccount.active_period.id, PAGE_SIZE, 0),
+                    GetRecurringList(selectedAccountId!, selectedAccount.active_period.id ?? 0),
                     GetAccount(selectedAccountId!)
                 ]);
 
@@ -219,7 +217,7 @@ function Transactions() {
         }
     }
 
-    async function handleAddTransaction(name: string, amount: number) {
+    async function handleAddTransaction(name: string, amount: number, categoryId: number) {
         setLoadingTransactions(true);
         setError("");
 
@@ -228,7 +226,8 @@ function Transactions() {
             newTransaction.name = name;
             newTransaction.amount = amount;
             newTransaction.account_id = selectedAccount?.id ?? 0;
-            newTransaction.period_id = selectedAccount?.period.id ?? 0;
+            newTransaction.period_id = selectedAccount?.active_period.id ?? 0;
+            newTransaction.category_id = categoryId;
             const result: t.TransactionResult = await AddTransaction(newTransaction);
 
             if (result.success) {
@@ -255,7 +254,7 @@ function Transactions() {
                 setError("no account info");
                 return;
             }
-            const result: t.TransactionResult = await ApplyRecurring(recurringId, selectedAccount.period.id);
+            const result: t.TransactionResult = await ApplyRecurring(recurringId, selectedAccount.active_period.id);
             if (result.success) {
                 const newTransaction: t.Transaction = result.data;
                 setTransactions(prev => [newTransaction, ...prev]);
@@ -289,8 +288,8 @@ function Transactions() {
                 <div className='current-balance-label'>Current Balance</div>
                 <div className='current-balance-amount'>
                     <div className='currency-symbol'>{getCurrencySymbol(getLocale())}</div>
-                    <div className='balance-amount-value'>
-                        {account ? formatAmount(account.period.balance) : 'N/A'}
+                    <div className={`balance-amount-value amount ${(account?.active_period.balance ?? 0) > 0 ? 'positive' : 'negative'}`}>
+                        {account ? formatAmount(account.active_period.balance) : 'N/A'}
                     </div>
                 </div>
             </div>
