@@ -166,12 +166,16 @@
 .action-buttons button {
     background: transparent;
     border: none;
-    padding: 6px 8px;
+    padding: 0 8px;
+    height: 28px;
     border-radius: 6px;
     font-size: 13px;
     cursor: pointer;
     color: var(--text);
     transition: background 150ms ease, border-color 150ms ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .action-buttons button:hover {
