@@ -274,7 +274,7 @@ function Transactions() {
     return (
         <div className='view-layout transaction-view'>
 
-            <div className='form-area transaction-new'>
+            <div className='form-area'>
                 <TransactionInputForm
                     onSubmit={handleAddTransaction}
                     submitting={loadingTransactions}

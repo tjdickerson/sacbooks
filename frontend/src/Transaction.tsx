@@ -45,7 +45,7 @@ const Transaction: React.FC<TransactionProps> = ({
         <div className='card'>
             <div className='card-color-stripe' style={{backgroundColor: getCategoryColor(transaction.category_id)}}/>
             {!isEditing && <div className='card-info'>{transaction.display_date}</div>}
-            <div className={`card-details ${isEditing ? 'form-content' : ''}`}>
+            <div className={`card-details ${isEditing ? 'inline-form-content' : ''}`}>
                 <div className='form-fields'>
                     {
                         isEditing ? (

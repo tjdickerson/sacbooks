@@ -64,7 +64,7 @@ const TransactionInputForm: React.FC<TransactionFormProps> = ({
     return (
         <form className='inline-form' onSubmit={handleSubmit}>
             {error && <div className='form-error'>{error}</div>}
-            <div className='form-header form-label'>New Transaction</div>
+            <div className='form-header'>New Transaction</div>
 
             <div className='form-content'>
                 <div className='form-fields'>

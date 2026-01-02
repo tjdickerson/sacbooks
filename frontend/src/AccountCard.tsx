@@ -58,7 +58,7 @@ const AccountCard: React.FC<AccountProps> = ({
                 <div className='card-info'>
                     Period Start Day of Month: {account.period_start_day}
                 </div>}
-            <div className={`card-details ${isEditing ? 'form-content' : ''}`}>
+            <div className={`card-details ${isEditing ? 'inline-form-content' : ''}`}>
                 <div className='form-fields'>
                     {isEditing ? (
                         <>
