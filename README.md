@@ -9,6 +9,6 @@ I wanted to experiment with a Go backend and a React front end on a project. Thi
 
 
 ## TODO
-- Categories
+- Finish Categories features.
 - Reports
 
