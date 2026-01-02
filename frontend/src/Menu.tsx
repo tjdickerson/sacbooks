@@ -25,11 +25,12 @@ function Menu({ currentView, onNavigate }: MenuProps) {
         <div id="Menu" className="menu-bar">
             <div className="menu-layout">
                 <div className="menu-title">
-                    <div className="menu-logo">
-                        <img src={logo} alt="Logo" className="menu-logo-image" />
-                    </div>
-                    <div className="menu-title-text">
-                        sacbooks
+                    <div className="brand">
+                        <img className="brand-logo" src={logo} alt="sacbar logo"/>
+                        <div className="brand-text">
+                            <span className="sac">sac</span><span className="books">books</span><span
+                            className="dot">.</span>
+                        </div>
                     </div>
                 </div>
 
