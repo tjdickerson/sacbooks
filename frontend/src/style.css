@@ -4,39 +4,46 @@
 
 /* CSS Custom Properties (Design Tokens) */
 [data-theme="dark"] {
-    --bg: #1c2e40;
-    --card: #23394e;
-    --muted: #acb0b1;
-    --text: #ecf0f1;
-    --positive: #16a085;
-    --negative: #be6461;
-    --menu-bg: rgb(40 37 53 / 95%);
-    --form-bg: rgba(1, 131, 89, 0.02);
+    --bg: #0f172a;
+    --card: #1e293b;
+    --muted: #94a3b8;
+    --text: #f8fafc;
+    --positive: #10b981;
+    --negative: #ef4444;
+    --menu-bg: rgba(15, 23, 42, 0.9);
+    --form-bg: rgba(255, 255, 255, 0.03);
+    --primary: #334155;
+    --accent: #ef4444;
+    --card-border: rgba(255, 255, 255, 0.1);
+    --border-subtle: rgba(255, 255, 255, 0.05);
 }
 
 [data-theme="light"] {
-    --bg: #f6f7f9;
-    --card: #f7f8fa;
-    --muted: #7b8a8f;
-    --text: #1f2d30;
-    --positive: #018359;
-    --negative: #b0100b;
-    --menu-bg: rgba(32, 56, 32, 0.95);
-    --form-bg: rgba(1, 131, 89, 0.02);
-
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --muted: #64748b;
+    --text: #0f172a;
+    --positive: #059669;
+    --negative: #dc2626;
+    --menu-bg: rgba(255, 255, 255, 0.8);
+    --form-bg: rgba(0, 0, 0, 0.02);
+    --primary: #e2e8f0;
+    --accent: #ef4444;
+    --card-border: rgba(0, 0, 0, 0.08);
+    --border-subtle: rgba(0, 0, 0, 0.06);
 }
 
 :root {
-    --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
 
     /* Shadows */
-    --shadow-1: 0 6px 18px rgba(31, 45, 48, 0.06);
-    --shadow-2: 0 2px 6px rgba(31, 45, 48, 0.06);
+    --shadow-1: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    --shadow-2: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-3: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 
     /* Spacing & Layout */
     --gap: 16px;
-    --radius: 6px;
-    --card-border: rgba(31, 45, 48, 0.04);
+    --radius: 8px;
     --max-width: 1200px;
 }
 

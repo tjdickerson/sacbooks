@@ -16,6 +16,11 @@ function App() {
     const [selectedAccount, setSelectedAccount] = useState<t.Account | null>(null);
     const [currentView, setCurrentView] = useState<ViewId>('transactions');
     const [error, setError] = useState<string>('');
+    const [theme, setTheme] = useState<'light' | 'dark'>('light');
+
+    const toggleTheme = () => {
+        setTheme(prev => prev === 'light' ? 'dark' : 'light');
+    }
 
     useEffect(() => {
         async function bootstrap() {
@@ -58,11 +63,13 @@ function App() {
         <AccountContext.Provider value={{
             selectedAccount, setSelectedAccount: handleSetSelectedAccount
         }}>
-            <div id="App" data-theme="light" className="app-layout">
+            <div id="App" data-theme={theme} className="app-layout">
                 <header className="app-header">
                     <Menu
                         currentView={currentView}
                         onNavigate={handleNavigate}
+                        theme={theme}
+                        onToggleTheme={toggleTheme}
                     />
                 </header>
                 <main id="app-content" className="app-main">

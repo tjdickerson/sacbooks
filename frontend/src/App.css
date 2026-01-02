@@ -32,8 +32,8 @@
 .card-list {
     display: flex;
     flex-direction: column;
-    gap: 3px;
-    padding: 16px;
+    gap: 8px;
+    padding: 24px;
     background: transparent;
 }
 
@@ -72,13 +72,14 @@
 
 .menu-bar {
     background: var(--menu-bg);
-    height: 68px;
+    height: 72px;
     width: 100%;
     position: sticky;
     top: 0;
     z-index: 50;
-    box-shadow: 0 4px 18px rgba(16, 24, 16, 0.12);
-    backdrop-filter: blur(4px);
+    border-bottom: 1px solid var(--card-border);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
 }
 
 .menu-layout {
@@ -89,7 +90,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 18px;
+    padding: 0 24px;
     gap: 12px;
 }
 
@@ -105,54 +106,71 @@
 }
 
 .menu-logo-image {
-    height: 44px;
+    height: 36px;
     width: auto;
     border-radius: 8px;
-    background: rgba(255, 255, 255, 0.00);
-    padding: 6px;
+    background: transparent;
 }
 
 .menu-title-text {
-    color: #e6f0ea;
-    font-size: 1.1rem;
-    font-weight: 700;
-    letter-spacing: 0.3px;
+    display: none;
 }
 
 .menu-items {
     display: flex;
     align-items: center;
-    gap: 18px;
-    margin-left: 28px;
+    gap: 8px;
+    margin: 0 24px;
     flex: 1;
 }
 
 .menu-item {
-    color: rgba(255, 255, 255, 0.82);
+    color: var(--muted);
     display: inline-flex;
     align-items: center;
-    padding: 8px 12px;
-    border-radius: 10px;
-    transition: background 180ms ease, transform 120ms ease, color 180ms ease;
+    padding: 8px 16px;
+    border-radius: var(--radius);
+    transition: all 200ms ease;
     font-weight: 600;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     cursor: pointer;
 }
 
 .menu-item:hover {
-    background: rgba(255, 255, 255, 0.04);
-    color: #fff;
-    transform: translateY(-2px);
+    background: var(--primary);
+    color: var(--text);
 }
 
 .menu-item-active {
-    background: rgba(255, 255, 255, 0.12);
-    color: #fff;
-    transform: translateY(-2px);
+    background: var(--primary);
+    color: var(--text);
+    box-shadow: var(--shadow-1);
 }
 
-.menu-user {
-    margin-left: auto;
+.menu-info {
+    display: flex;
+    border-left: 1px solid var(--card-border);
+    padding-left: 16px;
+    align-items: center;
+}
+
+.menu-current-account {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    padding-left: 16px;
+}
+
+.active-account {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--text);
+}
+
+.active-period {
+    font-size: 0.75rem;
+    color: var(--muted);
 }
 
 /* ============================================================================
@@ -171,26 +189,26 @@
  Branding
  */
 .brand {
-    padding: 1.5rem 2rem;
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
+    padding: 0;
+    border: none;
 }
 
 .brand-logo {
-    height: 32px;
+    height: 36px;
     width: auto;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));
 }
 
 .brand-text {
-    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
-    font-size: 1.4rem;
-    letter-spacing: -0.02em;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 1.25rem;
+    letter-spacing: -0.03em;
     display: flex;
     align-items: baseline;
-    color: white;
+    color: var(--text);
 }
 
 .brand-text .sac {
@@ -198,12 +216,12 @@
 }
 
 .brand-text .books {
-    font-weight: 300;
-    color: rgba(255,255,255,0.6);
+    font-weight: 400;
+    color: var(--muted);
 }
 
 .brand-text .dot {
-    color: #ef4444; /* Match red from chicken comb */
+    color: var(--accent);
     font-weight: 900;
 }
 

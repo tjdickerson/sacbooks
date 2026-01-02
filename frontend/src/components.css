@@ -25,31 +25,33 @@ button.primary {
     background: var(--positive);
     color: white;
     border: none;
-    padding: 8px 12px;
+    padding: 10px 18px;
     font-weight: 600;
     cursor: pointer;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
 .btn-primary:hover,
 button.primary:hover {
-    background: #01704d;
+    filter: brightness(1.1);
+    transform: translateY(-1px);
 }
 
 /* Secondary Button */
 .btn-secondary,
 button.secondary {
-    background: transparent;
-    border: 1px solid rgba(31, 45, 48, 0.2);
+    background: var(--card);
+    border: 1px solid var(--card-border);
     color: var(--text);
-    padding: 8px 12px;
+    padding: 10px 18px;
     font-weight: 600;
     cursor: pointer;
 }
 
 .btn-secondary:hover,
 button.secondary:hover {
-    background: rgba(31, 45, 48, 0.04);
-    border-color: rgba(31, 45, 48, 0.3);
+    background: var(--primary);
+    border-color: var(--card-border);
 }
 
 /* Danger Button */
@@ -58,14 +60,16 @@ button.danger {
     background: var(--negative);
     color: white;
     border: none;
-    padding: 8px 12px;
+    padding: 10px 18px;
     font-weight: 600;
     cursor: pointer;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
 .btn-danger:hover,
 button.danger:hover {
-    background: #8c0805;
+    filter: brightness(1.1);
+    transform: translateY(-1px);
 }
 
 /* Small Button */
@@ -86,14 +90,59 @@ input[type="password"],
 textarea,
 select {
     font-family: var(--font-sans), sans-serif;
-    padding: 8px 12px;
-    font-size: 14px;
+    padding: 10px 14px;
+    font-size: 15px;
+    height: 42px; /* Standardize height */
     background: var(--card);
     color: var(--text);
-    border: 1px solid rgba(31, 45, 48, 0.12);
+    border: 1px solid var(--card-border);
     border-radius: var(--radius);
-    transition: border-color 150ms ease, box-shadow 150ms ease;
+    transition: all 200ms ease;
+    width: 100%;
+    box-sizing: border-box;
 }
+
+/* Specific adjustments for select to match input height precisely */
+select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    padding-right: 40px;
+}
+
+.select-wrapper {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.select-color-stripe {
+    position: absolute;
+    left: 1px;
+    top: 1px;
+    bottom: 1px;
+    width: 6px;
+    border-radius: calc(var(--radius) - 1px) 0 0 calc(var(--radius) - 1px);
+    z-index: 10;
+    pointer-events: none;
+    transition: opacity 200ms ease, background-color 200ms ease;
+}
+
+.select-wrapper select {
+    padding-left: 14px;
+}
+
+/* Match category-select specifically if needed, or all selects in wrapper */
+.select-wrapper select.category-select {
+    padding-left: 20px;
+}
+
+/* Hide stripe when none is selected if color is transparent or similar, 
+   but getCategoryColor(0) usually returns something neutral or transparent */
 
 input[type="text"]:focus,
 input[type="number"]:focus,
@@ -103,8 +152,8 @@ input[type="color"]:focus,
 textarea:focus,
 select:focus {
     outline: none;
-    border-color: var(--positive);
-    box-shadow: 0 0 0 3px rgba(1, 131, 89, 0.08);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
 }
 
 input[type="text"]:disabled,
@@ -112,14 +161,14 @@ input[type="number"]:disabled,
 input[type="color"]:disabled,
 textarea:disabled,
 select:disabled {
-    background: rgba(31, 45, 48, 0.02);
+    background: var(--form-bg);
     color: var(--muted);
     cursor: not-allowed;
 }
 
 input[type="color"] {
     height: 36px;
-    border: 1px solid rgba(31, 45, 48, 0.12);
+    border: 1px solid var(--card-border);
     border-radius: var(--radius);
     transition: border-color 150ms ease, box-shadow 150ms ease;
 }
@@ -176,17 +225,18 @@ input[type="color"] {
 .panel {
     background: var(--card);
     border-radius: var(--radius);
-    box-shadow: var(--shadow-2);
+    box-shadow: var(--shadow-1);
     border: 1px solid var(--card-border);
     padding: var(--gap);
-    transition: transform 150ms ease, box-shadow 150ms ease;
+    transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
 }
 
 .card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 22px rgba(31, 45, 48, 0.08);
+    box-shadow: var(--shadow-2);
+    border-color: var(--accent);
 }
 
 .card-header,
@@ -195,7 +245,7 @@ input[type="color"] {
     font-size: 16px;
     color: var(--text);
     margin-bottom: 12px;
-    border-bottom: 1px solid rgba(31, 45, 48, 0.06);
+    border-bottom: 1px solid var(--border-subtle);
     padding-bottom: 12px;
 }
 
@@ -232,7 +282,7 @@ input[type="color"] {
 
 .card-footer,
 .panel-footer {
-    border-top: 1px solid rgba(31, 45, 48, 0.06);
+    border-top: 1px solid var(--border-subtle);
     padding-top: 12px;
     margin-top: 12px;
     display: flex;
@@ -275,13 +325,13 @@ input[type="color"] {
 }
 
 .alert.success {
-    background: rgba(1, 131, 89, 0.08);
+    background: var(--form-bg);
     border-color: var(--positive);
     color: var(--positive);
 }
 
 .alert.error {
-    background: rgba(176, 16, 11, 0.08);
+    background: var(--form-bg);
     border-color: var(--negative);
     color: var(--negative);
 }
@@ -308,18 +358,18 @@ input[type="color"] {
     border-radius: 12px;
     font-size: 12px;
     font-weight: 600;
-    background: rgba(31, 45, 48, 0.1);
+    background: var(--form-bg);
     color: var(--text);
 }
 
 .badge.primary {
-    background: rgba(1, 131, 89, 0.15);
-    color: var(--positive);
+    background: var(--positive);
+    color: white;
 }
 
 .badge.danger {
-    background: rgba(176, 16, 11, 0.15);
-    color: var(--negative);
+    background: var(--negative);
+    color: white;
 }
 
 /* ============================================================================
@@ -331,7 +381,7 @@ input[type="color"] {
     display: inline-block;
     width: 16px;
     height: 16px;
-    border: 2px solid rgba(31, 45, 48, 0.1);
+    border: 2px solid var(--border-subtle);
     border-top-color: var(--positive);
     border-radius: 50%;
     animation: spin 0.6s linear infinite;
@@ -400,20 +450,19 @@ input[type="color"] {
 }
 
 .view-layout {
-    display: grid;
-    grid-template-rows: auto 1fr;
-    gap: var(--gap);
+    display: flex;
+    flex-direction: column;
     height: 100%;
     width: 100%;
-    padding: var(--gap);
-    min-height: 0;
+    padding: 32px;
     box-sizing: border-box;
 }
 
 .view-bar {
     display: flex;
     justify-content: space-between;
-    padding: var(--gap);
+    align-items: center;
+    margin-bottom: 32px;
 }
 
 .label {
@@ -428,14 +477,14 @@ input[type="color"] {
 
 .form-area {
     display: flex;
-    gap: 8px;
-    margin: 0 16px;
+    gap: 16px;
     align-items: center;
-    padding: var(--gap);
-    background: var(--form-bg);
-    border: 1px solid rgba(1, 131, 89, 0.1);
+    padding: 32px;
+    background: var(--card);
+    border: 1px solid var(--card-border);
     border-radius: var(--radius);
     box-shadow: var(--shadow-2);
+    margin-bottom: 32px;
 }
 
 
@@ -462,11 +511,10 @@ input[type="color"] {
     justify-content: flex-start;
     align-items: center;
     gap: 12px;
-    position: relative;
-    top: -6px;
     width: 100%;
-    color: #5e6667;
-    font-size: 1em;
+    color: var(--muted);
+    font-size: 1rem;
+    font-weight: 600;
 }
 
 .form-content {
@@ -500,18 +548,18 @@ input[type="color"] {
 .text-input-container {
     display: flex;
     flex-direction: column;
+    gap: 4px;
+    flex: 1;
 }
 
 .text-input-label {
-    color: #747e80;
-    font-size: 0.75em;
-    position: fixed;
-    margin-top: -16px;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 600;
 }
 
 .text-input-error {
     color: var(--negative);
-    font-size: 0.75em;
-    position: fixed;
-    margin-top: -30px;
+    font-size: 12px;
+    margin-top: 4px;
 }

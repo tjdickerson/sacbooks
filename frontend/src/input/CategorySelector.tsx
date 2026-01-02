@@ -19,21 +19,27 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({
     return (
         <div className='text-input-container' aria-label={label}>
             <div className='text-input-label'>{label}</div>
-            <select
-                value={selectedId}
-                onChange={(e) => onChange(Number(e.target.value))}
-                style={{
-                    borderLeft: `6px solid ${getCategoryColor(selectedId)}`,
-                    paddingLeft: '8px'
-                }}
-            >
-                <option value={0}>None</option>
-                {Array.from(dataSource.values()).map((cat) => (
-                    <option key={cat.id} value={cat.id}>
-                        {cat.name}
-                    </option>
-                ))}
-            </select>
+            <div className="select-wrapper">
+                <div 
+                    className="select-color-stripe" 
+                    style={{ 
+                        backgroundColor: getCategoryColor(selectedId),
+                        opacity: selectedId === 0 ? 0 : 1
+                    }}
+                />
+                <select
+                    className="category-select"
+                    value={selectedId}
+                    onChange={(e) => onChange(Number(e.target.value))}
+                >
+                    <option value={0}>None</option>
+                    {Array.from(dataSource.values()).map((cat) => (
+                        <option key={cat.id} value={cat.id}>
+                            {cat.name}
+                        </option>
+                    ))}
+                </select>
+            </div>
         </div>
     )
 }
