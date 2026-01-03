@@ -28,3 +28,12 @@ export function amountToCents(formattedAmount: string): number {
     const result: number = Number(formattedAmount)
     return Math.round(result * 100)
 }
+
+
+export function millisToDateString(millis: number): string {
+    return new Date(millis).toISOString().split('T')[0];
+}
+
+export function dateStringToMillis(dateString: string): number {
+    return new Date(dateString).getTime();
+}

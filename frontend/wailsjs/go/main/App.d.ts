@@ -6,7 +6,7 @@ export function AddAccount(arg1:string,arg2:number):Promise<types.AccountResult>
 
 export function AddCategory(arg1:number,arg2:types.CategoryInsertInput):Promise<types.CategoryResult>;
 
-export function AddRecurring(arg1:number,arg2:string,arg3:number,arg4:number):Promise<types.RecurringResult>;
+export function AddRecurring(arg1:number,arg2:string,arg3:number,arg4:number,arg5:number):Promise<types.RecurringResult>;
 
 export function AddTransaction(arg1:types.TransactionInsertInput):Promise<types.TransactionResult>;
 

@@ -83,7 +83,7 @@ func MapTransaction(transaction domain.Transaction) Transaction {
 	return Transaction{
 		Id:          transaction.Id,
 		CategoryId:  transaction.CategoryId,
-		Date:        transaction.Date,
+		Date:        transaction.Date.UnixMilli(),
 		DisplayDate: transaction.Date.Format("Mon Jan 02"),
 		Amount:      transaction.Amount,
 		Name:        transaction.Name,
@@ -104,6 +104,7 @@ func MapRecurring(recurring domain.Recurring) Recurring {
 		Id:                recurring.Id,
 		Name:              recurring.Name,
 		Amount:            recurring.Amount,
+		CategoryId:        recurring.CategoryId,
 		Day:               recurring.Day,
 		AccountedInPeriod: recurring.AccountedInPeriod,
 	}

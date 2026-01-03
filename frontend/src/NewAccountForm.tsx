@@ -8,7 +8,7 @@ interface NewAccountFormProps {
     onCancel: () => void;
     submitting: boolean;
     initialValues: { name: string, periodStartDay: number };
-};
+}
 
 const NewAccountForm: React.FC<NewAccountFormProps> = ({
                                                            onSubmit,

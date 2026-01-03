@@ -10,11 +10,12 @@ import {
 } from "../wailsjs/go/main/App";
 import {types as t} from "../wailsjs/go/models";
 import Transaction from './Transaction';
-import TransactionInputForm from './TransactionInputForm';
+import NewTransactionForm from './NewTransactionForm';
 import './App.css';
-import {formatAmount, getCurrencySymbol, getLocale} from './lib/format';
+import {dateStringToMillis, formatAmount, getCurrencySymbol, getLocale} from './lib/format';
 import {FaArrowLeft} from 'react-icons/fa'
 import {useAccountSelection} from './AccountContext';
+import {getCategoryColor} from "./lib/category";
 
 function Transactions() {
     const [transactions, setTransactions] = react.useState<t.Transaction[]>([]);
@@ -27,6 +28,7 @@ function Transactions() {
     const [hasMore, setHasMore] = react.useState<boolean>(true);
     const {selectedAccount} = useAccountSelection();
     const selectedAccountId: number = selectedAccount?.id ?? 0;
+    const [showNewTransactionForm, setShowNewTransactionForm] = react.useState<boolean>(true);
 
     const transactionContainerRef = react.useRef<HTMLDivElement | null>(null);
     const PAGE_SIZE: number = 20;
@@ -104,7 +106,7 @@ function Transactions() {
             setLoadingTransactions(true);
             try {
                 if (!selectedAccount) return;
-                
+
                 const [txResult, recResult, accResult] = await Promise.all([
                     GetTransactions(selectedAccountId!, selectedAccount.active_period.id, PAGE_SIZE, 0),
                     GetRecurringList(selectedAccountId!, selectedAccount.active_period.id ?? 0),
@@ -134,6 +136,7 @@ function Transactions() {
                 setLoadingTransactions(false);
             }
         }
+
         void init();
     }, [selectedAccountId]);
 
@@ -189,13 +192,16 @@ function Transactions() {
         }
     }
 
-    async function handleUpdateTransaction(id: number, name: string, amount: number) {
+    async function handleUpdateTransaction(id: number, name: string, amount: number, date: string, categoryId: number) {
         setLoadingTransactions(true);
         setError("");
 
+        const millis: number = dateStringToMillis(date);
         const updateInput: t.TransactionUpdateInput = {
             id: id,
             name: name,
+            date: millis,
+            category_id: categoryId,
             amount: amount,
         }
 
@@ -217,7 +223,7 @@ function Transactions() {
         }
     }
 
-    async function handleAddTransaction(name: string, amount: number, categoryId: number) {
+    async function handleAddTransaction(name: string, amount: number, date: string, categoryId: number) {
         setLoadingTransactions(true);
         setError("");
 
@@ -225,6 +231,7 @@ function Transactions() {
             let newTransaction: t.TransactionInsertInput = new t.TransactionInsertInput();
             newTransaction.name = name;
             newTransaction.amount = amount;
+            newTransaction.date = dateStringToMillis(date);
             newTransaction.account_id = selectedAccount?.id ?? 0;
             newTransaction.period_id = selectedAccount?.active_period.id ?? 0;
             newTransaction.category_id = categoryId;
@@ -273,13 +280,29 @@ function Transactions() {
 
     return (
         <div className='view-layout transaction-view'>
-
-            <div className='form-area'>
-                <TransactionInputForm
-                    onSubmit={handleAddTransaction}
-                    submitting={loadingTransactions}
-                    initialValues={{name: "", amount: 0}}/>
-            </div>
+            {
+                showNewTransactionForm ? (
+                    <div className='form-area'>
+                        <NewTransactionForm
+                            onSubmit={handleAddTransaction}
+                            onCancel={() => setShowNewTransactionForm(false)}
+                            submitting={loadingTransactions}
+                            initialValues={{name: "", amount: 0, date: Date.now().toString()}}/>
+                    </div>
+                ) : (
+                    <div className='view-bar'>
+                        <div className='view-name'>Transactions</div>
+                        <div className='view-buttons'>
+                            <button
+                                type='button'
+                                className='btn-primary transaction-new-button'
+                                onClick={() => setShowNewTransactionForm(true)}>
+                                Add
+                            </button>
+                        </div>
+                    </div>
+                )
+            }
 
             <div className='current-balance'>
                 <div className='current-account-name'>
@@ -288,7 +311,8 @@ function Transactions() {
                 <div className='current-balance-label'>Current Balance</div>
                 <div className='current-balance-amount'>
                     <div className='currency-symbol'>{getCurrencySymbol(getLocale())}</div>
-                    <div className={`balance-amount-value amount ${(account?.active_period.balance ?? 0) > 0 ? 'positive' : 'negative'}`}>
+                    <div
+                        className={`balance-amount-value amount ${(account?.active_period.balance ?? 0) > 0 ? 'positive' : 'negative'}`}>
                         {account ? formatAmount(account.active_period.balance) : 'N/A'}
                     </div>
                 </div>
@@ -316,6 +340,7 @@ function Transactions() {
                     {recurrings.map((recurring) => {
                             return (
                                 <div key={recurring.id} className='card recurring-transaction-item'>
+                                    <div className='card-color-stripe' style={{backgroundColor: getCategoryColor(recurring.category_id)}}/>
                                     <div className='action-buttons transaction-action'>
                                         {!recurring.accounted_for && (
                                             <button onClick={() => handleApplyRecurring(recurring.id)}>

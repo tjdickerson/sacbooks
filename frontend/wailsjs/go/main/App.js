@@ -10,8 +10,8 @@ export function AddCategory(arg1, arg2) {
   return window['go']['main']['App']['AddCategory'](arg1, arg2);
 }
 
-export function AddRecurring(arg1, arg2, arg3, arg4) {
-  return window['go']['main']['App']['AddRecurring'](arg1, arg2, arg3, arg4);
+export function AddRecurring(arg1, arg2, arg3, arg4, arg5) {
+  return window['go']['main']['App']['AddRecurring'](arg1, arg2, arg3, arg4, arg5);
 }
 
 export function AddTransaction(arg1) {

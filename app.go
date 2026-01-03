@@ -79,8 +79,8 @@ func (a *App) AddAccount(name string, periodStartDay uint8) types.AccountResult 
 	return types.MapAccountResult(result)
 }
 
-func (a *App) AddRecurring(accountId int64, name string, amount int64, day uint8) types.RecurringResult {
-	result := a.s.AddRecurring(accountId, name, amount, day)
+func (a *App) AddRecurring(accountId int64, name string, amount int64, day uint8, categoryId int64) types.RecurringResult {
+	result := a.s.AddRecurring(accountId, name, amount, day, categoryId)
 	return types.MapRecurringResult(result)
 }
 

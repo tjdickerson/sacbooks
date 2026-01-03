@@ -17,8 +17,8 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({
                                                            }: CategorySelectorProps): React.JSX.Element => {
 
     return (
-        <div className='text-input-container' aria-label={label}>
-            <div className='text-input-label'>{label}</div>
+        <div className='sac-input-container' aria-label={label}>
+            <div className='sac-input-label'>{label}</div>
             <div className="select-wrapper">
                 <div 
                     className="select-color-stripe" 

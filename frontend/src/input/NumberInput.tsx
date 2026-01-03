@@ -64,9 +64,9 @@ const NumberInput: React.FC<NumberInputProps> = ({
     }
 
     return (
-        <div className='text-input-container' role="textbox" aria-label={label}>
+        <div className='sac-input-container' role="textbox" aria-label={label}>
             {error && <div className='text-input-error'>{error}</div>}
-            <div className='text-input-label'>{label}</div>
+            <div className='sac-input-label'>{label}</div>
             <input className='number-input'
                    type="text"
                    inputMode="decimal"

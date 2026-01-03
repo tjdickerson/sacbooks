@@ -93,9 +93,10 @@ func (r *TransactionRepo) Single(ctx context.Context, id int64) (domain.Transact
 
 const QUpdateTransaction = `
 update transactions
-set name        = @name,
-    amount      = @amount,
-    category_id = @category_id
+set name        		= @name,
+    amount      		= @amount,
+    transaction_date    = @date,
+    category_id 		= @category_id
 where id = @id
 returning id, account_id, period_id, category_id, name, amount, transaction_date, actualized_recurring_id 
 `
@@ -105,6 +106,7 @@ func (r *TransactionRepo) Update(ctx context.Context, t domain.Transaction) (dom
 		sql.Named("id", t.Id),
 		sql.Named("name", t.Name),
 		sql.Named("amount", t.Amount),
+		sql.Named("date", t.Date),
 		sql.Named("category_id", t.CategoryId),
 	)
 

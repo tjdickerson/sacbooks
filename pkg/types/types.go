@@ -1,7 +1,5 @@
 package types
 
-import "time"
-
 type SimpleResult struct {
 	Success bool   `json:"success"`
 	Message string `json:"message"`
@@ -34,25 +32,28 @@ type TransactionListResult struct {
 }
 
 type Transaction struct {
-	Id              int64     `json:"id"`
-	CategoryId      int64     `json:"category_id"`
-	Date            time.Time `json:"date"`
-	DisplayDate     string    `json:"display_date"`
-	Amount          int64     `json:"amount"`
-	Name            string    `json:"name"`
-	FromRecurringId int64     `json:"from_recurring_id"`
+	Id              int64  `json:"id"`
+	CategoryId      int64  `json:"category_id"`
+	Date            int64  `json:"date"`
+	DisplayDate     string `json:"display_date"`
+	Amount          int64  `json:"amount"`
+	Name            string `json:"name"`
+	FromRecurringId int64  `json:"from_recurring_id"`
 }
 
 type TransactionUpdateInput struct {
-	Id     int64  `json:"id"`
-	Amount int64  `json:"amount"`
-	Name   string `json:"name"`
+	Id         int64  `json:"id"`
+	Date       int64  `json:"date"`
+	Amount     int64  `json:"amount"`
+	CategoryId int64  `json:"category_id"`
+	Name       string `json:"name"`
 }
 
 type TransactionInsertInput struct {
 	AccountId  int64  `json:"account_id"`
 	PeriodId   int64  `json:"period_id"`
 	CategoryId int64  `json:"category_id"`
+	Date       int64  `json:"date"`
 	Amount     int64  `json:"amount"`
 	Name       string `json:"name"`
 }
@@ -100,6 +101,7 @@ type Recurring struct {
 	Id                int64  `json:"id"`
 	Name              string `json:"name"`
 	Amount            int64  `json:"amount"`
+	CategoryId        int64  `json:"category_id"`
 	Day               uint8  `json:"day"`
 	AccountedInPeriod bool   `json:"accounted_for"`
 }
@@ -117,10 +119,11 @@ type RecurringListResult struct {
 }
 
 type RecurringInput struct {
-	Id     int64  `json:"id"`
-	Amount int64  `json:"amount"`
-	Name   string `json:"name"`
-	Day    uint8  `json:"day"`
+	Id         int64  `json:"id"`
+	Amount     int64  `json:"amount"`
+	CategoryId int64  `json:"category_id"`
+	Name       string `json:"name"`
+	Day        uint8  `json:"day"`
 }
 
 type Category struct {

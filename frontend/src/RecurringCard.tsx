@@ -1,103 +1,98 @@
 import './App.css';
-import './transaction.css';
 
 import {types as t} from "../wailsjs/go/models";
 
 import React, {useState} from 'react'
 import {FaEdit, FaSave, FaTimes, FaTrash} from 'react-icons/fa'
-import {
-    amountToCents,
-    formatAmount,
-    getCurrencySymbol,
-    getLocale,
-    millisToDateString
-} from './lib/format';
+import {amountToCents, formatAmount, getCurrencySymbol, getLocale} from './lib/format';
 import TextInput from "./input/TextInput";
 import NumberInput from "./input/NumberInput";
-import {getCategoryCache, getCategoryColor} from "./lib/category";
-import DateInput from "./input/DateInput";
 import CategorySelector from "./input/CategorySelector";
+import {getCategoryCache, getCategoryColor} from "./lib/category";
 
-interface TransactionProps {
-    transaction: t.Transaction;
-    onSave: (id: number, name: string, amount: number, date: string, editCategoryId: number) => void;
+interface RecurringCardProps {
+    recurring: t.Recurring;
+    onSave: (id: number, name: string, amount: number, day: number, category: number) => void;
     onDelete: (id: number) => void;
 }
 
-const Transaction: React.FC<TransactionProps> = ({
-                                                     transaction,
-                                                     onSave,
-                                                     onDelete
-                                                 }) => {
+const RecurringCard: React.FC<RecurringCardProps> = ({
+                                                         recurring,
+                                                         onSave,
+                                                         onDelete
+                                                     }) => {
 
     const [isEditing, setIsEditing] = useState(false);
-    const [editName, setEditName] = useState<string>(transaction.name);
-    const [editDate, setEditDate] = useState<string>(millisToDateString(transaction.date));
-    const [editCategoryId, setEditCategoryId] = useState<number>(transaction.category_id);
-    const [editAmount, setEditAmount] = useState<number>(transaction.amount / 100);
+    const [editName, setEditName] = useState<string>(recurring.name);
+    const [editAmount, setEditAmount] = useState<number>(recurring.amount / 100);
+    const [editCategoryId, setCategoryId] = useState<number>(recurring.category_id);
+    const [editDay, setEditDay] = useState<number>(recurring.day);
 
     const categories = getCategoryCache();
 
-    const isPositive: boolean = Number(transaction.amount) >= 0;
+    const isPositive: boolean = Number(recurring.amount) >= 0;
     const amountClass: string = `amount ${isPositive ? 'positive' : 'negative'}`;
 
     const handleSave = () => {
         const amountInCents: number = amountToCents(editAmount.toFixed(2));
-        onSave(transaction.id, editName, amountInCents, editDate, editCategoryId);
+        onSave(recurring.id, editName, amountInCents, editDay, editCategoryId);
         setIsEditing(false);
     }
 
     const handleCancel = () => {
-        setEditName(transaction.name);
-        setEditAmount(transaction.amount / 100);
-        setEditDate(millisToDateString(transaction.date));
-        setEditCategoryId(transaction.category_id);
+        setEditName(recurring.name);
+        setEditAmount(recurring.amount / 100);
+        setEditDay(recurring.day);
         setIsEditing(false);
     }
 
     return (
-        <div className='card'>
-            <div className='card-color-stripe' style={{backgroundColor: getCategoryColor(transaction.category_id)}}/>
-            {!isEditing && <div className='card-info'>{transaction.display_date}</div>}
+        <div className='card' key={recurring.id}>
+            <div className='card-color-stripe' style={{backgroundColor: getCategoryColor(recurring.category_id)}}/>
+            {!isEditing && (<div className='card-info'>{recurring.day}</div>)}
             <div className={`card-details ${isEditing ? 'inline-form-content' : ''}`}>
                 <div className='form-fields'>
                     {
                         isEditing ? (
                             <>
-                                <DateInput
-                                    label='Date'
-                                    value={editDate}
-                                    onChange={setEditDate}
-                                />
                                 <TextInput
-                                    label='Name'
+                                    label="Name"
                                     value={editName}
-                                    placeholder='Gas Station'
                                     onChange={setEditName}
+                                    placeholder='Internet Bill'
                                 />
                                 <NumberInput
                                     label='Amount'
                                     value={editAmount}
-                                    placeholder='-2.20'
                                     onChange={setEditAmount}
+                                    placeholder='-85.00'
+                                />
+                                <NumberInput
+                                    label='Transaction Date'
+                                    value={editDay}
+                                    placeholder='7'
+                                    onChange={setEditDay}
+                                    min={1} max={31}
+                                    allowedDecimalPlaces={0}
                                 />
                                 <CategorySelector
                                     label='Category'
                                     selectedId={editCategoryId}
-                                    onChange={setEditCategoryId}
+                                    onChange={setCategoryId}
                                     dataSource={categories}
                                 />
 
                             </>
                         ) : (
                             <>
-                                <div className='card-name'>{transaction.name}</div>
+                                <div className='card-name label'>{recurring.name}</div>
                                 <div
                                     className='currency-symbol'>{getCurrencySymbol(getLocale())}</div>
                                 <div className={amountClass}>
-                                    {formatAmount(transaction.amount)}
+                                    {formatAmount(recurring.amount)}
                                 </div>
-                            </>)
+                            </>
+                        )
                     }
                 </div>
                 <div className='action-buttons'>
@@ -113,7 +108,7 @@ const Transaction: React.FC<TransactionProps> = ({
                             <button onClick={() => setIsEditing(true)}>
                                 <FaEdit/>
                             </button>
-                            <button className='danger' onClick={() => onDelete(transaction.id)}>
+                            <button className='danger' onClick={() => onDelete(recurring.id)}>
                                 <FaTrash/>
                             </button>
                         </>)
@@ -124,4 +119,4 @@ const Transaction: React.FC<TransactionProps> = ({
     )
 }
 
-export default Transaction
+export default RecurringCard

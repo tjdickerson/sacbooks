@@ -1,25 +1,25 @@
 import React from "react";
 
-interface ColorInputProps {
+interface DateInputProps {
     label: string;
     value: string;
     onChange: (value: string) => void;
 }
 
-const ColorInput: React.FC<ColorInputProps> = ({
+const DateInput: React.FC<DateInputProps> = ({
                                                  label,
                                                  value,
                                                  onChange,
-                                             }: ColorInputProps): React.JSX.Element => {
+                                             }: DateInputProps): React.JSX.Element => {
 
     return (
         <div className='sac-input-container' aria-label={label}>
             <div className='sac-input-label'>{label}</div>
-            <input type="color"
+            <input type="date"
                    value={value}
                    onChange={(e) => onChange(e.target.value)}/>
         </div>
     )
 }
 
-export default ColorInput;
+export default DateInput;

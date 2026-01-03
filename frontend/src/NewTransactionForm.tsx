@@ -1,22 +1,26 @@
-import {useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {amountToCents} from './lib/format';
 import TextInput from "./input/TextInput";
 import NumberInput from "./input/NumberInput";
 import CategorySelector from "./input/CategorySelector";
 import {getCategoryCache} from "./lib/category";
+import DateInput from "./input/DateInput";
 
-interface TransactionFormProps {
-    onSubmit: (name: string, amount: number, categoryId: number) => Promise<void>;
+interface NewTransactionFormProps {
+    onSubmit: (name: string, amount: number, date: string, categoryId: number) => Promise<void>;
+    onCancel: () => void;
     submitting: boolean;
-    initialValues: { name: string, amount: number };
-};
+    initialValues: { name: string, amount: number, date: string };
+}
 
-const TransactionInputForm: React.FC<TransactionFormProps> = ({
-                                                                  onSubmit,
-                                                                  submitting: parentSubmitting,
-                                                                  initialValues
-                                                              }) => {
+const NewTransactionForm: React.FC<NewTransactionFormProps> = ({
+                                                                   onSubmit,
+                                                                   onCancel,
+                                                                   submitting: parentSubmitting,
+                                                                   initialValues
+                                                               }) => {
 
+    const [date, setDate] = useState<string>(initialValues?.date ?? '');
     const [name, setName] = useState<string>(initialValues?.name ?? '');
     const [amount, setAmount] = useState<number>(initialValues?.amount ?? 0.00);
     const [categoryId, setCategoryId] = useState<number>(0);
@@ -31,6 +35,13 @@ const TransactionInputForm: React.FC<TransactionFormProps> = ({
 
     const isSubmitting: boolean = parentSubmitting || submitting;
     const categories = getCategoryCache();
+
+    async function handleCancel() {
+        setName(initialValues?.name ?? '');
+        setAmount(initialValues?.amount ?? 0.00);
+        setSubmitting(false);
+        onCancel();
+    }
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -50,7 +61,7 @@ const TransactionInputForm: React.FC<TransactionFormProps> = ({
         try {
             if (!parentSubmitting) setSubmitting(true);
             const clean_name: string = name.trim();
-            await onSubmit(clean_name, amountInCents, categoryId);
+            await onSubmit(clean_name, amountInCents, date, categoryId);
             setName('');
             setAmount(0);
             setCategoryId(0);
@@ -68,6 +79,12 @@ const TransactionInputForm: React.FC<TransactionFormProps> = ({
 
             <div className='form-content'>
                 <div className='form-fields'>
+                    <DateInput
+                        label='Transaction Date'
+                        value={date}
+                        onChange={setDate}
+                    />
+
                     <TextInput
                         label='Transaction Name'
                         value={name}
@@ -95,10 +112,14 @@ const TransactionInputForm: React.FC<TransactionFormProps> = ({
                             disabled={isSubmitting}>
                         Add
                     </button>
+                    <button className='btn-danger' type="button" disabled={isSubmitting}
+                            onClick={handleCancel}>
+                        Cancel
+                    </button>
                 </div>
             </div>
         </form>
     )
 }
 
-export default TransactionInputForm
+export default NewTransactionForm

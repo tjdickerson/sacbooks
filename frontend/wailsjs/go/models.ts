@@ -293,6 +293,7 @@ export namespace types {
 	    id: number;
 	    name: string;
 	    amount: number;
+	    category_id: number;
 	    day: number;
 	    accounted_for: boolean;
 	
@@ -305,6 +306,7 @@ export namespace types {
 	        this.id = source["id"];
 	        this.name = source["name"];
 	        this.amount = source["amount"];
+	        this.category_id = source["category_id"];
 	        this.day = source["day"];
 	        this.accounted_for = source["accounted_for"];
 	    }
@@ -312,6 +314,7 @@ export namespace types {
 	export class RecurringInput {
 	    id: number;
 	    amount: number;
+	    category_id: number;
 	    name: string;
 	    day: number;
 	
@@ -323,6 +326,7 @@ export namespace types {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.id = source["id"];
 	        this.amount = source["amount"];
+	        this.category_id = source["category_id"];
 	        this.name = source["name"];
 	        this.day = source["day"];
 	    }
@@ -412,8 +416,7 @@ export namespace types {
 	export class Transaction {
 	    id: number;
 	    category_id: number;
-	    // Go type: time
-	    date: any;
+	    date: number;
 	    display_date: string;
 	    amount: number;
 	    name: string;
@@ -427,35 +430,18 @@ export namespace types {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.id = source["id"];
 	        this.category_id = source["category_id"];
-	        this.date = this.convertValues(source["date"], null);
+	        this.date = source["date"];
 	        this.display_date = source["display_date"];
 	        this.amount = source["amount"];
 	        this.name = source["name"];
 	        this.from_recurring_id = source["from_recurring_id"];
 	    }
-	
-		convertValues(a: any, classs: any, asMap: boolean = false): any {
-		    if (!a) {
-		        return a;
-		    }
-		    if (a.slice && a.map) {
-		        return (a as any[]).map(elem => this.convertValues(elem, classs));
-		    } else if ("object" === typeof a) {
-		        if (asMap) {
-		            for (const key of Object.keys(a)) {
-		                a[key] = new classs(a[key]);
-		            }
-		            return a;
-		        }
-		        return new classs(a);
-		    }
-		    return a;
-		}
 	}
 	export class TransactionInsertInput {
 	    account_id: number;
 	    period_id: number;
 	    category_id: number;
+	    date: number;
 	    amount: number;
 	    name: string;
 	
@@ -468,6 +454,7 @@ export namespace types {
 	        this.account_id = source["account_id"];
 	        this.period_id = source["period_id"];
 	        this.category_id = source["category_id"];
+	        this.date = source["date"];
 	        this.amount = source["amount"];
 	        this.name = source["name"];
 	    }
@@ -542,7 +529,9 @@ export namespace types {
 	}
 	export class TransactionUpdateInput {
 	    id: number;
+	    date: number;
 	    amount: number;
+	    category_id: number;
 	    name: string;
 	
 	    static createFrom(source: any = {}) {
@@ -552,7 +541,9 @@ export namespace types {
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.id = source["id"];
+	        this.date = source["date"];
 	        this.amount = source["amount"];
+	        this.category_id = source["category_id"];
 	        this.name = source["name"];
 	    }
 	}

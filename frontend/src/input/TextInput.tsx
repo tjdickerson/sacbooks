@@ -15,8 +15,8 @@ const TextInput: React.FC<TextInputProps> = ({
                                              }: TextInputProps): React.JSX.Element => {
 
     return (
-        <div className='text-input-container' role="textbox" aria-label={label}>
-            <div className='text-input-label'>{label}</div>
+        <div className='sac-input-container' role="textbox" aria-label={label}>
+            <div className='sac-input-label'>{label}</div>
             <input type="text"
                    value={value}
                    placeholder={placeholder}

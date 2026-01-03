@@ -6,7 +6,7 @@ import {formatAmount, getCurrencySymbol, getLocale} from "./lib/format";
 import TextInput from "./input/TextInput";
 import NumberInput from "./input/NumberInput";
 
-interface AccountProps {
+interface AccountCardProps {
     account: t.Account;
     selected: boolean;
     onSave: (id: number, name: string, periodStartDay: number) => void;
@@ -14,13 +14,13 @@ interface AccountProps {
     onSwitch: (id: number) => void;
 }
 
-const AccountCard: React.FC<AccountProps> = ({
+const AccountCard: React.FC<AccountCardProps> = ({
                                                  account,
                                                  selected,
                                                  onSave,
                                                  onDelete,
                                                  onSwitch
-                                             }: AccountProps): React.JSX.Element => {
+                                             }: AccountCardProps): React.JSX.Element => {
 
     const [isEditing, setIsEditing] = useState(false);
     const [editName, setEditName] = useState<string>(account.name);

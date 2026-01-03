@@ -3,7 +3,7 @@ import { useAccountSelection } from "./AccountContext";
 import { AddRecurring, DeleteRecurring, GetRecurringList, UpdateRecurring } from "../wailsjs/go/main/App";
 import { types as t } from "../wailsjs/go/models";
 import NewRecurringForm from "./NewRecurringForm";
-import Recurring from "./Recurring";
+import RecurringCard from "./RecurringCard";
 
 function Recurrings() {
     const { selectedAccount } = useAccountSelection();
@@ -38,10 +38,10 @@ function Recurrings() {
         void init();
     }, [selectedAccountId]);
 
-    async function handleAddRecurring(name: string, amount: number, day: number) {
+    async function handleAddRecurring(name: string, amount: number, day: number, categoryId: number) {
         setLoadingRecurring(true);
         try {
-            const result = await AddRecurring(selectedAccountId!, name, amount, day)
+            const result = await AddRecurring(selectedAccountId!, name, amount, day, categoryId)
             if (result.success) {
                 const newRecurring: t.Recurring = result.data;
                 setRecurrings(prev => [newRecurring, ...prev]);
@@ -76,13 +76,14 @@ function Recurrings() {
         }
     }
 
-    async function handleUpdateRecurring(id: number, name: string, amount: number, day: number) {
+    async function handleUpdateRecurring(id: number, name: string, amount: number, day: number, categoryId: number) {
         setLoadingRecurring(true);
         setError("");
 
         const updateInput: t.RecurringInput = {
             id: id,
             name: name,
+            category_id: categoryId,
             amount: amount,
             day: day,
         }
@@ -115,7 +116,7 @@ function Recurrings() {
                         onSubmit={handleAddRecurring}
                         onCancel={() => setAddingRecurring(false)}
                         submitting={loadingRecurring}
-                        initialValues={{ name: "", amount: 0, day: 1 }} />
+                        initialValues={{ name: "", amount: 0, day: 1, category: 0 }} />
                 </div>
             ) : (
                 <div className='view-bar'>
@@ -137,7 +138,7 @@ function Recurrings() {
                     {recurrings.length > 0 ?
                         (
                             recurrings.map((recurring) => (
-                                <Recurring
+                                <RecurringCard
                                     key={recurring.id}
                                     recurring={recurring}
                                     onDelete={handleDeleteRecurring}

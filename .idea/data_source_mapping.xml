@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourcePerFileMappings">
+    <file url="file://$PROJECT_DIR$/.idea/queries/Query.sql" value="77698e16-cd3d-4fe4-bbb8-a0966a1dc133" />
     <file url="file://$PROJECT_DIR$/internal/repo/account_repo.go" value="77698e16-cd3d-4fe4-bbb8-a0966a1dc133" />
     <file url="file://$PROJECT_DIR$/internal/repo/period_repo.go" value="77698e16-cd3d-4fe4-bbb8-a0966a1dc133" />
     <file url="file://$PROJECT_DIR$/internal/repo/recurring_repo.go" value="77698e16-cd3d-4fe4-bbb8-a0966a1dc133" />
+    <file url="file://$PROJECT_DIR$/internal/repo/transactions_repo.go" value="77698e16-cd3d-4fe4-bbb8-a0966a1dc133" />
   </component>
 </project>

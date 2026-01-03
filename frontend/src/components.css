@@ -90,6 +90,7 @@ button.sm {
    ============================================================================ */
 
 input[type="text"],
+input[type="date"],
 input[type="number"],
 input[type="email"],
 input[type="password"],
@@ -484,7 +485,7 @@ input[type="color"] {
 .form-area {
     display: flex;
     gap: 16px;
-    align-items: center;
+    align-items: flex-end;
     padding: 32px;
     background: var(--card);
     border: 1px solid var(--card-border);
@@ -500,7 +501,7 @@ input[type="color"] {
     display: flex;
     flex-direction: column;
     gap: var(--gap);
-    align-items: center;
+    align-items: stretch;
     width: 100%;
 }
 
@@ -526,7 +527,7 @@ input[type="color"] {
 .inline-form-content {
     display: flex;
     flex-direction: row;
-    align-items: center;
+    align-items: flex-end;
     gap: 12px;
     width: 100%;
     justify-content: flex-start;
@@ -545,7 +546,7 @@ input[type="color"] {
 .form-fields {
     display: flex;
     flex-direction: row;
-    align-items: flex-start;
+    align-items: flex-end;
     gap: var(--gap);
     flex: 1;
 }
@@ -563,14 +564,14 @@ input[type="color"] {
     flex: 0 0 auto;
 }
 
-.text-input-container {
+.sac-input-container {
     display: flex;
     flex-direction: column;
     gap: 4px;
     flex: 1;
 }
 
-.text-input-label {
+.sac-input-label {
     color: var(--muted);
     font-size: 13px;
     font-weight: 600;
