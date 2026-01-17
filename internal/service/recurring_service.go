@@ -41,6 +41,8 @@ func (rs *RecurringService) Update(ctx context.Context, input types.RecurringInp
 
 	r.Name = input.Name
 	r.Amount = input.Amount
+	r.Day = input.Day
+	r.CategoryId = input.CategoryId
 
 	return rs.recurringRepo.Update(ctx, r)
 }

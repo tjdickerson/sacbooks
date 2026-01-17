@@ -106,7 +106,7 @@ func (r *TransactionRepo) Update(ctx context.Context, t domain.Transaction) (dom
 		sql.Named("id", t.Id),
 		sql.Named("name", t.Name),
 		sql.Named("amount", t.Amount),
-		sql.Named("date", t.Date),
+		sql.Named("date", t.Date.UnixMilli()),
 		sql.Named("category_id", t.CategoryId),
 	)
 

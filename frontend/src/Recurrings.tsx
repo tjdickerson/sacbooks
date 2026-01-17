@@ -80,6 +80,8 @@ function Recurrings() {
         setLoadingRecurring(true);
         setError("");
 
+        
+        console.log(id, name, amount, day, categoryId);
         const updateInput: t.RecurringInput = {
             id: id,
             name: name,
