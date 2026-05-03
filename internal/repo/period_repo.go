@@ -62,6 +62,7 @@ with tx as (select t.account_id, t.period_id, coalesce(sum(t.amount), 0) balance
             group by t.account_id, t.period_id)
 select 
 	p.id, 
+	p.account_id,
 	p.reporting_start_timestamp, 
 	p.reporting_end_timestamp, 
 	p.opened_on_timestamp, 
@@ -88,7 +89,7 @@ func (r *PeriodRepo) GetPeriod(ctx context.Context, accountId int64, periodId in
 	var endMillis int64
 	var openedMillis int64
 	var closedMillis sql.NullInt64
-	err := row.Scan(&p.Id, &startMillis, &endMillis, &openedMillis, &closedMillis, &p.Balance)
+	err := row.Scan(&p.Id, &p.AccountId, &startMillis, &endMillis, &openedMillis, &closedMillis, &p.Balance)
 
 	if err != nil {
 		return p, fmt.Errorf("scan active period account %d: %w", accountId, err)
@@ -108,6 +109,7 @@ func (r *PeriodRepo) GetPeriod(ctx context.Context, accountId int64, periodId in
 const QClosePeriod = `update periods set closed_on_timestamp = @closed_on_timestamp where id = @id`
 
 func (r *PeriodRepo) ClosePeriod(ctx context.Context, periodId int64) error {
+	fmt.Printf("closing period %d\n", periodId)
 	_, err := r.db.ExecContext(ctx, QClosePeriod,
 		sql.Named("closed_on_timestamp", time.Now().UnixMilli()),
 		sql.Named("id", periodId),

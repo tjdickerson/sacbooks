@@ -1,7 +1,9 @@
+import {AddRecurring, DeleteRecurring, GetRecurringList, StartNextPeriod, UpdateRecurring} from "../wailsjs/go/main/App";
 import {useAccountSelection} from './AccountContext';
 import './App.css';
 import MenuItem from './MenuItem';
 import {ViewId} from './views';
+import {useState} from "react";
 
 // @ts-ignore
 import logo from './assets/images/SacHead.svg'
@@ -21,7 +23,29 @@ function Menu({currentView, onNavigate, theme, onToggleTheme}: MenuProps) {
         {id: 'categories', displayText: 'Categories'},
     ];
 
-    const {selectedAccount} = useAccountSelection();
+    const {selectedAccount, setSelectedAccount} = useAccountSelection();
+    const [loading, setLoading] = useState(false);
+
+    async function handleNextPeriod() {
+        if (!selectedAccount) return;
+        if (!confirm(`Are you sure you want to close the current period and start the next one for ${selectedAccount.name}?`)) {
+            return;
+        }
+
+        setLoading(true);
+        try {
+            const result = await StartNextPeriod(selectedAccount.id);
+            if (result.success) {
+                setSelectedAccount(result.data);
+            } else {
+                alert(result.message);
+            }
+        } catch (e) {
+            alert("An error occurred while starting the next period.");
+        } finally {
+            setLoading(false);
+        }
+    }
 
     return (
         <div id="Menu" className="menu-bar">
@@ -52,9 +76,16 @@ function Menu({currentView, onNavigate, theme, onToggleTheme}: MenuProps) {
 
                 <div className="menu-info">
                     <button type="button"
+                            className="btn-primary sm"
+                            onClick={handleNextPeriod}
+                            disabled={loading}
+                            style={{marginRight: '12px'}}>
+                        {loading ? 'Starting...' : 'Next Period'}
+                    </button>
+                    <button type="button"
                             className="btn-secondary sm"
                             onClick={onToggleTheme}
-                            style={{marginBottom: '8px'}}>
+                            style={{marginRight: '12px'}}>
                         {theme === 'light' ? '🌙  Dark' : '☀️  Light'}
                     </button>
                     <div className="menu-current-account">

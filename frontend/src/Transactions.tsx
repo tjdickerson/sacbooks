@@ -16,6 +16,7 @@ import {dateStringToMillis, formatAmount, getCurrencySymbol, getLocale} from './
 import {FaArrowLeft} from 'react-icons/fa'
 import {useAccountSelection} from './AccountContext';
 import {getCategoryColor} from "./lib/category";
+import {nowToString} from "./lib/format";
 
 function Transactions() {
     const [transactions, setTransactions] = react.useState<t.Transaction[]>([]);
@@ -138,7 +139,7 @@ function Transactions() {
         }
 
         void init();
-    }, [selectedAccountId]);
+    }, [selectedAccountId, selectedAccount?.active_period.id]);
 
     react.useEffect(() => {
         const container: HTMLDivElement | null = transactionContainerRef.current;
@@ -278,6 +279,7 @@ function Transactions() {
         }
     }
 
+    const today = Date.now();
     return (
         <div className='view-layout transaction-view'>
             {
@@ -287,7 +289,7 @@ function Transactions() {
                             onSubmit={handleAddTransaction}
                             onCancel={() => setShowNewTransactionForm(false)}
                             submitting={loadingTransactions}
-                            initialValues={{name: "", amount: 0, date: Date.now().toString()}}/>
+                            initialValues={{name: "", amount: 0, date: nowToString()}}/>
                     </div>
                 ) : (
                     <div className='view-bar'>

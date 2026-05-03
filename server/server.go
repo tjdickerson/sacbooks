@@ -162,6 +162,17 @@ func (s *Server) AddAccount(name string, periodStartDay uint8) types.Result[type
 	return types.Ok(types.MapAccount(a))
 }
 
+func (s *Server) StartNextPeriod(accountId int64) types.Result[types.Account] {
+	ctx := context.Background()
+
+	a, err := s.accountService.StartNextPeriod(ctx, accountId)
+	if err != nil {
+		return types.Fail[types.Account](fmt.Sprintf("starting next period: %s", err))
+	}
+
+	return types.Ok(types.MapAccount(a))
+}
+
 func (s *Server) ListAccounts() types.Result[[]types.Account] {
 	ctx := context.Background()
 

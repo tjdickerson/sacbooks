@@ -116,6 +116,21 @@ func (as *AccountService) Delete(ctx context.Context, accountId int64) error {
 	return as.accountRepo.Delete(ctx, a)
 }
 
+func (as *AccountService) StartNextPeriod(ctx context.Context, accountId int64) (domain.Account, error) {
+	a, err := as.Single(ctx, accountId)
+	if err != nil {
+		return a, fmt.Errorf("start next period for account %d: %w", accountId, err)
+	}
+
+	p, err := as.StartPeriod(ctx, accountId, a.PeriodStartDay, a.ActivePeriod)
+	if err != nil {
+		return a, fmt.Errorf("start next period for account %d: %w", accountId, err)
+	}
+
+	a.ActivePeriod = p
+	return a, nil
+}
+
 func (as *AccountService) StartPeriod(ctx context.Context, accountId int64, startDay uint8, currentPeriod *domain.Period) (*domain.Period, error) {
 	var openTime time.Time
 	var reportStart time.Time
@@ -132,19 +147,14 @@ func (as *AccountService) StartPeriod(ctx context.Context, accountId int64, star
 		openTime = time.Now().UTC()
 		reportStart = time.Date(t.Year(), t.Month()+1, int(startDay), 12, 0, 0, 0, time.UTC)
 
-		account, err := as.accountRepo.Single(ctx, accountId)
-		if err != nil {
-			return currentPeriod, fmt.Errorf("get account pre close out %d: %w", accountId, err)
-		}
-
-		endingBalance = account.ActivePeriod.Balance
+		endingBalance = currentPeriod.Balance
 	}
 
 	reportEnd = reportStart.AddDate(0, 1, -1)
 
 	if currentPeriod != nil {
 		// todo: need to make a way to do this in a db transaction
-		err := as.periodRepo.ClosePeriod(ctx, accountId)
+		err := as.periodRepo.ClosePeriod(ctx, currentPeriod.Id)
 		if err != nil {
 			return currentPeriod, fmt.Errorf("close period for account %d: %w", accountId, err)
 		}

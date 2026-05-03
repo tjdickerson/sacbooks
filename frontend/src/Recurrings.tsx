@@ -36,7 +36,7 @@ function Recurrings() {
             await loadRecurrings();
         }
         void init();
-    }, [selectedAccountId]);
+    }, [selectedAccountId, selectedAccount?.active_period.id]);
 
     async function handleAddRecurring(name: string, amount: number, day: number, categoryId: number) {
         setLoadingRecurring(true);

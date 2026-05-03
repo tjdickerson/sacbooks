@@ -37,3 +37,7 @@ export function millisToDateString(millis: number): string {
 export function dateStringToMillis(dateString: string): number {
     return new Date(dateString).getTime();
 }
+
+export function nowToString(): string {
+    return new Date().toISOString().split('T')[0];
+}

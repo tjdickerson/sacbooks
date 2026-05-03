@@ -34,6 +34,8 @@ export function GetTransactions(arg1:number,arg2:number,arg3:number,arg4:number)
 
 export function ListCategories(arg1:number):Promise<types.CategoryListResult>;
 
+export function StartNextPeriod(arg1:number):Promise<types.AccountResult>;
+
 export function UpdateAccount(arg1:number,arg2:types.AccountUpdateInput):Promise<types.AccountResult>;
 
 export function UpdateCategory(arg1:number,arg2:types.CategoryUpdateInput):Promise<types.CategoryResult>;

@@ -106,6 +106,10 @@ func (a *App) DeleteAccount(accountId int64) types.SimpleResult {
 	return a.s.DeleteAccount(accountId)
 }
 
+func (a *App) StartNextPeriod(accountId int64) types.AccountResult {
+	return types.MapAccountResult(a.s.StartNextPeriod(accountId))
+}
+
 func (a *App) ListCategories(accountId int64) types.CategoryListResult {
 	return types.MapCategoryListResult(a.s.ListCategories(accountId))
 }

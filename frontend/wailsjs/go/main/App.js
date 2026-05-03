@@ -66,6 +66,10 @@ export function ListCategories(arg1) {
   return window['go']['main']['App']['ListCategories'](arg1);
 }
 
+export function StartNextPeriod(arg1) {
+  return window['go']['main']['App']['StartNextPeriod'](arg1);
+}
+
 export function UpdateAccount(arg1, arg2) {
   return window['go']['main']['App']['UpdateAccount'](arg1, arg2);
 }

@@ -16,11 +16,22 @@ function App() {
     const [selectedAccount, setSelectedAccount] = useState<t.Account | null>(null);
     const [currentView, setCurrentView] = useState<ViewId>('transactions');
     const [error, setError] = useState<string>('');
-    const [theme, setTheme] = useState<'light' | 'dark'>('light');
+    
+    const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light' || savedTheme === 'dark') {
+            return savedTheme as 'light' | 'dark';
+        }
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    })
 
     const toggleTheme = () => {
         setTheme(prev => prev === 'light' ? 'dark' : 'light');
     }
+    
+    useEffect(() => {
+        localStorage.setItem('theme', theme);
+    }, [theme]);
 
     useEffect(() => {
         async function bootstrap() {
