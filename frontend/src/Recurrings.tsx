@@ -38,10 +38,10 @@ function Recurrings() {
         void init();
     }, [selectedAccountId, selectedAccount?.active_period.id]);
 
-    async function handleAddRecurring(name: string, amount: number, day: number, categoryId: number) {
+    async function handleAddRecurring(name: string, amount: number, day: number, categoryId: number, auto: boolean) {
         setLoadingRecurring(true);
         try {
-            const result = await AddRecurring(selectedAccountId!, name, amount, day, categoryId)
+            const result = await AddRecurring(selectedAccountId!, name, amount, day, categoryId, auto)
             if (result.success) {
                 const newRecurring: t.Recurring = result.data;
                 setRecurrings(prev => [newRecurring, ...prev]);
@@ -76,18 +76,18 @@ function Recurrings() {
         }
     }
 
-    async function handleUpdateRecurring(id: number, name: string, amount: number, day: number, categoryId: number) {
+    async function handleUpdateRecurring(id: number, name: string, amount: number, day: number, categoryId: number, auto: boolean) {
         setLoadingRecurring(true);
         setError("");
 
         
-        console.log(id, name, amount, day, categoryId);
         const updateInput: t.RecurringInput = {
             id: id,
             name: name,
             category_id: categoryId,
             amount: amount,
             day: day,
+            auto: auto,
         }
 
         try {
@@ -118,7 +118,7 @@ function Recurrings() {
                         onSubmit={handleAddRecurring}
                         onCancel={() => setAddingRecurring(false)}
                         submitting={loadingRecurring}
-                        initialValues={{ name: "", amount: 0, day: 1, category: 0 }} />
+                        initialValues={{ name: "", amount: 0, day: 1, category: 0, auto: false }} />
                 </div>
             ) : (
                 <div className='view-bar'>

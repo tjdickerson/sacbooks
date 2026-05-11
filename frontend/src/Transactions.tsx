@@ -13,7 +13,7 @@ import Transaction from './Transaction';
 import NewTransactionForm from './NewTransactionForm';
 import './App.css';
 import {dateStringToMillis, formatAmount, getCurrencySymbol, getLocale} from './lib/format';
-import {FaArrowLeft} from 'react-icons/fa'
+import {FaArrowLeft, FaBolt} from 'react-icons/fa'
 import {useAccountSelection} from './AccountContext';
 import {getCategoryColor} from "./lib/category";
 import {nowToString} from "./lib/format";
@@ -343,15 +343,15 @@ function Transactions() {
                             return (
                                 <div key={recurring.id} className='card recurring-transaction-item'>
                                     <div className='card-color-stripe' style={{backgroundColor: getCategoryColor(recurring.category_id)}}/>
-                                    <div className='action-buttons transaction-action'>
-                                        {!recurring.accounted_for && (
-                                            <button onClick={() => handleApplyRecurring(recurring.id)}>
-                                                <FaArrowLeft/>
-                                            </button>
-                                        )}
-                                    </div>
                                     <div className='recurring-transaction-data'>
-                                        <div className='transaction-date'>{recurring.day}</div>
+                                        <div className='transaction-date'>
+                                            {recurring.day}
+                                            {recurring.auto && (
+                                                <span className='auto-trans' title="Automatic Transaction">
+                                                    <FaBolt/>
+                                                </span>
+                                            )}
+                                        </div>
                                         <div className='transaction-info'>
                                             <div
                                                 className={`transaction-name ${recurring.accounted_for ? 'accounted-for' : ''}`}>{recurring.name}</div>
@@ -366,6 +366,13 @@ function Transactions() {
                                                 </div>
                                             </div>
                                         </div>
+                                    </div>
+                                    <div className='action-buttons transaction-action'>
+                                        {!recurring.accounted_for && (
+                                            <button onClick={() => handleApplyRecurring(recurring.id)}>
+                                                <FaArrowLeft/>
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                             )

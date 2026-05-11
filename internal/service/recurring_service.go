@@ -18,13 +18,14 @@ func NewRecurringService(recurringRepo *repo.RecurringRepo) *RecurringService {
 	}
 }
 
-func (rs *RecurringService) Add(ctx context.Context, accountId int64, name string, amount int64, day uint8, categoryId int64) (domain.Recurring, error) {
+func (rs *RecurringService) Add(ctx context.Context, accountId int64, name string, amount int64, day uint8, categoryId int64, auto bool) (domain.Recurring, error) {
 	temp := domain.Recurring{
 		AccountId:  accountId,
 		CategoryId: categoryId,
 		Name:       name,
 		Amount:     amount,
 		Day:        day,
+		Auto:       auto,
 	}
 	return rs.recurringRepo.Add(ctx, temp)
 }
@@ -43,6 +44,7 @@ func (rs *RecurringService) Update(ctx context.Context, input types.RecurringInp
 	r.Amount = input.Amount
 	r.Day = input.Day
 	r.CategoryId = input.CategoryId
+	r.Auto = input.Auto
 
 	return rs.recurringRepo.Update(ctx, r)
 }

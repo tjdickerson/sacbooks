@@ -8,4 +8,5 @@ type Recurring struct {
 	Day               uint8
 	Amount            int64
 	AccountedInPeriod bool
+	Auto              bool
 }

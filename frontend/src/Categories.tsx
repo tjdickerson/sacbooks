@@ -1,7 +1,7 @@
 import {AccountContextValue, useAccountSelection} from "./AccountContext";
 import {types as t} from "../wailsjs/go/models";
 import {useEffect, useState} from "react";
-import {AddCategory, ListCategories} from "../wailsjs/go/main/App";
+import {AddCategory, DeleteCategory, ListCategories, UpdateCategory} from "../wailsjs/go/main/App";
 import CategoryCard from "./CategoryCard";
 import NewCategoryForm from "./NewCategoryForm";
 import {refreshCategoryCache} from "./lib/category";
@@ -53,6 +53,48 @@ function Categories() {
             if (result.success) {
                 await loadCategories();
                 await refreshCategoryCache(selectedAccountId);
+                setAddingCategory(false);
+            } else {
+                setError(result.message);
+            }
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    async function handleUpdateCategory(id: number, name: string, color: string) {
+        setError('');
+        setLoading(true);
+
+        try {
+            const input: t.CategoryUpdateInput = {
+                id: id,
+                name: name,
+                color: color,
+            };
+            const result: t.CategoryResult = await UpdateCategory(selectedAccountId, input);
+            if (result.success) {
+                await loadCategories();
+                await refreshCategoryCache(selectedAccountId);
+            } else {
+                setError(result.message);
+            }
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    async function handleDeleteCategory(id: number) {
+        if (!confirm("Are you sure you want to delete this category?")) return;
+
+        setError('');
+        setLoading(true);
+
+        try {
+            const result: t.SimpleResult = await DeleteCategory(id);
+            if (result.success) {
+                await loadCategories();
+                await refreshCategoryCache(selectedAccountId);
             } else {
                 setError(result.message);
             }
@@ -97,6 +139,8 @@ function Categories() {
                             <CategoryCard
                                 key={category.id}
                                 category={category}
+                                onSave={handleUpdateCategory}
+                                onDelete={handleDeleteCategory}
                             />
                         ))}
                     </div>

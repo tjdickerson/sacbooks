@@ -296,6 +296,7 @@ export namespace types {
 	    category_id: number;
 	    day: number;
 	    accounted_for: boolean;
+	    auto: boolean;
 	
 	    static createFrom(source: any = {}) {
 	        return new Recurring(source);
@@ -309,6 +310,7 @@ export namespace types {
 	        this.category_id = source["category_id"];
 	        this.day = source["day"];
 	        this.accounted_for = source["accounted_for"];
+	        this.auto = source["auto"];
 	    }
 	}
 	export class RecurringInput {
@@ -317,6 +319,7 @@ export namespace types {
 	    category_id: number;
 	    name: string;
 	    day: number;
+	    auto: boolean;
 	
 	    static createFrom(source: any = {}) {
 	        return new RecurringInput(source);
@@ -329,6 +332,7 @@ export namespace types {
 	        this.category_id = source["category_id"];
 	        this.name = source["name"];
 	        this.day = source["day"];
+	        this.auto = source["auto"];
 	    }
 	}
 	export class RecurringListResult {

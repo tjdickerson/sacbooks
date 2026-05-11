@@ -99,6 +99,9 @@ returning id, name, account_id, color
 func (r *CategoryRepo) Update(ctx context.Context, c domain.Category) (domain.Category, error) {
 	row := r.db.QueryRowContext(ctx, QUpdateCategory,
 		sql.Named("id", c.Id),
+		sql.Named("name", c.Name),
+		sql.Named("account_id", c.AccountId),
+		sql.Named("color", c.Color),
 	)
 
 	err := row.Scan(&c.Id, &c.Name, &c.AccountId, &c.Color)

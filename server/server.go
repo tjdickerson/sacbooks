@@ -94,10 +94,10 @@ func (s *Server) GetRecurringList(accountId int64, periodId int64) types.Result[
 	return types.Ok(types.MapRecurrings(recurrings))
 }
 
-func (s *Server) AddRecurring(accountId int64, name string, amount int64, day uint8, categoryId int64) types.Result[types.Recurring] {
+func (s *Server) AddRecurring(accountId int64, name string, amount int64, day uint8, categoryId int64, auto bool) types.Result[types.Recurring] {
 	ctx := context.Background()
 
-	recurring, err := s.recurringService.Add(ctx, accountId, name, amount, day, categoryId)
+	recurring, err := s.recurringService.Add(ctx, accountId, name, amount, day, categoryId, auto)
 	if err != nil {
 		return types.Fail[types.Recurring](fmt.Sprintf("adding recurring: %s", err))
 	}

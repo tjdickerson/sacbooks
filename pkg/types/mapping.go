@@ -107,6 +107,7 @@ func MapRecurring(recurring domain.Recurring) Recurring {
 		CategoryId:        recurring.CategoryId,
 		Day:               recurring.Day,
 		AccountedInPeriod: recurring.AccountedInPeriod,
+		Auto:              recurring.Auto,
 	}
 }
 

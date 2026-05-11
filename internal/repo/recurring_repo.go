@@ -24,6 +24,7 @@ const QListRecurrings = `
 		 , r.amount
 		 , r.occurrence_day
 		 , (select count(1) from actualized_recurrings ar where ar.period_id = @period_id and ar.based_on_id = r.id) > 0 as accounted
+	     , r.is_auto
      from recurrings r
 	where account_id = @account_id
 	order by r.occurrence_day 
@@ -45,7 +46,7 @@ func (r *RecurringRepo) List(ctx context.Context, accountId int64, periodId int6
 
 	var rt domain.Recurring
 	for rows.Next() {
-		err := rows.Scan(&rt.Id, &rt.AccountId, &rt.CategoryId, &rt.Name, &rt.Amount, &rt.Day, &rt.AccountedInPeriod)
+		err := rows.Scan(&rt.Id, &rt.AccountId, &rt.CategoryId, &rt.Name, &rt.Amount, &rt.Day, &rt.AccountedInPeriod, &rt.Auto)
 		if err != nil {
 			return result, fmt.Errorf("scan list recurring: %w", err)
 		}
@@ -63,9 +64,10 @@ const QInsertRecurring = `
 	    , name
 	    , amount
 	    , occurrence_day
-	    , timestamp_added)
-	values (@account_id, @category_id, @name, @amount, @occurrence_day, @timestamp_added)
-	returning id, account_id, category_id, name, amount, occurrence_day
+	    , timestamp_added
+	    , is_auto)
+	values (@account_id, @category_id, @name, @amount, @occurrence_day, @timestamp_added, @is_auto)
+	returning id, account_id, category_id, name, amount, occurrence_day, is_auto
 `
 
 func (r *RecurringRepo) Add(ctx context.Context, rt domain.Recurring) (domain.Recurring, error) {
@@ -76,9 +78,10 @@ func (r *RecurringRepo) Add(ctx context.Context, rt domain.Recurring) (domain.Re
 		sql.Named("amount", rt.Amount),
 		sql.Named("occurrence_day", rt.Day),
 		sql.Named("timestamp_added", time.Now().UnixMilli()),
+		sql.Named("is_auto", rt.Auto),
 	)
 
-	err := row.Scan(&rt.Id, &rt.AccountId, &rt.CategoryId, &rt.Name, &rt.Amount, &rt.Day)
+	err := row.Scan(&rt.Id, &rt.AccountId, &rt.CategoryId, &rt.Name, &rt.Amount, &rt.Day, &rt.Auto)
 	if err != nil {
 		return rt, fmt.Errorf("scan recurring: %w", err)
 	}
@@ -92,6 +95,7 @@ const QSingleRecurring = `
 		 , r.name
 		 , r.amount
 		 , r.occurrence_day
+	     , r.is_auto
     from
 	recurrings r
 	where r.id = @id
@@ -100,7 +104,7 @@ const QSingleRecurring = `
 func (r *RecurringRepo) Single(ctx context.Context, id int64) (domain.Recurring, error) {
 	row := r.db.QueryRowContext(ctx, QSingleRecurring, sql.Named("id", id))
 	var rt domain.Recurring
-	err := row.Scan(&rt.Id, &rt.AccountId, &rt.CategoryId, &rt.Name, &rt.Amount, &rt.Day)
+	err := row.Scan(&rt.Id, &rt.AccountId, &rt.CategoryId, &rt.Name, &rt.Amount, &rt.Day, &rt.Auto)
 	if err != nil {
 		return rt, fmt.Errorf("scan single recurring %d: %w", id, err)
 	}
@@ -109,9 +113,9 @@ func (r *RecurringRepo) Single(ctx context.Context, id int64) (domain.Recurring,
 
 const QUpdateRecurring = `
 	update recurrings
-	set category_id = @category_id, name = @name, occurrence_day = @day, amount = @amount
+	set category_id = @category_id, name = @name, occurrence_day = @day, amount = @amount, is_auto = @is_auto
 	where id = @id
-	returning id, account_id, category_id, name, amount, occurrence_day
+	returning id, account_id, category_id, name, amount, occurrence_day, is_auto
 `
 
 func (r *RecurringRepo) Update(ctx context.Context, rt domain.Recurring) (domain.Recurring, error) {
@@ -121,9 +125,10 @@ func (r *RecurringRepo) Update(ctx context.Context, rt domain.Recurring) (domain
 		sql.Named("name", rt.Name),
 		sql.Named("day", rt.Day),
 		sql.Named("amount", rt.Amount),
+		sql.Named("is_auto", rt.Auto),
 	)
 
-	err := row.Scan(&rt.Id, &rt.AccountId, &rt.CategoryId, &rt.Name, &rt.Amount, &rt.Day)
+	err := row.Scan(&rt.Id, &rt.AccountId, &rt.CategoryId, &rt.Name, &rt.Amount, &rt.Day, &rt.Auto)
 	if err != nil {
 		return rt, fmt.Errorf("scan update recurring %d: %w", rt.Id, err)
 	}

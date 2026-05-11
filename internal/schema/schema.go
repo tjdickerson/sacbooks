@@ -7,12 +7,19 @@ import (
 	"fmt"
 )
 
+var CurrentSchemaVersion = "2"
+
 var NoAccountError = errors.New("no account exists")
 
 func Ensure(ctx context.Context, db *sql.DB) error {
 	err := createSchema(ctx, db)
 	if err != nil {
 		return err
+	}
+
+	err = checkSchemaVersion(ctx, db)
+	if err != nil {
+		return fmt.Errorf("check schema version: %w", err)
 	}
 
 	return checkAccountExists(ctx, db)
@@ -35,6 +42,9 @@ func checkAccountExists(ctx context.Context, db *sql.DB) error {
 }
 
 func createSchema(ctx context.Context, db *sql.DB) error {
+	if err := createTable(ctx, db, CreateTableSettings); err != nil {
+		return err
+	}
 	if err := createTable(ctx, db, CreateTableAccounts); err != nil {
 		return err
 	}
@@ -74,6 +84,68 @@ func createTable(ctx context.Context, db *sql.DB, statement string) error {
 
 	return nil
 }
+
+func checkSchemaVersion(ctx context.Context, db *sql.DB) error {
+	row := db.QueryRowContext(ctx, "select value from settings where key = 'schema_version'")
+	var version string
+	err := row.Scan(&version)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			// Record doesn't exist, create it with the current version
+			insert, err := db.PrepareContext(ctx, "insert into settings (key, value) values ('schema_version', ?)")
+			if err != nil {
+				return fmt.Errorf("prepare insert schema version: %w", err)
+			}
+			defer insert.Close()
+
+			_, err = insert.ExecContext(ctx, CurrentSchemaVersion)
+			if err != nil {
+				return fmt.Errorf("exec insert schema version: %w", err)
+			}
+			return nil
+		}
+		return fmt.Errorf("scan schema version: %w", err)
+	}
+
+	if version != CurrentSchemaVersion {
+
+		updateSchemaVersion(ctx, db, version)
+
+		update, err := db.PrepareContext(ctx, "update settings set value = ? where key = 'schema_version'")
+		if err != nil {
+			return fmt.Errorf("prepare update schema version: %w", err)
+		}
+		defer update.Close()
+
+		_, err = update.ExecContext(ctx, CurrentSchemaVersion)
+		if err != nil {
+			return fmt.Errorf("exec update schema version: %w", err)
+		}
+	}
+
+	return nil
+}
+
+func updateSchemaVersion(ctx context.Context, db *sql.DB, version string) {
+	if version == "1" && CurrentSchemaVersion == "2" {
+		updateSchemaVersion2(ctx, db)
+	}
+}
+
+func updateSchemaVersion2(ctx context.Context, db *sql.DB) {
+	_, err := db.ExecContext(ctx, UpdateRecurringToSchema2)
+	if err != nil {
+		panic(fmt.Sprintf("failed to update schema version 2: %v", err))
+	}
+}
+
+const CreateTableSettings = `
+	create table if not exists settings (
+		id integer primary key,
+		key varchar(100) unique,
+		value varchar(1000)
+	);
+`
 
 const CreateTableTransactions = `
 	create table if not exists transactions (
@@ -150,6 +222,7 @@ const CreateTableRecurrings = `
 		occurrence_day integer,
 		amount integer,
 	    timestamp_added integer,
+	    is_auto boolean default false,
 		foreign key(account_id) references accounts(id),
 		foreign key(category_id) references categories(id)
 	);
@@ -163,4 +236,8 @@ const CreateTableCategories = `
 		color varchar(10),
 		foreign key(account_id) references accounts(id)
 	);
+`
+
+const UpdateRecurringToSchema2 = `
+alter table recurrings add column is_auto boolean default false;
 `

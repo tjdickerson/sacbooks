@@ -104,6 +104,7 @@ type Recurring struct {
 	CategoryId        int64  `json:"category_id"`
 	Day               uint8  `json:"day"`
 	AccountedInPeriod bool   `json:"accounted_for"`
+	Auto              bool   `json:"auto"`
 }
 
 type RecurringResult struct {
@@ -124,6 +125,7 @@ type RecurringInput struct {
 	CategoryId int64  `json:"category_id"`
 	Name       string `json:"name"`
 	Day        uint8  `json:"day"`
+	Auto       bool   `json:"auto"`
 }
 
 type Category struct {

@@ -2,16 +2,17 @@ import React, {useEffect, useState} from "react";
 import {amountToCents} from "./lib/format";
 import TextInput from "./input/TextInput";
 import NumberInput from "./input/NumberInput";
+import CheckboxInput from "./input/CheckboxInput";
 import categories from "./Categories";
 import CategorySelector from "./input/CategorySelector";
 import {getCategoryCache} from "./lib/category";
 
 
 interface NewRecurringFormProps {
-    onSubmit: (name: string, amount: number, day: number, category: number) => Promise<void>;
+    onSubmit: (name: string, amount: number, day: number, category: number, auto: boolean) => Promise<void>;
     onCancel: () => void;
     submitting: boolean;
-    initialValues: { name: string, amount: number, day: number, category: number };
+    initialValues: { name: string, amount: number, day: number, category: number, auto: boolean };
 }
 
 const NewRecurringForm: React.FC<NewRecurringFormProps> = ({
@@ -27,6 +28,7 @@ const NewRecurringForm: React.FC<NewRecurringFormProps> = ({
     const [categoryId, setCategoryId] = useState<number>(0);
     const [submitting, setSubmitting] = useState<boolean>(false);
     const [error, setError] = useState<string>('');
+    const [auto, setAuto] = useState<boolean>(initialValues?.auto ?? false);
 
     const categories = getCategoryCache();
 
@@ -35,6 +37,7 @@ const NewRecurringForm: React.FC<NewRecurringFormProps> = ({
         setDay(initialValues?.day ?? 7);
         setCategoryId(initialValues?.category ?? 0);
         setAmount(initialValues?.amount ?? 0);
+        setAuto(initialValues?.auto ?? false);
     }, [initialValues]);
 
     const isSubmitting: boolean = parentSubmitting || submitting;
@@ -58,11 +61,12 @@ const NewRecurringForm: React.FC<NewRecurringFormProps> = ({
         try {
             if (!parentSubmitting) setSubmitting(true);
             const clean_name: string = name.trim();
-            await onSubmit(clean_name, amountInCents, day, categoryId);
+            await onSubmit(clean_name, amountInCents, day, categoryId, auto);
             setName('');
             setAmount(0);
             setDay(1);
             setCategoryId(0);
+            setAuto(false);
         } catch (err) {
             setError('error');
         } finally {
@@ -109,6 +113,12 @@ const NewRecurringForm: React.FC<NewRecurringFormProps> = ({
                         selectedId={categoryId}
                         onChange={setCategoryId}
                         dataSource={categories}
+                    />
+
+                    <CheckboxInput
+                        label='Automatic Transaction'
+                        value={auto}
+                        onChange={setAuto}
                     />
 
                 </div>

@@ -64,7 +64,7 @@ const NewCategoryForm: React.FC<NewCategoryProps> = ({
     return (
         <form className='inline-form' onSubmit={handleSubmit}>
             {error && <div className='form-error'>{error}</div>}
-            <div className='form-header'>New Account</div>
+            <div className='form-header'>New Category</div>
 
             <div className='form-content'>
                 <div className='form-fields'>

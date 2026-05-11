@@ -3,16 +3,17 @@ import './App.css';
 import {types as t} from "../wailsjs/go/models";
 
 import React, {useState} from 'react'
-import {FaEdit, FaSave, FaTimes, FaTrash} from 'react-icons/fa'
+import {FaBolt, FaEdit, FaSave, FaTimes, FaTrash} from 'react-icons/fa'
 import {amountToCents, formatAmount, getCurrencySymbol, getLocale} from './lib/format';
 import TextInput from "./input/TextInput";
 import NumberInput from "./input/NumberInput";
+import CheckboxInput from "./input/CheckboxInput";
 import CategorySelector from "./input/CategorySelector";
 import {getCategoryCache, getCategoryColor} from "./lib/category";
 
 interface RecurringCardProps {
     recurring: t.Recurring;
-    onSave: (id: number, name: string, amount: number, day: number, category: number) => void;
+    onSave: (id: number, name: string, amount: number, day: number, category: number, auto: boolean) => void;
     onDelete: (id: number) => void;
 }
 
@@ -27,6 +28,7 @@ const RecurringCard: React.FC<RecurringCardProps> = ({
     const [editAmount, setEditAmount] = useState<number>(recurring.amount / 100);
     const [editCategoryId, setCategoryId] = useState<number>(recurring.category_id);
     const [editDay, setEditDay] = useState<number>(recurring.day);
+    const [editAuto, setEditAuto] = useState<boolean>(recurring.auto);
 
     const categories = getCategoryCache();
 
@@ -35,7 +37,7 @@ const RecurringCard: React.FC<RecurringCardProps> = ({
 
     const handleSave = () => {
         const amountInCents: number = amountToCents(editAmount.toFixed(2));
-        onSave(recurring.id, editName, amountInCents, editDay, editCategoryId);
+        onSave(recurring.id, editName, amountInCents, editDay, editCategoryId, editAuto);
         setIsEditing(false);
     }
 
@@ -43,13 +45,23 @@ const RecurringCard: React.FC<RecurringCardProps> = ({
         setEditName(recurring.name);
         setEditAmount(recurring.amount / 100);
         setEditDay(recurring.day);
+        setEditAuto(recurring.auto);
         setIsEditing(false);
     }
 
     return (
         <div className='card' key={recurring.id}>
             <div className='card-color-stripe' style={{backgroundColor: getCategoryColor(recurring.category_id)}}/>
-            {!isEditing && (<div className='card-info'>{recurring.day}</div>)}
+            {!isEditing && (
+                <div className='card-info'>
+                    {recurring.day}
+                    {recurring.auto && (
+                        <span className='auto-trans' title="Automatic Transaction">
+                            <FaBolt/>
+                        </span>
+                    )}
+                </div>
+            )}
             <div className={`card-details ${isEditing ? 'inline-form-content' : ''}`}>
                 <div className='form-fields'>
                     {
@@ -82,6 +94,11 @@ const RecurringCard: React.FC<RecurringCardProps> = ({
                                     dataSource={categories}
                                 />
 
+                                <CheckboxInput
+                                    label='Automatic Transaction'
+                                    value={editAuto}
+                                    onChange={setEditAuto}
+                                />
                             </>
                         ) : (
                             <>
