@@ -8,6 +8,7 @@ import {FaEdit, FaSave, FaTimes, FaTrash} from 'react-icons/fa'
 import {
     amountToCents,
     formatAmount,
+    formatDisplayDate,
     getCurrencySymbol,
     getLocale,
     millisToDateString
@@ -58,7 +59,7 @@ const Transaction: React.FC<TransactionProps> = ({
     return (
         <div className='card'>
             <div className='card-color-stripe' style={{backgroundColor: getCategoryColor(transaction.category_id)}}/>
-            {!isEditing && <div className='card-info'>{transaction.display_date}</div>}
+            {!isEditing && <div className='card-info'>{formatDisplayDate(transaction.date)}</div>}
             <div className={`card-details ${isEditing ? 'inline-form-content' : ''}`}>
                 <div className='form-fields'>
                     {

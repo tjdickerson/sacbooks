@@ -59,11 +59,11 @@ type TransactionInsertInput struct {
 }
 
 type Period struct {
-	Id             int64  `json:"id"`
-	ReportingStart string `json:"reporting_start"`
-	ReportingEnd   string `json:"reporting_end"`
-	OpenedOn       string `json:"opened_on"`
-	Balance        int64  `json:"balance"`
+	Id             int64 `json:"id"`
+	ReportingStart int64 `json:"reporting_start"`
+	ReportingEnd   int64 `json:"reporting_end"`
+	OpenedOn       int64 `json:"opened_on"`
+	Balance        int64 `json:"balance"`
 }
 
 type PeriodResult struct {

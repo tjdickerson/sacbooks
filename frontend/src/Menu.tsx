@@ -4,6 +4,7 @@ import './App.css';
 import MenuItem from './MenuItem';
 import {ViewId} from './views';
 import {useState} from "react";
+import {formatDisplayDate} from "./lib/format";
 
 // @ts-ignore
 import logo from './assets/images/SacHead.svg'
@@ -91,7 +92,9 @@ function Menu({currentView, onNavigate, theme, onToggleTheme}: MenuProps) {
                     <div className="menu-current-account">
                         <div className='active-account'>{selectedAccount?.name}</div>
                         <div
-                            className='active-period'>{selectedAccount?.active_period?.reporting_start} - {selectedAccount?.active_period?.reporting_end}</div>
+                            className='active-period'>
+                            {selectedAccount?.active_period?.reporting_start ? formatDisplayDate(selectedAccount.active_period.reporting_start) : ''} - {selectedAccount?.active_period?.reporting_end ? formatDisplayDate(selectedAccount.active_period.reporting_end) : ''}
+                        </div>
                     </div>
                 </div>
             </div>

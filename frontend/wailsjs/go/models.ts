@@ -2,9 +2,9 @@ export namespace types {
 	
 	export class Period {
 	    id: number;
-	    reporting_start: string;
-	    reporting_end: string;
-	    opened_on: string;
+	    reporting_start: number;
+	    reporting_end: number;
+	    opened_on: number;
 	    balance: number;
 	
 	    static createFrom(source: any = {}) {

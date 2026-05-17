@@ -123,9 +123,9 @@ func MapRecurrings(recurrings []domain.Recurring) []Recurring {
 func MapPeriod(period domain.Period) Period {
 	return Period{
 		Id:             period.Id,
-		ReportingStart: period.ReportingStart.Format("Mon Jan 02"),
-		ReportingEnd:   period.ReportingEnd.Format("Mon Jan 02"),
-		OpenedOn:       period.OpenedOn.Format("Mon Jan 02"),
+		ReportingStart: period.ReportingStart.UnixMilli(),
+		ReportingEnd:   period.ReportingEnd.UnixMilli(),
+		OpenedOn:       period.OpenedOn.UnixMilli(),
 		Balance:        period.Balance,
 	}
 }
